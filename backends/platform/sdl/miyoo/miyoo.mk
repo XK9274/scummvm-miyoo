@@ -47,8 +47,8 @@ ifeq ($(MIYOO_TARGET), miyoomini)
 	$(CP) $(srcdir)/dists/miyoo/launch.miyoomini.sh $(bundle)/$(G2X_CATEGORY)/scummvm/launch.sh
 	$(CP) $(srcdir)/dists/miyoo/config.miyoomini.json $(bundle)/$(G2X_CATEGORY)/scummvm/config.json
 # Workaround for mismatch between SDK and actual device
-	$(CP) /opt/miyoomini-toolchain/arm-linux-gnueabihf/libc/usr/lib/libpng16.so.16.* $(bundle)/$(G2X_CATEGORY)/scummvm/libpng16.so.16
-	$(CP) /opt/miyoomini-toolchain/arm-linux-gnueabihf/libc/usr/lib/libz.so.1.2.11 $(bundle)/$(G2X_CATEGORY)/scummvm/libz.so.1
+	# $(CP) /opt/miyoomini-toolchain/arm-linux-gnueabihf/libc/usr/lib/libpng16.so.16.* $(bundle)/$(G2X_CATEGORY)/scummvm/libpng16.so.16
+	# $(CP) /opt/miyoomini-toolchain/arm-linux-gnueabihf/libc/usr/lib/libz.so.1.2.11 $(bundle)/$(G2X_CATEGORY)/scummvm/libz.so.1
 else
 	$(MKDIR) -p $(bundle)/gmenu2x/sections/$(G2X_CATEGORY)
 	$(CP) $(srcdir)/dists/miyoo/scummvm.miyoo $(bundle)/gmenu2x/sections/$(G2X_CATEGORY)/scummvm
