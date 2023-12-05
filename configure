@@ -5346,7 +5346,7 @@ if test "$_pkg_config" = "yes" && $_pkgconfig --exists libpng; then
 	append_var PNG_LIBS "`$_pkgconfig --libs libpng`"
 	append_var PNG_CFLAGS "`$_pkgconfig --cflags libpng`"
 else
-	append_var PNG_LIBS "-lpng -lz"
+	append_var PNG_LIBS "-lpng16 -lz"
 fi
 if test "$_png" = auto ; then
 	_png=no
