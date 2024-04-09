@@ -107,7 +107,7 @@ void ZonFixedImage::load(const Common::Path &image, const char *zone) {
 }
 
 void ZonFixedImage::display() const {
-	_engine.setupPalette(_imageDecoder->getPalette(), _imageDecoder->getPaletteStartIndex(),
+	_engine.setupPalette(_imageDecoder->getPalette(), 0,
 	                     _imageDecoder->getPaletteColorCount());
 
 	g_system->copyRectToScreen(_imageSurface->getPixels(), _imageSurface->pitch, 0, 0,
@@ -118,7 +118,7 @@ void ZonFixedImage::display() const {
 void ZonFixedImage::loadZones(const Common::Path &image) {
 	_zones.clear();
 
-	Common::String fname(image.getLastComponent().toString());
+	Common::String fname(image.baseName());
 	int lastDotPos = fname.findLastOf('.');
 	assert(lastDotPos > -1);
 	fname.erase(lastDotPos + 1);
@@ -128,7 +128,7 @@ void ZonFixedImage::loadZones(const Common::Path &image) {
 
 	Common::File zonFile;
 	if (!zonFile.open(zonPath)) {
-		error("Can't open ZON file '%s'", zonPath.toString().c_str());
+		error("Can't open ZON file '%s'", zonPath.toString(Common::Path::kNativeSeparator).c_str());
 	}
 
 	int32 zonesNumber = zonFile.size() / 26;

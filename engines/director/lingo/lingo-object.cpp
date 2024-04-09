@@ -36,8 +36,11 @@
 #include "director/lingo/xlibs/batqt.h"
 #include "director/lingo/xlibs/blitpict.h"
 #include "director/lingo/xlibs/cdromxobj.h"
+#include "director/lingo/xlibs/closebleedwindowxcmd.h"
 #include "director/lingo/xlibs/colorxobj.h"
+#include "director/lingo/xlibs/colorcursorxobj.h"
 #include "director/lingo/xlibs/consumer.h"
+#include "director/lingo/xlibs/cursorxobj.h"
 #include "director/lingo/xlibs/darkenscreen.h"
 #include "director/lingo/xlibs/developerStack.h"
 #include "director/lingo/xlibs/dialogsxobj.h"
@@ -47,15 +50,22 @@
 #include "director/lingo/xlibs/draw.h"
 #include "director/lingo/xlibs/ednox.h"
 #include "director/lingo/xlibs/eventq.h"
+#include "director/lingo/xlibs/fadegammadownxcmd.h"
+#include "director/lingo/xlibs/fadegammaupxcmd.h"
+#include "director/lingo/xlibs/fadegammaxcmd.h"
 #include "director/lingo/xlibs/fedracul.h"
 #include "director/lingo/xlibs/feimasks.h"
 #include "director/lingo/xlibs/feiprefs.h"
 #include "director/lingo/xlibs/fileexists.h"
 #include "director/lingo/xlibs/fileio.h"
+#include "director/lingo/xlibs/findereventsxcmd.h"
 #include "director/lingo/xlibs/findfolder.h"
 #include "director/lingo/xlibs/findsys.h"
+#include "director/lingo/xlibs/findwin.h"
 #include "director/lingo/xlibs/flushxobj.h"
 #include "director/lingo/xlibs/fplayxobj.h"
+#include "director/lingo/xlibs/getscreenrectsxfcn.h"
+#include "director/lingo/xlibs/getscreensizexfcn.h"
 #include "director/lingo/xlibs/gpid.h"
 #include "director/lingo/xlibs/hitmap.h"
 #include "director/lingo/xlibs/jwxini.h"
@@ -64,22 +74,32 @@
 #include "director/lingo/xlibs/jitdraw3.h"
 #include "director/lingo/xlibs/labeldrvxobj.h"
 #include "director/lingo/xlibs/maniacbg.h"
+#include "director/lingo/xlibs/mapnavigatorxobj.h"
+#include "director/lingo/xlibs/memcheckxobj.h"
 #include "director/lingo/xlibs/memoryxobj.h"
 #include "director/lingo/xlibs/misc.h"
 #include "director/lingo/xlibs/miscx.h"
+#include "director/lingo/xlibs/mmaskxobj.h"
 #include "director/lingo/xlibs/moovxobj.h"
 #include "director/lingo/xlibs/movemousexobj.h"
+#include "director/lingo/xlibs/movieidxxobj.h"
 #include "director/lingo/xlibs/movutils.h"
+#include "director/lingo/xlibs/openbleedwindowxcmd.h"
 #include "director/lingo/xlibs/orthoplayxobj.h"
 #include "director/lingo/xlibs/palxobj.h"
+#include "director/lingo/xlibs/panel.h"
 #include "director/lingo/xlibs/popupmenuxobj.h"
 #include "director/lingo/xlibs/porta.h"
+#include "director/lingo/xlibs/portaxcmd.h"
 #include "director/lingo/xlibs/prefpath.h"
 #include "director/lingo/xlibs/printomatic.h"
+#include "director/lingo/xlibs/processxobj.h"
 #include "director/lingo/xlibs/qtmovie.h"
+#include "director/lingo/xlibs/qtcatmovieplayerxobj.h"
 #include "director/lingo/xlibs/qtvr.h"
 #include "director/lingo/xlibs/quicktime.h"
 #include "director/lingo/xlibs/registercomponent.h"
+#include "director/lingo/xlibs/remixxcmd.h"
 #include "director/lingo/xlibs/serialportxobj.h"
 #include "director/lingo/xlibs/soundjam.h"
 #include "director/lingo/xlibs/spacemgr.h"
@@ -87,13 +107,18 @@
 #include "director/lingo/xlibs/unittest.h"
 #include "director/lingo/xlibs/valkyrie.h"
 #include "director/lingo/xlibs/videodiscxobj.h"
+#include "director/lingo/xlibs/vmisonxfcn.h"
 #include "director/lingo/xlibs/volumelist.h"
 #include "director/lingo/xlibs/widgetxobj.h"
+#include "director/lingo/xlibs/window.h"
 #include "director/lingo/xlibs/wininfo.h"
 #include "director/lingo/xlibs/winxobj.h"
+#include "director/lingo/xlibs/xcmdglue.h"
 #include "director/lingo/xlibs/xio.h"
 #include "director/lingo/xlibs/xplayanim.h"
+#include "director/lingo/xlibs/xsoundxfcn.h"
 #include "director/lingo/xlibs/yasix.h"
+#include "director/lingo/xtras/scrnutil.h"
 
 namespace Director {
 
@@ -159,8 +184,8 @@ void Lingo::cleanupMethods() {
 
 static struct XLibProto {
 	const char **names;
-	XLibFunc opener;
-	XLibFunc closer;
+	XLibOpenerFunc opener;
+	XLibCloserFunc closer;
 	int type;
 	int version;
 } xlibs[] = {
@@ -171,8 +196,11 @@ static struct XLibProto {
 	{ BatQT::fileNames,					BatQT::open,				BatQT::close,				kXObj,					400 },	// D4
 	{ BlitPictXObj::fileNames,			BlitPictXObj::open,			BlitPictXObj::close,		kXObj,					400 },	// D4
 	{ CDROMXObj::fileNames,				CDROMXObj::open,			CDROMXObj::close,			kXObj,					200 },	// D2
+	{ CloseBleedWindowXCMD::fileNames,			CloseBleedWindowXCMD::open,			CloseBleedWindowXCMD::close,		kXObj,					300 },	// D3
 	{ ColorXObj::fileNames,				ColorXObj::open,			ColorXObj::close,			kXObj,					400 },	// D4
+	{ ColorCursorXObj::fileNames,		ColorCursorXObj::open,		ColorCursorXObj::close,		kXObj,					400 },	// D4
 	{ ConsumerXObj::fileNames,			ConsumerXObj::open,			ConsumerXObj::close,		kXObj,					400 },	// D4
+	{ CursorXObj::fileNames,			CursorXObj::open,			CursorXObj::close,			kXObj,					400 },	// D4
 	{ DarkenScreen::fileNames,			DarkenScreen::open,			DarkenScreen::close,		kXObj,					300 },	// D3
 	{ DeveloperStack::fileNames,		DeveloperStack::open,		DeveloperStack::close,		kXObj,					300 },	// D3
 	{ DialogsXObj::fileNames,			DialogsXObj::open,			DialogsXObj::close,			kXObj,					400 },	// D4
@@ -185,12 +213,19 @@ static struct XLibProto {
 	{ FEDraculXObj::fileNames,			FEDraculXObj::open,			FEDraculXObj::close,		kXObj,					400 },	// D4
 	{ FEIMasksXObj::fileNames,			FEIMasksXObj::open,			FEIMasksXObj::close,		kXObj,					400 },	// D4
 	{ FEIPrefsXObj::fileNames,			FEIPrefsXObj::open,			FEIPrefsXObj::close,		kXObj,					400 },	// D4
+	{ FadeGammaDownXCMD::fileNames,		FadeGammaDownXCMD::open,	FadeGammaDownXCMD::close,	kXObj,					400 },	// D4
+	{ FadeGammaUpXCMD::fileNames,		FadeGammaUpXCMD::open,		FadeGammaUpXCMD::close,		kXObj,					400 },	// D4
+	{ FadeGammaXCMD::fileNames,			FadeGammaXCMD::open,		FadeGammaXCMD::close,		kXObj,					400 },	// D4
 	{ FileExists::fileNames,			FileExists::open,			FileExists::close,			kXObj,					300 },	// D3
 	{ FileIO::fileNames,				FileIO::open,				FileIO::close,				kXObj | kXtraObj,		200 },	// D2
 	{ FindFolder::fileNames,			FindFolder::open,			FindFolder::close,			kXObj,					300 },	// D3
 	{ FindSys::fileNames,				FindSys::open,				FindSys::close,				kXObj,					400 },	// D4
+	{ FindWin::fileNames,				FindWin::open,				FindWin::close,				kXObj,					400 },	// D4
+	{ FinderEventsXCMD::fileNames,		FinderEventsXCMD::open,		FinderEventsXCMD::close,	kXObj,					400 },	// D4
 	{ FlushXObj::fileNames,				FlushXObj::open,			FlushXObj::close,			kXObj,					300 },	// D3
 	{ FPlayXObj::fileNames,				FPlayXObj::open,			FPlayXObj::close,			kXObj,					200 },	// D2
+	{ GetScreenRectsXFCN::fileNames,			GetScreenRectsXFCN::open,			GetScreenRectsXFCN::close,		kXObj,					300 },	// D3
+	{ GetScreenSizeXFCN::fileNames,			GetScreenSizeXFCN::open,			GetScreenSizeXFCN::close,		kXObj,					300 },	// D3
 	{ GpidXObj::fileNames,				GpidXObj::open,				GpidXObj::close,			kXObj,					400 },	// D4
 	{ HitMap::fileNames,				HitMap::open,				HitMap::close,				kXObj,					400 },	// D4
 	{ IsCD::fileNames,					IsCD::open,					IsCD::close,				kXObj,					300 },	// D3
@@ -199,33 +234,48 @@ static struct XLibProto {
 	{ JourneyWareXINIXObj::fileNames,	JourneyWareXINIXObj::open,	JourneyWareXINIXObj::close,	kXObj,					400 },	// D4
 	{ LabelDrvXObj::fileNames,			LabelDrvXObj::open,			LabelDrvXObj::close,		kXObj,					400 },	// D4
 	{ ManiacBgXObj::fileNames,			ManiacBgXObj::open,			ManiacBgXObj::close,		kXObj,					300 },	// D3
+	{ MapNavigatorXObj::fileNames,		MapNavigatorXObj::open,		MapNavigatorXObj::close,	kXObj,					400 },	// D4
+	{ MemCheckXObj::fileNames,			MemCheckXObj::open,			MemCheckXObj::close,		kXObj,					400 },	// D4
 	{ MemoryXObj::fileNames,			MemoryXObj::open,			MemoryXObj::close,			kXObj,					300 },	// D3
 	{ Misc::fileNames,					Misc::open,					Misc::close,				kXObj,					400 },	// D4
 	{ MiscX::fileNames,					MiscX::open,				MiscX::close,				kXObj,					400 },	// D4
+	{ MMaskXObj::fileNames,				MMaskXObj::open,			MMaskXObj::close,			kXObj,					400 },	// D4
 	{ MoovXObj::fileNames, 				MoovXObj::open, 			MoovXObj::close,			kXObj,					300 },  // D3
 	{ MoveMouseXObj::fileNames,			MoveMouseXObj::open,		MoveMouseXObj::close,		kXObj,					400 },	// D4
+	{ MovieIdxXObj::fileNames,			MovieIdxXObj::open,			MovieIdxXObj::close,		kXObj,					400 },	// D4
 	{ MovUtilsXObj::fileNames,			MovUtilsXObj::open,			MovUtilsXObj::close,		kXObj,					400 },	// D4
+	{ OpenBleedWindowXCMD::fileNames,			OpenBleedWindowXCMD::open,			OpenBleedWindowXCMD::close,		kXObj,					300 },	// D3
 	{ OrthoPlayXObj::fileNames,			OrthoPlayXObj::open,		OrthoPlayXObj::close,		kXObj,					400 },	// D4
 	{ PalXObj::fileNames,				PalXObj::open,				PalXObj::close,				kXObj,					400 },	// D4
+	{ PanelXObj::fileNames,				PanelXObj::open,			PanelXObj::close,			kXObj,					200 },	// D2
 	{ PopUpMenuXObj::fileNames,			PopUpMenuXObj::open,		PopUpMenuXObj::close,		kXObj,					200 },	// D2
 	{ Porta::fileNames,					Porta::open,				Porta::close,				kXObj,					300 },	// D3
+	{ PortaXCMD::fileNames,			PortaXCMD::open,			PortaXCMD::close,		kXObj,					300 },	// D3
 	{ PrefPath::fileNames,				PrefPath::open,				PrefPath::close,			kXObj,					400 },	// D4
 	{ PrintOMaticXObj::fileNames,		PrintOMaticXObj::open,		PrintOMaticXObj::close,		kXObj,					400 },	// D4
-	{ QTVR::fileNames,					QTVR::open,					QTVR::close,				kXObj,					400 },	// D4
+	{ ProcessXObj::fileNames,			ProcessXObj::open,			ProcessXObj::close,		kXObj,					400 },	// D4
+	{ QTCatMoviePlayerXObj::fileNames,	QTCatMoviePlayerXObj::open,	QTCatMoviePlayerXObj::close,kXObj,					400 },	// D4
 	{ QTMovie::fileNames,				QTMovie::open,				QTMovie::close,				kXObj,					400 },	// D4
+	{ QTVR::fileNames,					QTVR::open,					QTVR::close,				kXObj,					400 },	// D4
 	{ Quicktime::fileNames,				Quicktime::open,			Quicktime::close,			kXObj,					300 },	// D3
 	{ RearWindowXObj::fileNames,		RearWindowXObj::open,		RearWindowXObj::close,		kXObj,					400 },	// D4
 	{ RegisterComponent::fileNames,		RegisterComponent::open,	RegisterComponent::close,	kXObj,					400 },	// D4
+	{ RemixXCMD::fileNames,			RemixXCMD::open,			RemixXCMD::close,		kXObj,					300 },	// D3
+	{ ScrnUtilXtra::fileNames,			ScrnUtilXtra::open,			ScrnUtilXtra::close,		kXtraObj,					500 },	// D5
 	{ SerialPortXObj::fileNames,		SerialPortXObj::open,		SerialPortXObj::close,		kXObj,					200 },	// D2
 	{ SoundJam::fileNames,				SoundJam::open,				SoundJam::close,			kXObj,					400 },	// D4
 	{ SpaceMgr::fileNames,				SpaceMgr::open,				SpaceMgr::close,			kXObj,					400 },	// D4
 	{ StageTCXObj::fileNames,			StageTCXObj::open,			StageTCXObj::close,			kXObj,					400 },	// D4
 	{ UnitTest::fileNames,				UnitTest::open,				UnitTest::close,			kXObj,					400 },	// D4
+	{ VMisOnXFCN::fileNames,			VMisOnXFCN::open,			VMisOnXFCN::close,			kXObj,					400 },	// D4
 	{ ValkyrieXObj::fileNames,			ValkyrieXObj::open,			ValkyrieXObj::close,		kXObj,					400 },	// D4
 	{ VideodiscXObj::fileNames,			VideodiscXObj::open,		VideodiscXObj::close,		kXObj,					200 },	// D2
 	{ VolumeList::fileNames,			VolumeList::open,			VolumeList::close,			kXObj,					300 },	// D3
 	{ WinInfoXObj::fileNames,			WinInfoXObj::open,			WinInfoXObj::close,			kXObj,					400 },  // D4
 	{ WidgetXObj::fileNames,			WidgetXObj::open,			WidgetXObj::close, 			kXObj,					400 },  // D4
+	{ WindowXObj::fileNames,			WindowXObj::open,			WindowXObj::close,			kXObj,					200 },	// D2
+	{ XCMDGlueXObj::fileNames,			XCMDGlueXObj::open,			XCMDGlueXObj::close,		kXObj,					200 },	// D2
+	{ XSoundXFCN::fileNames,			XSoundXFCN::open,			XSoundXFCN::close,			kXObj,					400 },	// D4
 	{ XioXObj::fileNames,				XioXObj::open,				XioXObj::close,				kXObj,					400 },	// D3
 	{ XPlayAnim::fileNames,				XPlayAnim::open,			XPlayAnim::close,			kXObj,					300 },	// D3
 	{ Yasix::fileNames,					Yasix::open,				Yasix::close,				kXObj,					300 },	// D3
@@ -275,7 +325,7 @@ Common::String Lingo::normalizeXLibName(Common::String name) {
 	return name;
 }
 
-void Lingo::openXLib(Common::String name, ObjectType type) {
+void Lingo::openXLib(Common::String name, ObjectType type, const Common::Path &path) {
 	name = normalizeXLibName(name);
 
 	if (_openXLibs.contains(name))
@@ -284,7 +334,7 @@ void Lingo::openXLib(Common::String name, ObjectType type) {
 	_openXLibs[name] = type;
 
 	if (_xlibOpeners.contains(name)) {
-		(*_xlibOpeners[name])(type);
+		(*_xlibOpeners[name])(type, path);
 	} else {
 		warning("Lingo::openXLib: Unimplemented xlib: '%s'", name.c_str());
 	}
@@ -318,7 +368,8 @@ void Lingo::reloadOpenXLibs() {
 	OpenXLibsHash openXLibsCopy = _openXLibs;
 	for (auto &it : openXLibsCopy) {
 		closeXLib(it._key);
-		openXLib(it._key, it._value);
+		// FIXME: keep track of where the xlib path is
+		openXLib(it._key, it._value, Common::Path());
 	}
 }
 
@@ -625,6 +676,12 @@ Datum Window::getField(int field) {
 		return getModal();
 	case kTheFileName:
 		return getFileName();
+	case kTheDrawRect:
+	case kTheSourceRect:
+	// case kTheImage:
+	// case kThePicture::
+		ensureMovieIsLoaded();  // Remove fallthrough once implemented
+		// fallthrough
 	default:
 		warning("Window::getField: unhandled field '%s'", g_lingo->field2str(field));
 		return Datum();
@@ -711,6 +768,9 @@ void LM::m_moveToBack(int nargs) {
 
 void LM::m_moveToFront(int nargs) {
 	g_lingo->printSTUBWithArglist("m_moveToFront", nargs);
+
+	Window *me = static_cast<Window *>(g_lingo->_state->me.u.obj);
+	me->ensureMovieIsLoaded();
 	g_lingo->dropStack(nargs);
 }
 

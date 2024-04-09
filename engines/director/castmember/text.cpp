@@ -225,6 +225,9 @@ void TextCastMember::importStxt(const Stxt *stxt) {
 	_fgpalinfo1 = stxt->_style.r;
 	_fgpalinfo2 = stxt->_style.g;
 	_fgpalinfo3 = stxt->_style.b;
+	// The default color in the Stxt will override the fgcolor,
+	// e.g. empty editable text boxes will use the Stxt color
+	_fgcolor = g_director->_wm->findBestColor(_fgpalinfo1 >> 8, _fgpalinfo2 >> 8, _fgpalinfo3 >> 8);
 	_ftext = stxt->_ftext;
 	_ptext = stxt->_ptext;
 	_rtext = stxt->_rtext;
@@ -233,6 +236,13 @@ void TextCastMember::importStxt(const Stxt *stxt) {
 	Graphics::MacFont macFont(_fontId, _fontSize, _textSlant);
 	g_director->_wm->_fontMan->getFont(&macFont);
 	_fontId = macFont.getId();
+
+	// If the text is empty, that means we ignored the font and now
+	// set the text height to a minimal one.
+	//
+	// This fixes `number of chars` in Lingo Workshop
+	if (_textType == kTextTypeAdjustToFit && _ftext.empty())
+		_initialRect.setHeight(macFont.getSize() + (2 * _borderSize) + _gutterSize + _boxShadow);
 }
 
 bool textWindowCallback(Graphics::WindowClick click, Common::Event &event, void *ptr) {
@@ -335,7 +345,7 @@ void TextCastMember::importRTE(byte *text) {
 
 void TextCastMember::setRawText(const Common::String &text) {
 	// Do nothing if text did not change
-	if (_rtext.equals(text))
+	if (_ptext.equals(Common::U32String(text)))
 		return;
 
 	_rtext = text;
@@ -410,9 +420,6 @@ void TextCastMember::load() {
 	if (_loaded)
 		return;
 
-	if (!_cast->_loadedStxts)
-		return;
-
 	uint stxtid = 0;
 	if (_cast->_version >= kFileVer400) {
 		for (auto &it : _children) {
@@ -428,8 +435,8 @@ void TextCastMember::load() {
 		stxtid = _castId;
 	}
 
-	if (_cast->_loadedStxts->contains(stxtid)) {
-		const Stxt *stxt = _cast->_loadedStxts->getVal(stxtid);
+	if (_cast->_loadedStxts.contains(stxtid)) {
+		const Stxt *stxt = _cast->_loadedStxts.getVal(stxtid);
 		importStxt(stxt);
 		_size = stxt->_size;
 	} else {
@@ -709,18 +716,43 @@ RTECastMember::RTECastMember(Cast *cast, uint16 castId, Common::SeekableReadStre
 	_type = kCastRTE;
 }
 
-void RTECastMember::loadChunks() {
-	//TODO: Actually load RTEs correctly, don't just make fake STXT.
-#if 0
-	Common::SeekableReadStream *rte1 = _movieArchive->getResource(res->children[child].tag, res->children[child].index);
-	byte *buffer = new byte[rte1->size() + 2];
-	rte1->read(buffer, rte1->size());
-	buffer[rte1->size()] = '\n';
-	buffer[rte1->size() + 1] = '\0';
-	_loadedText->getVal(id)->importRTE(buffer);
+void RTECastMember::load() {
+	if (_loaded)
+		return;
 
-	delete rte1;
-#endif
+	uint rte0id = 0;
+	uint rte1id = 0;
+	uint rte2id = 0;
+	for (auto &it : _children) {
+		if (it.tag == MKTAG('R', 'T', 'E', '0')) {
+			rte0id = it.index;
+			break;
+		} else if (it.tag == MKTAG('R', 'T', 'E', '1')) {
+			rte1id = it.index;
+			break;
+		} else if (it.tag == MKTAG('R', 'T', 'E', '2')) {
+			rte2id = it.index;
+			break;
+		}
+	}
+
+	if (_cast->_loadedRTE0s.contains(rte0id)) {
+		// TODO: Copy the formatted text data
+	} else {
+		warning("RTECastMember::load(): rte0tid %i isn't loaded", rte0id);
+	}
+	if (_cast->_loadedRTE1s.contains(rte1id)) {
+		// TODO: Copy the plain text data
+	} else {
+		warning("RTECastMember::load(): rte1tid %i isn't loaded", rte1id);
+	}
+	if (_cast->_loadedRTE2s.contains(rte2id)) {
+		// TODO: Copy the bitmap data
+	} else {
+		warning("RTECastMember::load(): rte2tid %i isn't loaded", rte2id);
+	}
+
+	_loaded = true;
 }
 
 }

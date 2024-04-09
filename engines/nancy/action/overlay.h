@@ -52,7 +52,7 @@ public:
 	void readData(Common::SeekableReadStream &stream) override;
 	void execute() override;
 
-	Common::String _imageName;
+	Common::Path _imageName;
 
 	uint16 _transparency = kPlayOverlayPlain;
 	uint16 _hasSceneChange = kPlayOverlaySceneChange;
@@ -86,8 +86,6 @@ protected:
 	bool canHaveHotspot() const override { return true; }
 	Common::String getRecordTypeName() const override;
 	bool isViewportRelative() const override { return true; }
-
-	void setFrame(uint frame);
 
 	Graphics::ManagedSurface _fullSurface;
 };

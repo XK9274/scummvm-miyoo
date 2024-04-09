@@ -18,8 +18,19 @@
 #ifndef LIBRETRO_DEFS_H
 #define LIBRETRO_DEFS_H
 
+/* Workaround for a RetroArch audio driver
+ * limitation: a maximum of 1024 frames
+ * can be written per call of audio_batch_cb() */
+#define AUDIO_BATCH_FRAMES_MAX 1024
+
 // System analog stick range is -0x8000 to 0x8000
 #define ANALOG_RANGE 0x8000
+
+/* TODO: remove the following definition when libretro-common
+will be updated to include it */
+#ifndef RETRO_ENVIRONMENT_GET_PLAYLIST_DIRECTORY
+#define RETRO_ENVIRONMENT_GET_PLAYLIST_DIRECTORY 79
+#endif
 
 #define DEFAULT_SAMPLE_RATE     	48000
 #define DEFAULT_REFRESH_RATE    	60
@@ -33,19 +44,6 @@
 #define AUDIO_STATUS_BUFFER_UNDERRUN    (1 << 3)
 #define AUDIO_STATUS_UPDATE_LATENCY     (1 << 4)
 #define AUDIO_STATUS_UPDATE_AV_INFO	(1 << 5)
-
-// Performance switcher
-#define PERF_SWITCH_FRAMESKIP_EVENTS                    DEFAULT_REFRESH_RATE / 2
-#define PERF_SWITCH_ON                                  (1 << 0)
-#define PERF_SWITCH_ENABLE_TIMING_INACCURACIES          (1 << 1)
-#define PERF_SWITCH_OVER                                (1 << 2)
-#define PERF_SWITCH_RESET_THRESHOLD                     60
-#define PERF_SWITCH_RESET_REST                          DEFAULT_REFRESH_RATE * 30
-
-// Thread switch caller
-#define THREAD_SWITCH_POLL              (1 << 0)
-#define THREAD_SWITCH_DELAY             (1 << 1)
-#define THREAD_SWITCH_UPDATE            (1 << 2)
 
 // Preliminary scan results
 #define TEST_GAME_OK_TARGET_FOUND        0

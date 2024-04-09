@@ -31,6 +31,8 @@
 #include "freescape/gfx_opengl.h"
 #include "freescape/gfx_opengl_texture.h"
 
+#ifdef USE_OPENGL_GAME
+
 namespace Freescape {
 
 Renderer *CreateGfxOpenGL(int screenW, int screenH, Common::RenderMode renderMode) {
@@ -157,14 +159,15 @@ void OpenGLRenderer::drawTexturedRect2D(const Common::Rect &screenRect, const Co
 void OpenGLRenderer::updateProjectionMatrix(float fov, float nearClipPlane, float farClipPlane) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-
-	float aspectRatio = _screenW / (float)_screenH;
+	// Determining xmaxValue and ymaxValue still needs some work for matching the 3D view in freescape games
+	/*float aspectRatio = _screenW / (float)_screenH;
 
 	float xmaxValue = nearClipPlane * tan(Common::deg2rad(fov) / 2);
 	float ymaxValue = xmaxValue / aspectRatio;
 	// debug("max values: %f %f", xmaxValue, ymaxValue);
 
-	glFrustum(xmaxValue, -xmaxValue, -ymaxValue, ymaxValue, nearClipPlane, farClipPlane);
+	glFrustum(xmaxValue, -xmaxValue, -ymaxValue, ymaxValue, nearClipPlane, farClipPlane);*/
+	glFrustum(1.5, -1.5, -0.625, 0.625, nearClipPlane, farClipPlane);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -278,6 +281,78 @@ void OpenGLRenderer::renderPlayerShootRay(byte color, const Common::Point positi
 	glDepthMask(GL_TRUE);
 }
 
+void OpenGLRenderer::drawCelestialBody(Math::Vector3d position, float radius, byte color) {
+	uint8 r1, g1, b1, r2, g2, b2;
+	byte *stipple = nullptr;
+	getRGBAt(color, r1, g1, b1, r2, g2, b2, stipple);
+
+	int triangleAmount = 20;
+	float twicePi = (float)(2.0 * M_PI);
+
+	// Quick billboard effect inspired from this code:
+	// http://www.lighthouse3d.com/opengl/billboarding/index.php?billCheat
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	GLfloat m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	for(int i = 1; i < 4; i++)
+		for(int j = 0; j < 4; j++ ) {
+			if (i == 2)
+				continue;
+			if (i == j)
+				m[i*4 + j] = 1.0;
+			else
+				m[i*4 + j] = 0.0;
+		}
+
+	glLoadMatrixf(m);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+	setStippleData(stipple);
+	useColor(r1, g1, b1);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	copyToVertexArray(0, position);
+	float adj = 1.25; // Perspective correction
+
+	for(int i = 0; i <= triangleAmount; i++) {
+		copyToVertexArray(i + 1,
+			Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
+						position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
+		);
+	}
+
+	glVertexPointer(3, GL_FLOAT, 0, _verts);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, triangleAmount + 2);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	if (r1 != r2 || g1 != g2 || b1 != b2) {
+		useStipple(true);
+		useColor(r2, g2, b2);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		copyToVertexArray(0, position);
+
+		for(int i = 0; i <= triangleAmount; i++) {
+			copyToVertexArray(i + 1,
+				Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
+							position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
+			);
+		}
+
+		glVertexPointer(3, GL_FLOAT, 0, _verts);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, triangleAmount + 2);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		useStipple(false);
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glPopMatrix();
+}
+
 void OpenGLRenderer::renderPlayerShootBall(byte color, const Common::Point position, int frame, const Common::Rect viewArea) {
 	uint8 r, g, b;
 
@@ -310,10 +385,9 @@ void OpenGLRenderer::renderPlayerShootBall(byte color, const Common::Point posit
 	copyToVertexArray(0, Math::Vector3d(ball_position.x, ball_position.y, 0));
 
 	for(int i = 0; i <= triangleAmount; i++) {
-		copyToVertexArray(i + 1,
-			Math::Vector3d(ball_position.x + (radius * cos(i *  twicePi / triangleAmount)),
-						ball_position.y + (radius * sin(i * twicePi / triangleAmount)), 0)
-		);
+		float x = ball_position.x + (radius * cos(i *  twicePi / triangleAmount));
+		float y = ball_position.y + (radius * sin(i * twicePi / triangleAmount));
+		copyToVertexArray(i + 1, Math::Vector3d(x, y, 0));
 	}
 
 	glVertexPointer(3, GL_FLOAT, 0, _verts);
@@ -441,3 +515,5 @@ Graphics::Surface *OpenGLRenderer::getScreenshot() {
 }
 
 } // End of namespace Freescape
+
+#endif

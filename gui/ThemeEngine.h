@@ -36,7 +36,7 @@
 #include "graphics/pixelformat.h"
 
 
-#define SCUMMVM_THEME_VERSION_STR "SCUMMVM_STX0.9.14"
+#define SCUMMVM_THEME_VERSION_STR "SCUMMVM_STX0.9.15"
 
 class OSystem;
 
@@ -500,7 +500,7 @@ public:
 	              FontStyle font = kFontStyleBold, FontColor color = kFontColorNormal, bool restore = true,
 	              const Common::Rect &drawableTextArea = Common::Rect(0, 0, 0, 0));
 
-	void drawChar(const Common::Rect &r, byte ch, const Graphics::Font *font, FontColor color = kFontColorNormal);
+	void drawChar(const Common::Rect &r, byte ch, const Graphics::Font *font, FontColor color = kFontColorNormal, TextInversionState inverted = ThemeEngine::kTextInversionNone);
 
 	void drawFoldIndicator(const Common::Rect &r, bool expanded);
 
@@ -727,7 +727,7 @@ public:
 	struct ThemeDescriptor {
 		Common::String name;
 		Common::String id;
-		Common::String filename;
+		Common::Path filename;
 	};
 
 	/**
@@ -739,8 +739,8 @@ private:
 	static bool themeConfigUsable(const Common::ArchiveMember &member, Common::String &themeName);
 	static bool themeConfigParseHeader(Common::String header, Common::String &themeName);
 
-	static Common::String getThemeFile(const Common::String &id);
-	static Common::String getThemeId(const Common::String &filename);
+	static Common::Path getThemeFile(const Common::String &id);
+	static Common::String getThemeId(const Common::Path &filename);
 	static void listUsableThemes(const Common::FSNode &node, Common::List<ThemeDescriptor> &list, int depth = -1);
 	static void listUsableThemes(Common::Archive &archive, Common::List<ThemeDescriptor> &list);
 
@@ -812,7 +812,7 @@ protected:
 
 	Common::String _themeName; ///< Name of the currently loaded theme
 	Common::String _themeId;
-	Common::String _themeFile;
+	Common::Path _themeFile;
 	Common::Archive *_themeArchive;
 	Common::SearchSet _themeFiles;
 

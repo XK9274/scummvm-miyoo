@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #ifndef TOON_TOON_H
@@ -45,7 +52,7 @@ class MemoryWriteStreamDynamic;
 struct ADGameDescription;
 
 #define TOON_DAT_VER_MAJ 0  // 1 byte
-#define TOON_DAT_VER_MIN 3  // 1 byte
+#define TOON_DAT_VER_MIN 4  // 1 byte
 #define TOON_SAVEGAME_VERSION 6
 #define DATAALIGNMENT 4
 #define MAX_SAVE_SLOT 99
@@ -128,7 +135,7 @@ public:
 	void exitScene();
 	void loadCursor();
 	void setCursor(int32 type, bool inventory = false, int32 offsetX = 0, int offsetY = 0);
-	void loadAdditionalPalette(const Common::String &fileName, int32 mode);
+	void loadAdditionalPalette(const Common::Path &fileName, int32 mode);
 	void setupGeneralPalette();
 	void render();
 	void update(int32 timeIncrement);
@@ -169,7 +176,7 @@ public:
 	void rearrangeInventory();
 	void createMouseItem(int32 item);
 	void deleteMouseItem();
-	void showCutaway(const Common::String &cutawayPicture);
+	void showCutaway(const Common::Path &cutawayPicture);
 	void hideCutaway();
 	void drawPalette();
 	void newGame();
@@ -192,7 +199,7 @@ public:
 	int32 handleInventoryOnDrew(int32 itemId);
 	int32 pauseSceneAnimationScript(int32 animScriptId, int32 tickToWait);
 	void updateTimer(int32 timeIncrement);
-	Common::String createRoomFilename(const Common::String &name);
+	Common::Path createRoomFilename(const Common::String &name);
 	void createShadowLUT();
 	void playTalkAnimOnCharacter(int32 animID, int32 characterId, bool talker);
 	void updateScrolling(bool force, int32 timeIncrement);
@@ -203,7 +210,7 @@ public:
 	void makeLineNonWalkable(int32 x, int32 y, int32 x2, int32 y2);
 	void makeLineWalkable(int32 x, int32 y, int32 x2, int32 y2);
 	void renderInventory();
-	void viewInventoryItem(const Common::String &str, int32 lineId, int32 itemDest);
+	void viewInventoryItem(const Common::Path &str, int32 lineId, int32 itemDest);
 	void storePalette();
 	void restorePalette();
 	const char *getSpecialConversationMusic(int32 locationId);
@@ -212,8 +219,8 @@ public:
 	void doMagnifierEffect();
 	void drawCustomText(int16 x, int16 y, const char *line, Graphics::Surface *frame, byte color);
 	bool showConversationText() const;
-	bool canSaveGameStateCurrently() override;
-	bool canLoadGameStateCurrently() override;
+	bool canSaveGameStateCurrently(Common::U32String *msg = nullptr) override;
+	bool canLoadGameStateCurrently(Common::U32String *msg = nullptr) override;
 	void pauseEngineIntern(bool pause) override;
 	void syncSoundSettings() override;
 

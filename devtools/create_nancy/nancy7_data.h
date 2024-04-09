@@ -25,15 +25,14 @@
 #include "types.h"
 
 const GameConstants _nancy7Constants ={
-	41,
-	576,
-	{ }, // No Map state
-	{	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+	41,												// numItems
+	576,											// numEventFlags
+	{	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,			// genericEventFlags
 		11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 		21, 22, 23, 24, 25, 26, 27, 28, 29, 30 },
-	60,
-	7,
-	4000
+	20,												// numCursorTypes
+	4000,											// logoEndAfter
+	32												// wonGameFlagID
 };
 
 const Common::Array<Common::Language> _nancy7LanguagesOrder = {
@@ -71,7 +70,7 @@ const Common::Array<Common::Array<ConditionalDialogue>> _nancy7ConditionalDialog
 		{ { kEv, 124, false }, { kEv, 204, false }, { kIn, 23, true } } },
 	{	0, 1065, "NES65",
 		{ { kEv, 323, true }, { kEv, 112, false } } },
-	{	0, 1063, "NES63",
+	{	0, 1066, "NES66",
 		{ { kEv, 456, true }, { kEv, 102, true }, { kEv, 119, false } } },
 	{	0, 1067, "NES67",
 		{ { kEv, 302, true }, { kEv, 102, true }, { kEv, 121, false } } },
@@ -264,9 +263,9 @@ const Common::Array<Common::Array<ConditionalDialogue>> _nancy7ConditionalDialog
 		{ { kEv, 217, false }, { kEv, 386, false } } },
 	{	0, 1655, "NSM55",
 		{ { kEv, 119, true }, { kEv, 373, false } } },
-	{	0, 1655, "NSM56",
+	{	0, 1656, "NSM56",
 		{ { kEv, 324, true }, { kEv, 122, false }, { kEv, 185, false }, { kEv, 378, false }, { kEv, 244, false } } },
-	{	0, 1655, "NSM56",
+	{	0, 1656, "NSM56",
 		{ { kEv, 388, true }, { kEv, 122, false }, { kEv, 185, false }, { kEv, 378, false }, { kEv, 244, false } } },
 	{	0, 1657, "NSM57",
 		{ { kEv, 187, true }, { kEv, 376, false } } },
@@ -894,6 +893,25 @@ const Common::Array<const char *> _nancy7EventFlagNames = {
 	"EV_Empty73",
 	"EV_Empty74",
 	"EV_Empty75"
+};
+
+// Patch notes:
+// This is the official patch from HeR Interactive. The download page says the following:
+
+// Update addressing the following problems: Left and right navigation arrows may stop functioning.
+// Game exits while taking photos of birds. Player may be unable to exit journal. Characters
+// keep asking player to take bird pictures, even when this is complete. Player cannot get
+// bucket out of inventory to put out fire. (If you are experiencing this problem, please be sure to
+// start your game from Second Chance after installing the update.)
+
+const Common::Array<const char *> nancy7PatchSrcFiles {
+	"S2027.cif",
+	"S2224.cif",
+	"S2886.cif"
+};
+
+const Common::Array<PatchAssociation> nancy7PatchAssociations {
+	{ { "softlocks_fix", "true" }, { "S2027", "S2224", "S2886" } }
 };
 
 #endif // NANCY7DATA_H

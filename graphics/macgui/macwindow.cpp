@@ -40,6 +40,8 @@ BaseMacWindow::BaseMacWindow(int id, bool editable, MacWindowManager *wm) :
 	_type = kWindowUnknown;
 
 	_visible = true;
+
+	_draggable = true;
 }
 
 void BaseMacWindow::setVisible(bool visible, bool silent) { _visible = visible; _wm->setFullRefresh(true); }
@@ -263,6 +265,8 @@ void MacWindow::updateOuterDims() {
 }
 
 void MacWindow::drawBorder() {
+	resizeBorderSurface();
+
 	_borderIsDirty = false;
 
 	ManagedSurface *g = &_borderSurface;
@@ -365,8 +369,11 @@ void MacWindow::setBorder(Graphics::ManagedSurface *surface, uint32 flags, Borde
 
 void MacWindow::resizeBorderSurface() {
 	updateOuterDims();
-	_borderSurface.free();
-	_borderSurface.create(_dims.width(), _dims.height(), _wm->_pixelformat);
+
+	if (_borderSurface.w != _dims.width() || _borderSurface.h != _dims.height()) {
+		_borderSurface.free();
+		_borderSurface.create(_dims.width(), _dims.height(), _wm->_pixelformat);
+	}
 }
 
 void MacWindow::setCloseable(bool closeable) {
@@ -475,7 +482,7 @@ bool MacWindow::processEvent(Common::Event &event) {
 			_wm->_hoveredWidget = nullptr;
 		}
 
-		if (_beingDragged) {
+		if (_beingDragged && _draggable) {
 			_dims.translate(event.mouse.x - _draggedX, event.mouse.y - _draggedY);
 			updateInnerDims();
 

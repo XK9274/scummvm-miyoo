@@ -67,8 +67,11 @@ GameState::GameState() {
 }
 
 void GameState::Free() {
+	_GP(play).FreeProperties();
+	_GP(play).FreeViewportsAndCameras();
+	do_once_tokens.clear();
 	raw_drawing_surface.reset();
-	FreeProperties();
+	gui_draw_order.clear();
 }
 
 bool GameState::IsAutoRoomViewport() const {
@@ -537,7 +540,7 @@ void GameState::ReadFromSavegame(Shared::Stream *in, GameDataVersion data_ver, G
 	entered_at_y = in->ReadInt32();
 	entered_edge = in->ReadInt32();
 	speech_mode = (SpeechMode)in->ReadInt32();
-	cant_skip_speech = in->ReadInt32();
+	speech_skip_style = in->ReadInt32();
 	in->ReadArrayOfInt32(script_timers, MAX_TIMERS);
 	sound_volume = in->ReadInt32();
 	speech_volume = in->ReadInt32();
@@ -603,7 +606,7 @@ void GameState::ReadFromSavegame(Shared::Stream *in, GameDataVersion data_ver, G
 	in->Read(playmp3file_name, PLAYMP3FILE_MAX_FILENAME_LEN);
 	in->Read(globalstrings, MAXGLOBALSTRINGS * MAX_MAXSTRLEN);
 	in->Read(lastParserEntry, MAX_MAXSTRLEN);
-	in->Read(game_name, 100);
+	StrUtil::ReadCStrCount(game_name, in, MAX_GAME_STATE_NAME_LENGTH);
 	ground_level_areas_disabled = in->ReadInt32();
 	next_screen_transition = in->ReadInt32();
 	in->ReadInt32(); // gamma_adjustment -- do not apply gamma level from savegame
@@ -741,7 +744,7 @@ void GameState::WriteForSavegame(Shared::Stream *out) const {
 	out->WriteInt32(entered_at_y);
 	out->WriteInt32(entered_edge);
 	out->WriteInt32(speech_mode);
-	out->WriteInt32(cant_skip_speech);
+	out->WriteInt32(speech_skip_style);
 	out->WriteArrayOfInt32(script_timers, MAX_TIMERS);
 	out->WriteInt32(sound_volume);
 	out->WriteInt32(speech_volume);
@@ -795,7 +798,7 @@ void GameState::WriteForSavegame(Shared::Stream *out) const {
 	out->Write(playmp3file_name, PLAYMP3FILE_MAX_FILENAME_LEN);
 	out->Write(globalstrings, MAXGLOBALSTRINGS * MAX_MAXSTRLEN);
 	out->Write(lastParserEntry, MAX_MAXSTRLEN);
-	out->Write(game_name, 100);
+	out->Write(game_name, MAX_GAME_STATE_NAME_LENGTH);
 	out->WriteInt32(ground_level_areas_disabled);
 	out->WriteInt32(next_screen_transition);
 	out->WriteInt32(gamma_adjustment);

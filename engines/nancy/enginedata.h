@@ -39,8 +39,8 @@ struct BSUM : public EngineData {
 
 	byte header[90];
 
-	Common::String conversationTextsFilename;
-	Common::String autotextFilename;
+	Common::Path conversationTextsFilename;
+	Common::Path autotextFilename;
 
 	// Game start section
 	SceneChangeDescription firstScene;
@@ -132,8 +132,8 @@ struct INV : public EngineData {
 
 	uint16 captionAutoClearTime = 3000;
 
-	Common::String inventoryBoxIconsImageName;
-	Common::String inventoryCursorsImageName;
+	Common::Path inventoryBoxIconsImageName;
+	Common::Path inventoryCursorsImageName;
 
 	SoundDescription cantSound;
 	Common::String cantText;
@@ -181,8 +181,8 @@ struct MAP : public EngineData {
 
 	MAP(Common::SeekableReadStream *chunkStream);
 
-	Common::Array<Common::String> mapNames;
-	Common::Array<Common::String> mapPaletteNames;
+	Common::Array<Common::Path> mapNames;
+	Common::Array<Common::Path> mapPaletteNames;
 	Common::Array<SoundDescription> sounds;
 
 	// Globe section, TVD only
@@ -207,7 +207,7 @@ struct MAP : public EngineData {
 struct HELP : public EngineData {
 	HELP(Common::SeekableReadStream *chunkStream);
 
-	Common::String imageName;
+	Common::Path imageName;
 	Common::Rect buttonDest;
 	Common::Rect buttonSrc;
 	Common::Rect buttonHoverSrc;
@@ -217,8 +217,8 @@ struct HELP : public EngineData {
 struct CRED : public EngineData {
 	CRED(Common::SeekableReadStream *chunkStream);
 
-	Common::String imageName;
-	Common::Array<Common::String> textNames;
+	Common::Path imageName;
+	Common::Array<Common::Path> textNames;
 	Common::Rect textScreenPosition;
 	uint16 updateTime;
 	uint16 pixelsToScroll;
@@ -229,7 +229,7 @@ struct CRED : public EngineData {
 struct MENU : public EngineData {
 	MENU(Common::SeekableReadStream *chunkStream);
 
-	Common::String _imageName;
+	Common::Path _imageName;
 	Common::Array<Common::Rect> _buttonDests;
 	Common::Array<Common::Rect> _buttonDownSrcs;
 	Common::Array<Common::Rect> _buttonHighlightSrcs;
@@ -240,7 +240,7 @@ struct MENU : public EngineData {
 struct SET : public EngineData {
 	SET(Common::SeekableReadStream *chunkStream);
 
-	Common::String _imageName;
+	Common::Path _imageName;
 	// Common::Rect _scrollbarsBounds
 	Common::Array<Common::Rect> _scrollbarBounds;
 	Common::Array<Common::Rect> _buttonDests;
@@ -255,11 +255,11 @@ struct SET : public EngineData {
 	Common::Array<SoundDescription> _sounds;
 };
 
-// Contains data for the Save/Load screen
+// Contains data for the Save/Load screen. Used up to nancy7
 struct LOAD : public EngineData {
 	LOAD(Common::SeekableReadStream *chunkStream);
 
-	Common::String _imageName;
+	Common::Path _imageName;
 
 	int16 _mainFontID;
 	int16 _highlightFontID;
@@ -291,8 +291,37 @@ struct LOAD : public EngineData {
 	Common::Rect _cancelButtonHighlightSrc;
 	Common::Rect _cancelButtonDisabledSrc;
 
-	Common::String _gameSavedPopup;
+	Common::Path _gameSavedPopup;
+	Common::String _emptySaveText;
+	Common::String _defaultSaveNamePrefix;
 	// Common::Rect _gameSavedBounds
+};
+
+// Contains data for the new Save/Load screen. Used in nancy8 and up
+struct LOAD_v2 : public EngineData {
+	LOAD_v2(Common::SeekableReadStream *chunkStream);
+
+	Common::Path _firstPageimageName;
+	Common::Path _otherPageimageName;
+	Common::Path _buttonsImageName;
+
+	Common::Array<Common::Rect> _unpressedButtonSrcs;
+	Common::Array<Common::Rect> _pressedButtonSrcs;
+	Common::Array<Common::Rect> _highlightedButtonSrcs;
+	Common::Array<Common::Rect> _disabledButtonSrcs;
+
+	Common::Array<Common::Rect> _buttonDests;
+	Common::Array<Common::Rect> _textboxBounds;
+
+	int16 _mainFontID;
+	int16 _highlightFontID;
+	int16 _fontXOffset;
+	int16 _fontYOffset;
+
+	uint16 _blinkingTimeDelay;
+
+	Common::Path _gameSavedPopup;
+	Common::String _emptySaveText;
 };
 
 // Contains data for the prompt that appears when exiting the game
@@ -300,8 +329,8 @@ struct LOAD : public EngineData {
 struct SDLG : public EngineData {
 	struct Dialog {
 		Dialog(Common::SeekableReadStream *chunkStream);
-		
-		Common::String imageName;
+
+		Common::Path imageName;
 
 		Common::Rect yesDest;
 		Common::Rect noDest;
@@ -355,9 +384,13 @@ struct CLOK : public EngineData {
 	uint32 timeToKeepOpen = 0;
 	uint16 frameTime = 0;
 
-	uint32 nancy5CountdownTime = 0;
-	Common::Array<Common::Rect> nancy5DaySrcs;
-	Common::Array<Common::Rect> nancy5CountdownSrcs;
+	bool clockIsDisabled = false;
+	bool clockIsDay = false; // nancy5 clock
+
+	uint32 countdownTime = 0;
+	Common::Array<Common::Rect> daySrcs;
+	Common::Array<Common::Rect> countdownSrcs;
+	Common::Rect disabledSrc; // possibly useless
 };
 
 // Contains data for special effects (fades between scenes/fades to black).
@@ -421,17 +454,17 @@ struct RCPR : public EngineData {
 	byte transparentWallColor[3];
 	byte uColor10[3];
 
-	Common::Array<Common::String> wallNames;
-	Common::Array<Common::String> specialWallNames;
-	Common::Array<Common::String> ceilingNames;
-	Common::Array<Common::String> floorNames;
+	Common::Array<Common::Path> wallNames;
+	Common::Array<Common::Path> specialWallNames;
+	Common::Array<Common::Path> ceilingNames;
+	Common::Array<Common::Path> floorNames;
 };
 
 // Contains the name and dimensions of an image.
 struct ImageChunk : public EngineData {
 	ImageChunk(Common::SeekableReadStream *chunkStream);
 
-	Common::String imageName;
+	Common::Path imageName;
 	uint16 width;
 	uint16 height;
 };
@@ -439,7 +472,7 @@ struct ImageChunk : public EngineData {
 // Contains text data. Every string is tagged with a key via which
 // it can be accessed. Used to store dialogue and journal (autotext) strings.
 // NOT found inside BOOT; these are stored in their own cifs, the names of which
-// can be found inside BSUM. Introduced in nancy6. 
+// can be found inside BSUM. Introduced in nancy6.
 struct CVTX : public EngineData {
 	CVTX(Common::SeekableReadStream *chunkStream);
 
@@ -454,6 +487,12 @@ struct TABL : public EngineData {
 	Common::Array<uint16> correctIDs;
 	Common::Array<Common::Rect> srcRects;
 	Common::Array<Common::String> strings;
+};
+
+struct MARK : public EngineData {
+	MARK(Common::SeekableReadStream *chunkStream);
+
+	Common::Array<Common::Rect> _markSrcs;
 };
 
 } // End of namespace Nancy

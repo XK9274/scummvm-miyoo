@@ -63,6 +63,9 @@ using namespace AGS; // FIXME later
 #define UNIFORM_WALK_SPEED  0
 #define FOLLOW_ALWAYSONTOP  0x7ffe
 
+// Length of deprecated character name field, in bytes
+#define MAX_CHAR_NAME_LEN 40
+
 struct CharacterExtras; // forward declaration
 // IMPORTANT: exposed to script API, and plugin API as AGSCharacter!
 // For older script compatibility the struct also has to maintain its size;
@@ -100,7 +103,7 @@ struct CharacterInfo {
 	short walkspeed, animspeed;
 	short inv[MAX_INV];
 	short actx, acty;
-	char  name[40];
+	char  name[MAX_CHAR_NAME_LEN];
 	char  scrname[MAX_SCRIPT_NAME_LEN];
 	int8  on;
 
@@ -108,6 +111,12 @@ struct CharacterInfo {
 	int get_baseline();      // return baseline, or Y if not set
 	int get_blocking_top();    // return Y - BlockingHeight/2
 	int get_blocking_bottom(); // return Y + BlockingHeight/2
+
+	// Returns effective x/y walkspeeds for this character
+	void get_effective_walkspeeds(int &walk_speed_x, int &walk_speed_y) const {
+		walk_speed_x = walkspeed;
+		walk_speed_y = ((walkspeed_y == UNIFORM_WALK_SPEED) ? walkspeed : walkspeed_y);
+	}
 
 	inline bool has_explicit_light() const {
 		return (flags & CHF_HASLIGHT) != 0;

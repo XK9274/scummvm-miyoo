@@ -211,6 +211,10 @@ ccInstance *ccInstance::GetCurrentInstance() {
 	return _GP(InstThreads).size() > 0 ? _GP(InstThreads).back() : nullptr;
 }
 
+void ccInstance::FreeInstanceStack() {
+	_GP(InstThreads).clear();
+}
+
 ccInstance *ccInstance::CreateFromScript(PScript scri) {
 	return CreateEx(scri, nullptr);
 }
@@ -1672,9 +1676,14 @@ bool ccInstance::CreateRuntimeCodeFixups(const ccScript *scri) {
 			continue;
 		}
 
-		int32_t fixup = scri->fixups[i];
-		code_fixups[fixup] = scri->fixuptypes[i];
+		const int32_t fixup = scri->fixups[i];
+		if (fixup < 0 || fixup >= scri->codesize) {
+			cc_error_fixups(scri, SIZE_MAX, "bad fixup at %d (fixup type %d, bytecode pos %d, bytecode range is 0..%d)",
+							i, scri->fixuptypes[i], fixup, scri->codesize);
+			return false;
+		}
 
+		code_fixups[fixup] = scri->fixuptypes[i];
 		switch (scri->fixuptypes[i]) {
 		case FIXUP_GLOBALDATA: {
 			ScriptVariable *gl_var = FindGlobalVar((int32_t)code[fixup]);

@@ -378,7 +378,7 @@ void Channel::setCast(CastMemberID memberID) {
 	_sprite->setAutoPuppet(kAPCast, true);
 }
 
-void Channel::setClean(Sprite *nextSprite, int spriteId, bool partial) {
+void Channel::setClean(Sprite *nextSprite, bool partial) {
 	if (!nextSprite)
 		return;
 
@@ -396,11 +396,8 @@ void Channel::setClean(Sprite *nextSprite, int spriteId, bool partial) {
 
 	if (nextSprite) {
 		if (nextSprite->_cast && (_dirty || _sprite->_castId != nextSprite->_castId)) {
-			if (nextSprite->_cast->_type == kCastDigitalVideo) {
-				Common::String path = nextSprite->_cast->getCast()->getVideoPath(nextSprite->_castId.member);
-
-				if (!path.empty()) {
-					((DigitalVideoCastMember *)nextSprite->_cast)->loadVideo(path);
+			if (_sprite->_castId != nextSprite->_castId && nextSprite->_cast->_type == kCastDigitalVideo) {
+				if (((DigitalVideoCastMember *)nextSprite->_cast)->loadVideoFromCast()) {
 					_movieTime = 0;
 					((DigitalVideoCastMember *)nextSprite->_cast)->startVideo(this);
 				}
@@ -413,9 +410,14 @@ void Channel::setClean(Sprite *nextSprite, int spriteId, bool partial) {
 		// if the next sprite in the channel shares the cast member
 		if (nextSprite->_cast && _sprite->_castId == nextSprite->_castId) {
 			if (nextSprite->_cast->_type == kCastFilmLoop) {
-				// increment the film loop counter
-				_filmLoopFrame += 1;
-				_filmLoopFrame %= ((FilmLoopCastMember *)nextSprite->_cast)->_frames.size();
+				FilmLoopCastMember *fl = ((FilmLoopCastMember *)nextSprite->_cast);
+				if (!fl->_frames.empty()) {
+					// increment the film loop counter
+					_filmLoopFrame += 1;
+					_filmLoopFrame %= ((FilmLoopCastMember *)nextSprite->_cast)->_frames.size();
+				} else {
+					warning("Channel::setClean(): invalid film loop in castId %s", nextSprite->_castId.asString().c_str());
+				}
 			}
 		}
 
@@ -470,6 +472,15 @@ void Channel::updateTextCast() {
 	}
 }
 
+bool Channel::getEditable() {
+	if (_sprite->_cast && _sprite->_cast->_type == kCastText) {
+		if (_widget && (Graphics::MacText *)_widget->isEditable()) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void Channel::setEditable(bool editable) {
 	if (_sprite->_cast && _sprite->_cast->_type == kCastText) {
 		// if the sprite is editable, then we refresh the selEnd and setStart
@@ -521,6 +532,12 @@ void Channel::replaceSprite(Sprite *nextSprite) {
 		((DigitalVideoCastMember *)_sprite->_cast)->rewindVideo();
 	}
 
+	// If the cast member is the same, persist the editable flag
+	bool editable = nextSprite->_editable;
+	if (_sprite->_castId == nextSprite->_castId) {
+		editable = _sprite->_editable;
+	}
+
 	int width = _width;
 	int height = _height;
 	bool immediate = _sprite->_immediate;
@@ -529,6 +546,8 @@ void Channel::replaceSprite(Sprite *nextSprite) {
 
 	// Persist the immediate flag
 	_sprite->_immediate = immediate;
+
+	_sprite->_editable = editable;
 
 	// TODO: auto expand text size is meaning less for us, not all text
 	// since we are using initialRect for the text cast member now, then the sprite size is meaning less for us.
@@ -550,7 +569,7 @@ void Channel::replaceSprite(Sprite *nextSprite) {
 }
 
 void Channel::setWidth(int w) {
-	if (!(_sprite->_cast && _sprite->_cast->_type == kCastShape) && !_sprite->_stretch)
+	if (!(_sprite->_stretch || (_sprite->_cast && _sprite->_cast->_type == kCastShape)))
 		return;
 	_width = MAX<int>(w, 0);
 
@@ -559,7 +578,7 @@ void Channel::setWidth(int w) {
 }
 
 void Channel::setHeight(int h) {
-	if (!(_sprite->_cast && _sprite->_cast->_type == kCastShape) && !_sprite->_stretch)
+	if (!(_sprite->_stretch || (_sprite->_cast && _sprite->_cast->_type == kCastShape)))
 		return;
 	_height = MAX<int>(h, 0);
 
@@ -568,7 +587,7 @@ void Channel::setHeight(int h) {
 }
 
 void Channel::setBbox(int l, int t, int r, int b) {
-	if (!(_sprite->_cast && _sprite->_cast->_type == kCastShape) && !_sprite->_stretch)
+	if (!(_sprite->_stretch || (_sprite->_cast && _sprite->_cast->_type == kCastShape)))
 		return;
 	_width = r - l;
 	_height = b - t;

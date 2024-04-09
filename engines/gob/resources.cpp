@@ -17,6 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 #include "common/util.h"
@@ -586,7 +592,7 @@ byte *Resources::getTexts() const {
 }
 
 bool Resources::dumpResource(const Resource &resource,
-		const Common::String &fileName) const {
+		const Common::Path &fileName) const {
 
 	Common::DumpFile dump;
 
@@ -614,7 +620,7 @@ bool Resources::dumpResource(const Resource &resource, uint16 id,
 	fileName += ".";
 	fileName += ext;
 
-	return dumpResource(resource, fileName);
+	return dumpResource(resource, Common::Path(fileName));
 }
 
 Resource *Resources::getTOTResource(uint16 id) const {

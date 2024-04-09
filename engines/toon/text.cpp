@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #include "common/debug.h"
@@ -34,8 +41,8 @@ TextResource::~TextResource(void) {
 	delete[] _textData;
 }
 
-bool TextResource::loadTextResource(const Common::String &fileName) {
-	debugC(1, kDebugText, "loadTextResource(%s)", fileName.c_str());
+bool TextResource::loadTextResource(const Common::Path &fileName) {
+	debugC(1, kDebugText, "loadTextResource(%s)", fileName.toString().c_str());
 
 	uint32 fileSize = 0;
 	uint8 *data = _vm->resources()->getFileData(fileName, &fileSize);

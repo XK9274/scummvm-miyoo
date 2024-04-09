@@ -27,7 +27,7 @@
 
 #include "testbed/testbed.h"
 #include "testbed/video.h"
-#include "graphics/palette.h"
+#include "graphics/paletteman.h"
 #include "gui/browser.h"
 
 namespace Testbed {
@@ -35,11 +35,11 @@ namespace Testbed {
 Common::Error Videotests::videoTest(const Common::Path &path) {
 	Common::File *file = new Common::File();
 	if (!file->open(path)) {
-		warning("Cannot open file %s", path.toString().c_str());
+		warning("Cannot open file %s", path.toString(Common::Path::kNativeSeparator).c_str());
 		delete file;
 		return Common::kNoGameDataFoundError;
 	}
-	return videoTest(file, path.toString());
+	return videoTest(file, path.toString(Common::Path::kNativeSeparator));
 }
 
 Common::Error Videotests::videoTest(const Common::FSNode &node) {
@@ -82,7 +82,20 @@ Common::Error Videotests::videoTest(Common::SeekableReadStream *stream, const Co
 	}
 
 	warning("Actual pixel format: %s", pixelformat.toString().c_str());
-	initGraphics(640, 480, &pixelformat);
+
+#ifdef __DS__
+	int w = 256, h = 192;
+#elif defined(USE_HIGHRES)
+	int w = 640, h = 480;
+#else
+	int w = 320, h = 200;
+#endif
+	if (w < video->getWidth() || h < video->getHeight()) {
+		w = video->getWidth();
+		h = video->getHeight();
+	}
+
+	initGraphics(w, h, &pixelformat);
 
 	video->start();
 
@@ -106,11 +119,11 @@ Common::Error Videotests::videoTest(Common::SeekableReadStream *stream, const Co
 
 				int x = 0, y = 0;
 
-				if (surf->w < g_system->getWidth() && surf->h < g_system->getHeight()) {
-					x = (g_system->getWidth() - surf->w) >> 1;
-					y = (g_system->getHeight() - surf->h) >> 1;
+				if (surf->w < w && surf->h < h) {
+					x = (w - surf->w) >> 1;
+					y = (h - surf->h) >> 1;
 				}
-				g_system->copyRectToScreen(surf->getPixels(), surf->pitch, x, y, MIN<uint16>(surf->w, 640), MIN<uint16>(surf->h, 480));
+				g_system->copyRectToScreen(surf->getPixels(), surf->pitch, x, y, MIN<uint16>(surf->w, w), MIN<uint16>(surf->h, h));
 
 				if (conv) {
 					conv->free();

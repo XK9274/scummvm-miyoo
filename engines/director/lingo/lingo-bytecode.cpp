@@ -26,6 +26,7 @@
 
 #include "director/director.h"
 #include "director/cast.h"
+#include "director/debugger.h"
 #include "director/movie.h"
 #include "director/window.h"
 #include "director/castmember/castmember.h"
@@ -211,7 +212,7 @@ static LingoV4TheEntity lingoV4TheEntity[] = {
 	{ 0x06, 0x20, kTheSprite,			kTheScoreColor,		true, kTEAItemId },
 	{ 0x06, 0x21, kTheSprite,			kTheLoc,			true, kTEAItemId },
 	{ 0x06, 0x22, kTheSprite,			kTheRect,			true, kTEAItemId },
-	{ 0x06, 0x23, kTheSprite,			kTheMemberNum,		true, kTEAItemId },
+	{ 0x06, 0x23, kTheSprite,			kTheMemberNum,		true, kTEAItemId }, // D5
 
 	{ 0x07, 0x01, kTheBeepOn,			kTheNOField,		true, kTEANOArgs },
 	{ 0x07, 0x02, kTheButtonStyle,		kTheNOField,		true, kTEANOArgs },
@@ -595,6 +596,7 @@ void LC::cb_theassign() {
 	if (g_lingo->_state->me.type == OBJECT) {
 		// Don't bother checking if the property is defined, leave that to the object.
 		// For D3-style anonymous objects/factories, you are allowed to define whatever properties you like.
+		g_debugger->propWriteHook(name);
 		g_lingo->_state->me.u.obj->setProp(name, value);
 	} else {
 		warning("cb_theassign: no me object");
@@ -622,6 +624,7 @@ void LC::cb_thepush() {
 	if (g_lingo->_state->me.type == OBJECT) {
 		if (g_lingo->_state->me.u.obj->hasProp(name)) {
 			g_lingo->push(g_lingo->_state->me.u.obj->getProp(name));
+			g_debugger->propReadHook(name);
 			return;
 		}
 
@@ -1277,7 +1280,7 @@ ScriptContext *LingoCompiler::compileLingoV4(Common::SeekableReadStreamEndian &s
 	bool skipdump = false;
 
 	if (ConfMan.getBool("dump_scripts")) {
-		Common::String buf;
+		Common::Path buf;
 		if (scriptFlags & kScriptFlagFactoryDef) {
 			buf = dumpFactoryName(encodePathForDump(archName).c_str(), factoryName.c_str(), "lscr");
 		} else {
@@ -1285,10 +1288,10 @@ ScriptContext *LingoCompiler::compileLingoV4(Common::SeekableReadStreamEndian &s
 		}
 
 		if (!out.open(buf, true)) {
-			warning("Lingo::addCodeV4(): Can not open dump file %s", buf.c_str());
+			warning("Lingo::addCodeV4(): Can not open dump file %s", buf.toString(Common::Path::kNativeSeparator).c_str());
 			skipdump = true;
 		} else {
-			warning("Lingo::addCodeV4(): Dumping Lscr to %s", buf.c_str());
+			warning("Lingo::addCodeV4(): Dumping Lscr to %s", buf.toString(Common::Path::kNativeSeparator).c_str());
 		}
 	}
 

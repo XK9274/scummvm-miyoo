@@ -33,6 +33,8 @@
 
 		<def var = 'TabWidget.TitleSpacing' value = '10' scalable = 'yes'/>
 
+		<def var = 'RichTextWidget.InnerMargin' value = '10' scalable = 'yes'/>
+
 		<def var = 'Layout.Spacing' value = '4' scalable = 'yes'/>
 
 		<def var = 'ListWidget.hlLeftPadding' value = '0'/>
@@ -461,6 +463,12 @@
 		</layout>
 	</dialog>
 
+	<dialog name = 'HelpContentDialog' overlays = 'Dialog.HelpDialog.TabWidget'>
+		<layout type = 'vertical' padding = '0, 0, 0, 0'>
+			<widget name = 'RichTextWidget'/>
+		</layout>
+	</dialog>
+
 	<dialog name = 'Browser' overlays = 'Dialog.Launcher.GameList' shading = 'dim'>
 		<layout type = 'vertical' padding = '8, 8, 8, 8'>
 			<widget name = 'Headline'
@@ -694,7 +702,15 @@
 	</dialog>
 
 	<dialog name = 'GlobalOptions_Backend' overlays = 'Dialog.GlobalOptions.TabWidget'>
-		<layout type = 'vertical' padding = '16, 16, 16, 16'>
+		<layout type = 'vertical' padding = '0, 0, 0, 0'>
+			<widget name = 'Container'
+					type = 'ScrollContainerWidget'
+			/>
+		</layout>
+	</dialog>
+
+	<dialog name = 'GlobalOptions_Backend_Container' overlays = 'GlobalOptions_Backend.Container'>
+		<layout type = 'vertical' padding = '0, 0, 0, 0'>
 			<widget name = 'Container'/>
 		</layout>
 	</dialog>
@@ -1632,11 +1648,21 @@
 	</dialog>
 
 	<dialog name = 'GameOptions_Backend' overlays = 'Dialog.GameOptions.TabWidget'>
-		<layout type = 'vertical' padding = '16, 16, 16, 16'>
-			<widget name = 'EnableTabCheckbox'
-					type = 'Checkbox'
+		<layout type = 'vertical' padding = '0, 0, 0, 0'>
+			<widget name = 'Container'
+					type = 'ScrollContainerWidget'
 			/>
-			<widget name = 'Container'/>
+		</layout>
+	</dialog>
+
+	<dialog name = 'GameOptions_Backend_Container' overlays = 'GameOptions_Backend.Container'>
+		<layout type = 'vertical' padding = '0, 0, 0, 0'>
+			<layout type = 'vertical' padding = '16, 16, 16, 16' spacing = '8'>
+				<widget name = 'EnableTabCheckbox'
+						type = 'Checkbox'
+				/>
+			</layout>
+			<import layout = 'Dialog.GlobalOptions_Backend_Container' />
 		</layout>
 	</dialog>
 
@@ -1938,8 +1964,16 @@
 	</dialog>
 
 	<dialog name = 'GlobalConfig_Backend' overlays = 'Dialog.GlobalConfig.TabWidget'>
-		<layout type = 'vertical' padding = '16, 16, 16, 16'>
-			<widget name = 'Container'/>
+		<layout type = 'vertical' padding = '0, 0, 0, 0'>
+			<widget name = 'Container'
+					type = 'ScrollContainerWidget'
+			/>
+		</layout>
+	</dialog>
+
+	<dialog name = 'GlobalConfig_Backend_Container' overlays = 'GlobalConfig_Backend.Container'>
+		<layout type = 'vertical' padding = '0, 0, 0, 0'>
+			<import layout = 'Dialog.GlobalOptions_Backend_Container' />
 		</layout>
 	</dialog>
 

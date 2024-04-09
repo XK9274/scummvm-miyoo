@@ -84,29 +84,47 @@ void Context::initialize(ContextType contextType) {
 	type = contextType;
 
 #ifdef USE_GLAD
+	int gladVersion;
 	switch (type) {
 	case kContextGL:
-		gladLoadGL(loadFunc);
+		gladVersion = gladLoadGL(loadFunc);
 		break;
 
 	case kContextGLES:
-		gladLoadGLES1(loadFunc);
+		gladVersion = gladLoadGLES1(loadFunc);
 		break;
 
 	case kContextGLES2:
-		gladLoadGLES2(loadFunc);
+		gladVersion = gladLoadGLES2(loadFunc);
 		break;
 
 	default:
+		gladVersion = 0;
 		break;
 	}
-#endif
+
+	majorVersion = GLAD_VERSION_MAJOR(gladVersion);
+	minorVersion = GLAD_VERSION_MINOR(gladVersion);
+
+	if (!gladVersion) {
+		// If gladVersion is 0 it means that loading failed and glad didn't set up anything
+		error("Couldn't initialize OpenGL");
+	}
+#else
+	if (!glGetString) {
+		error("Couldn't initialize OpenGL");
+	}
 
 	const char *verString = (const char *)glGetString(GL_VERSION);
 
 	if (!verString) {
 		majorVersion = minorVersion = 0;
-		warning("Could not parse fetch GL_VERSION: %d", glGetError());
+		int errorCode = 0;
+		if (glGetError) {
+			errorCode = glGetError();
+		}
+		warning("Could not fetch GL_VERSION: %d", errorCode);
+		return;
 	} else if (type == kContextGL) {
 		// OpenGL version number is either of the form major.minor or major.minor.release,
 		// where the numbers all have one or more digits
@@ -137,6 +155,7 @@ void Context::initialize(ContextType contextType) {
 			}
 		}
 	}
+#endif
 
 	glslVersion = getGLSLVersion();
 
@@ -148,10 +167,6 @@ void Context::initialize(ContextType contextType) {
 		extString = "";
 	}
 
-	bool ARBShaderObjects = false;
-	bool ARBShadingLanguage100 = false;
-	bool ARBVertexShader = false;
-	bool ARBFragmentShader = false;
 	bool EXTFramebufferMultisample = false;
 	bool EXTFramebufferBlit = false;
 
@@ -161,14 +176,6 @@ void Context::initialize(ContextType contextType) {
 
 		if (token == "GL_ARB_texture_non_power_of_two" || token == "GL_OES_texture_npot") {
 			NPOTSupported = true;
-		} else if (token == "GL_ARB_shader_objects") {
-			ARBShaderObjects = true;
-		} else if (token == "GL_ARB_shading_language_100") {
-			ARBShadingLanguage100 = true;
-		} else if (token == "GL_ARB_vertex_shader") {
-			ARBVertexShader = true;
-		} else if (token == "GL_ARB_fragment_shader") {
-			ARBFragmentShader = true;
 		} else if (token == "GL_ARB_multitexture") {
 			multitextureSupported = true;
 		} else if (token == "GL_ARB_framebuffer_object") {
@@ -199,7 +206,7 @@ void Context::initialize(ContextType contextType) {
 	if (type == kContextGLES2) {
 // OGLES2 on AmigaOS reports GLSL version as 0.9 but we do what is needed to make it work
 // so let's pretend it supports 1.00
-#if defined(AMIGAOS)
+#if defined(__amigaos4__)
 		if (glslVersion < 100) {
 			glslVersion = 100;
 		}
@@ -230,13 +237,6 @@ void Context::initialize(ContextType contextType) {
 		debug(5, "OpenGL: GLES2 context initialized");
 	} else if (type == kContextGLES) {
 		// GLES doesn't support shaders natively
-		// We don't do any aliasing in our code and expect standard OpenGL functions but GLAD does it
-		// So if we use GLAD we can check for ARB extensions and expect a GLSL of 1.00
-#ifdef USE_GLAD
-		shadersSupported = ARBShaderObjects && ARBShadingLanguage100 && ARBVertexShader && ARBFragmentShader;
-		glslVersion = 100;
-#endif
-		// We don't expect GLES to support shaders recent enough for engines
 
 		// ScummVM does not support multisample FBOs with GLES for now
 		framebufferObjectMultisampleSupported = false;
@@ -250,16 +250,6 @@ void Context::initialize(ContextType contextType) {
 	} else if (type == kContextGL) {
 		shadersSupported = glslVersion >= 100;
 
-		// We don't do any aliasing in our code and expect standard OpenGL functions but GLAD does it
-		// So if we use GLAD we can check for ARB extensions and expect a GLSL of 1.00
-#ifdef USE_GLAD
-		if (!shadersSupported) {
-			shadersSupported = ARBShaderObjects && ARBShadingLanguage100 && ARBVertexShader && ARBFragmentShader;
-			if (shadersSupported) {
-				glslVersion = 100;
-			}
-		}
-#endif
 		// In GL mode engines need GLSL 1.20
 		enginesShadersSupported = glslVersion >= 120;
 
@@ -294,7 +284,7 @@ void Context::initialize(ContextType contextType) {
 	const char *glslVersionString = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 	// Log features supported by GL context.
-	debug(5, "OpenGL version: %s", verString);
+	debug(5, "OpenGL version: %s", glGetString(GL_VERSION));
 	debug(5, "OpenGL vendor: %s", glGetString(GL_VENDOR));
 	debug(5, "OpenGL renderer: %s", glGetString(GL_RENDERER));
 	debug(5, "OpenGL: version %d.%d", majorVersion, minorVersion);
@@ -338,16 +328,20 @@ int Context::getGLSLVersion() const {
 		return 0;
 	}
 
-	const char *glslVersionFormat;
-	if (type == kContextGL) {
-		glslVersionFormat = "%d.%d";
-	} else {
-		glslVersionFormat = "OpenGL ES GLSL ES %d.%d";
+	// Search for the first digit in the version string and parse from there
+	const char *glslVersionStringNum;
+	for (glslVersionStringNum = glslVersionString; *glslVersionStringNum != '\0'; glslVersionStringNum++) {
+		if (*glslVersionStringNum >= '0' &&
+		    *glslVersionStringNum <= '9') {
+			break;
+		}
 	}
 
+	// Here *glslVersionStringNum is either a digit or a NUL character
+
 	int glslMajorVersion, glslMinorVersion;
-	if (sscanf(glslVersionString, glslVersionFormat, &glslMajorVersion, &glslMinorVersion) != 2) {
-		warning("Could not parse GLSL version '%s'", glslVersionString);
+	if (sscanf(glslVersionStringNum, "%d.%d", &glslMajorVersion, &glslMinorVersion) != 2) {
+		warning("Could not parse GLSL version '%s' extracted from '%s'", glslVersionStringNum, glslVersionString);
 		return 0;
 	}
 

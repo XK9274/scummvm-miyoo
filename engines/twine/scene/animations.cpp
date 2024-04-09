@@ -276,7 +276,7 @@ void Animations::processAnimActions(int32 actorIdx) { // GereAnimAction
 		case ActionType::ACTION_HITTING:
 			if (action.animFrame - 1 == actor->_frame) {
 				actor->_strengthOfHit = action.strength;
-				actor->_dynamicFlags.bIsHitting = 1;
+				actor->_workFlags.bIsHitting = 1;
 			}
 			break;
 		case ActionType::ACTION_SAMPLE:
@@ -330,7 +330,7 @@ void Animations::processAnimActions(int32 actorIdx) { // GereAnimAction
 		case ActionType::ACTION_HERO_HITTING:
 			if (action.animFrame - 1 == actor->_frame) {
 				actor->_strengthOfHit = magicLevelStrengthOfHit[_engine->_gameState->_magicLevelIdx];
-				actor->_dynamicFlags.bIsHitting = 1;
+				actor->_workFlags.bIsHitting = 1;
 			}
 			break;
 		case ActionType::ACTION_THROW_3D:
@@ -448,9 +448,9 @@ bool Animations::initAnim(AnimationTypes newAnim, AnimType flag, AnimationTypes 
 	actor->_flagAnim = flag;
 	actor->_frame = 0;
 
-	actor->_dynamicFlags.bIsHitting = 0;
-	actor->_dynamicFlags.bAnimEnded = 0;
-	actor->_dynamicFlags.bAnimNewFrame = 1;
+	actor->_workFlags.bIsHitting = 0;
+	actor->_workFlags.bAnimEnded = 0;
+	actor->_workFlags.bAnimNewFrame = 1;
 
 	processAnimActions(actorIdx);
 
@@ -467,17 +467,17 @@ void Animations::doAnim(int32 actorIdx) {
 		return;
 	}
 
-	const IVec3 oldPos = actor->_oldPos;
+	const IVec3 &oldPos = actor->_oldPos;
 
-	IVec3 processActor = actor->_processActor;
+	IVec3 &processActor = actor->_processActor;
 	if (actor->_staticFlags.bIsSpriteActor) {
 		if (actor->_strengthOfHit) {
-			actor->_dynamicFlags.bIsHitting = 1;
+			actor->_workFlags.bIsHitting = 1;
 		}
 
 		processActor = actor->posObj();
 
-		if (!actor->_dynamicFlags.bIsFalling) {
+		if (!actor->_workFlags.bIsFalling) {
 			if (actor->_speed) {
 				int32 xAxisRotation = actor->realAngle.getRealValueFromTime(_engine->timerRef);
 				if (!xAxisRotation) {
@@ -499,7 +499,7 @@ void Animations::doAnim(int32 actorIdx) {
 
 				_engine->_movements->setActorAngle(LBAAngles::ANGLE_0, actor->_speed, LBAAngles::ANGLE_17, &actor->realAngle);
 
-				if (actor->_dynamicFlags.bIsSpriteMoving) {
+				if (actor->_workFlags.bIsSpriteMoving) {
 					if (actor->_doorWidth) { // open door
 						if (getDistance2D(processActor.x, processActor.z, actor->_animStep.x, actor->_animStep.z) >= actor->_doorWidth) {
 							if (actor->_beta == LBAAngles::ANGLE_0) { // down
@@ -512,7 +512,7 @@ void Animations::doAnim(int32 actorIdx) {
 								processActor.x = actor->_animStep.x - actor->_doorWidth;
 							}
 
-							actor->_dynamicFlags.bIsSpriteMoving = 0;
+							actor->_workFlags.bIsSpriteMoving = 0;
 							actor->_speed = 0;
 						}
 					} else { // close door
@@ -539,7 +539,7 @@ void Animations::doAnim(int32 actorIdx) {
 						if (updatePos) {
 							processActor = actor->_animStep;
 
-							actor->_dynamicFlags.bIsSpriteMoving = 0;
+							actor->_workFlags.bIsSpriteMoving = 0;
 							actor->_speed = 0;
 						}
 					}
@@ -567,9 +567,9 @@ void Animations::doAnim(int32 actorIdx) {
 			}
 
 			if (_animMasterRot) {
-				actor->_dynamicFlags.bIsRotationByAnim = 1;
+				actor->_workFlags.bIsRotationByAnim = 1;
 			} else {
-				actor->_dynamicFlags.bIsRotationByAnim = 0;
+				actor->_workFlags.bIsRotationByAnim = 0;
 			}
 
 			actor->_beta = ClampAngle(actor->_beta + _animStepBeta - actor->_animStepBeta);
@@ -584,19 +584,19 @@ void Animations::doAnim(int32 actorIdx) {
 
 			actor->_animStep = _currentStep;
 
-			actor->_dynamicFlags.bAnimEnded = 0;
-			actor->_dynamicFlags.bAnimNewFrame = 0;
+			actor->_workFlags.bAnimEnded = 0;
+			actor->_workFlags.bAnimNewFrame = 0;
 
 			if (keyFramePassed) {
 				actor->_frame++;
-				actor->_dynamicFlags.bAnimNewFrame = 1;
+				actor->_workFlags.bAnimNewFrame = 1;
 
 				// if actor have animation actions to process
 				processAnimActions(actorIdx);
 
 				int16 numKeyframe = actor->_frame;
 				if (numKeyframe == (int16)animData.getNumKeyframes()) {
-					actor->_dynamicFlags.bIsHitting = 0;
+					actor->_workFlags.bIsHitting = 0;
 
 					if (actor->_flagAnim == AnimType::kAnimationTypeRepeat) {
 						actor->_frame = animData.getLoopFrame();
@@ -618,7 +618,7 @@ void Animations::doAnim(int32 actorIdx) {
 
 					processAnimActions(actorIdx);
 
-					actor->_dynamicFlags.bAnimEnded = 1;
+					actor->_workFlags.bAnimEnded = 1;
 				}
 
 				actor->_animStepBeta = LBAAngles::ANGLE_0;
@@ -635,19 +635,19 @@ void Animations::doAnim(int32 actorIdx) {
 		processActor -= standOnActor->_oldPos;
 		processActor += standOnActor->posObj();
 
-		if (!collision->checkZvOnZv(processActor, actorIdx, actor->_carryBy)) {
+		if (!collision->checkZvOnZv(actorIdx, actor->_carryBy)) {
 			actor->_carryBy = -1; // no longer standing on other actor
 		}
 	}
 
 	// actor falling Y speed
-	if (actor->_dynamicFlags.bIsFalling) {
+	if (actor->_workFlags.bIsFalling) {
 		processActor = oldPos;
 		processActor.y += _engine->_stepFalling; // add step to fall
 	}
 
 	// actor collisions with bricks
-	int32 col1 = 0;
+	uint32 col1 = 0; 	/** Cause damage in current processed actor */
 	if (actor->_staticFlags.bComputeCollisionWithBricks) {
 		ShapeType col = _engine->_grid->worldColBrick(oldPos);
 
@@ -661,30 +661,31 @@ void Animations::doAnim(int32 actorIdx) {
 		}
 
 		if (actor->_staticFlags.bComputeCollisionWithObj) {
-			collision->checkObjCol(processActor, oldPos, actorIdx);
+			collision->checkObjCol(actorIdx);
 		}
 
-		if (actor->_carryBy != -1 && actor->_dynamicFlags.bIsFalling) {
-			collision->receptionObj(processActor, actorIdx);
+		if (actor->_carryBy != -1 && actor->_workFlags.bIsFalling) {
+			collision->receptionObj(actorIdx);
 		}
 
 		collision->setCollisionPos(processActor);
 
 		if (IS_HERO(actorIdx) && !actor->_staticFlags.bComputeLowCollision) {
 			// check hero collisions with bricks
-			col1 |= collision->doCornerReajustTwinkel(actor, processActor, oldPos, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 1);
-			col1 |= collision->doCornerReajustTwinkel(actor, processActor, oldPos, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 2);
-			col1 |= collision->doCornerReajustTwinkel(actor, processActor, oldPos, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 4);
-			col1 |= collision->doCornerReajustTwinkel(actor, processActor, oldPos, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 8);
+			col1 |= collision->doCornerReajustTwinkel(actor, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 1);
+			col1 |= collision->doCornerReajustTwinkel(actor, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 2);
+			col1 |= collision->doCornerReajustTwinkel(actor, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 4);
+			col1 |= collision->doCornerReajustTwinkel(actor, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 8);
 		} else {
 			// TODO: hack to fix tank-not-moving bug https://bugs.scummvm.org/ticket/13177
 			// remove processActorSave
 			const IVec3 processActorSave = processActor;
+
 			// check other actors collisions with bricks
-			col1 |= collision->doCornerReajust(processActor, oldPos, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 1);
-			col1 |= collision->doCornerReajust(processActor, oldPos, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 2);
-			col1 |= collision->doCornerReajust(processActor, oldPos, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 4);
-			col1 |= collision->doCornerReajust(processActor, oldPos, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 8);
+			col1 |= collision->doCornerReajust(actor, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 1);
+			col1 |= collision->doCornerReajust(actor, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.mins.z, 2);
+			col1 |= collision->doCornerReajust(actor, actor->_boundingBox.maxs.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 4);
+			col1 |= collision->doCornerReajust(actor, actor->_boundingBox.mins.x, actor->_boundingBox.mins.y, actor->_boundingBox.maxs.z, 8);
 			// TODO: hack to fix tank-not-moving bug https://bugs.scummvm.org/ticket/13177
 			if (actorIdx == 1 && _engine->_scene->_currentSceneIdx == LBA1SceneId::Hamalayi_Mountains_2nd_fighting_scene) {
 				processActor = processActorSave;
@@ -692,7 +693,7 @@ void Animations::doAnim(int32 actorIdx) {
 		}
 
 		// process wall hit while running
-		if (col1 && !actor->_dynamicFlags.bIsFalling && IS_HERO(actorIdx) && _engine->_actor->_heroBehaviour == HeroBehaviourType::kAthletic && actor->_genAnim == AnimationTypes::kForward) {
+		if (col1 && !actor->_workFlags.bIsFalling && IS_HERO(actorIdx) && _engine->_actor->_heroBehaviour == HeroBehaviourType::kAthletic && actor->_genAnim == AnimationTypes::kForward) {
 			IVec2 destPos = _engine->_renderer->rotate(actor->_boundingBox.mins.x, actor->_boundingBox.mins.z, actor->_beta + LBAAngles::ANGLE_315 + LBAAngles::ANGLE_180);
 
 			destPos.x += processActor.x;
@@ -717,8 +718,8 @@ void Animations::doAnim(int32 actorIdx) {
 
 		if (col != ShapeType::kNone) {
 			if (col == ShapeType::kSolid) {
-				if (actor->_dynamicFlags.bIsFalling) {
-					collision->receptionObj(processActor, actorIdx);
+				if (actor->_workFlags.bIsFalling) {
+					collision->receptionObj(actorIdx);
 					processActor.y = (collision->_collision.y * SIZE_BRICK_Y) + SIZE_BRICK_Y;
 				} else {
 					if (IS_HERO(actorIdx) && _engine->_actor->_heroBehaviour == HeroBehaviourType::kAthletic && actor->_genAnim == AnimationTypes::kForward && _engine->_cfgfile.WallCollision) { // avoid wall hit damage
@@ -740,27 +741,27 @@ void Animations::doAnim(int32 actorIdx) {
 					}
 				}
 			} else {
-				if (actor->_dynamicFlags.bIsFalling) {
-					collision->receptionObj(processActor, actorIdx);
+				if (actor->_workFlags.bIsFalling) {
+					collision->receptionObj(actorIdx);
 				}
 
 				collision->reajustPos(processActor, col);
 			}
 
-			actor->_dynamicFlags.bIsFalling = 0;
+			actor->_workFlags.bIsFalling = 0;
 		} else {
 			if (actor->_staticFlags.bCanFall && actor->_carryBy == -1) {
 				col = _engine->_grid->worldColBrick(processActor.x, processActor.y - 1, processActor.z);
 
 				if (col != ShapeType::kNone) {
-					if (actor->_dynamicFlags.bIsFalling) {
-						collision->receptionObj(processActor, actorIdx);
+					if (actor->_workFlags.bIsFalling) {
+						collision->receptionObj(actorIdx);
 					}
 
 					collision->reajustPos(processActor, col);
 				} else {
-					if (!actor->_dynamicFlags.bIsRotationByAnim) {
-						actor->_dynamicFlags.bIsFalling = 1;
+					if (!actor->_workFlags.bIsRotationByAnim) {
+						actor->_workFlags.bIsFalling = 1;
 
 						if (IS_HERO(actorIdx) && _engine->_scene->_startYFalling == 0) {
 							_engine->_scene->_startYFalling = processActor.y;
@@ -773,7 +774,7 @@ void Animations::doAnim(int32 actorIdx) {
 							int32 fallHeight = processActor.y - y;
 
 							if (fallHeight <= (2 * SIZE_BRICK_Y) && actor->_genAnim == AnimationTypes::kForward) {
-								actor->_dynamicFlags.bWasWalkingBeforeFalling = 1;
+								actor->_workFlags.bWasWalkingBeforeFalling = 1;
 							} else {
 								initAnim(AnimationTypes::kFall, AnimType::kAnimationTypeRepeat, AnimationTypes::kAnimInvalid, actorIdx);
 							}
@@ -791,7 +792,7 @@ void Animations::doAnim(int32 actorIdx) {
 		}
 	} else {
 		if (actor->_staticFlags.bComputeCollisionWithObj) {
-			collision->checkObjCol(processActor, oldPos, actorIdx);
+			collision->checkObjCol(actorIdx);
 		}
 	}
 

@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #ifndef TOON_PICTURE_H
@@ -25,7 +32,7 @@
 #include "common/stream.h"
 #include "common/array.h"
 #include "common/func.h"
-#include "common/str.h"
+#include "common/path.h"
 
 #include "toon/toon.h"
 
@@ -38,7 +45,7 @@ public:
 	Picture(ToonEngine *vm);
 	~Picture();
 
-	bool loadPicture(const Common::String &file);
+	bool loadPicture(const Common::Path &file);
 	void setupPalette();
 	void draw(Graphics::Surface &surface, int16 x, int16 y, int16 dx, int16 dy);
 	void drawWithRectList(Graphics::Surface& surface, int16 x, int16 y, int16 dx, int16 dy, Common::Array<Common::Rect>& rectArray);

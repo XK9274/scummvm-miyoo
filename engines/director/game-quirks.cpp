@@ -30,7 +30,7 @@ namespace Director {
 class CachedArchive : public Common::Archive {
 public:
 	struct InputEntry {
-		Common::String name;
+		Common::Path name;
 
 		const byte *data;
 		uint32 size;
@@ -53,7 +53,7 @@ private:
 		uint32 size;
 	};
 
-	typedef Common::HashMap<Common::String, Entry, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> FileMap;
+	typedef Common::HashMap<Common::Path, Entry, Common::Path::IgnoreCase_Hash, Common::Path::IgnoreCase_EqualTo> FileMap;
 	FileMap _files;
 };
 
@@ -99,6 +99,11 @@ struct SaveFilePath {
 	{ nullptr, Common::kPlatformUnknown, nullptr },
 };
 
+
+static void quirkWarlock() {
+	g_director->_loadSlowdownFactor = 150000;  // emulate a 1x CD drive
+	g_director->_fpsLimit = 15;
+}
 
 static void quirkLimit15FPS() {
 	g_director->_fpsLimit = 15;
@@ -175,6 +180,12 @@ struct Quirk {
 	Common::Platform platform;
 	void (*quirk)();
 } quirks[] = {
+	// Spaceship Warlock is designed to run as quickly as possible on a
+	// single speed CD drive; there's often content just before a movie
+	// transition which would otherwise get skipped past.
+	{ "warlock", Common::kPlatformMacintosh, &quirkWarlock },
+	{ "warlock", Common::kPlatformWindows, &quirkWarlock },
+
 	// Eastern Mind sets the score to play back at a high frame rate,
 	// however the developers were using slow hardware, so some
 	// animations play back much faster than intended.
@@ -253,6 +264,11 @@ void DirectorEngine::gameQuirks(const char *target, Common::Platform platform) {
 	}
 }
 
+void DirectorEngine::loadSlowdownCooloff(uint32 delay) {
+	if (_loadSlowdownFactor)
+		_loadSlowdownCooldownTime = g_system->getMillis() + delay;
+}
+
 /*****************
  * CachedArchive
  *****************/
@@ -265,7 +281,7 @@ CachedArchive::CachedArchive(const FileInputList &files)
 		entry.data = i->data;
 		entry.size = i->size;
 
-		Common::String name = i->name;
+		Common::Path name = i->name;
 		name.toLowercase();
 		_files[name] = entry;
 	}
@@ -276,8 +292,7 @@ CachedArchive::~CachedArchive() {
 }
 
 bool CachedArchive::hasFile(const Common::Path &path) const {
-	Common::String name = path.toString();
-	return (_files.find(name) != _files.end());
+	return (_files.find(path) != _files.end());
 }
 
 int CachedArchive::listMembers(Common::ArchiveMemberList &list) const {
@@ -292,16 +307,14 @@ int CachedArchive::listMembers(Common::ArchiveMemberList &list) const {
 }
 
 const Common::ArchiveMemberPtr CachedArchive::getMember(const Common::Path &path) const {
-	Common::String name = path.toString();
-	if (!hasFile(name))
+	if (!hasFile(path))
 		return Common::ArchiveMemberPtr();
 
-	return Common::ArchiveMemberPtr(new Common::GenericArchiveMember(name, *this));
+	return Common::ArchiveMemberPtr(new Common::GenericArchiveMember(path, *this));
 }
 
 Common::SeekableReadStream *CachedArchive::createReadStreamForMember(const Common::Path &path) const {
-	Common::String name = path.toString();
-	FileMap::const_iterator fDesc = _files.find(name);
+	FileMap::const_iterator fDesc = _files.find(path);
 	if (fDesc == _files.end())
 		return nullptr;
 

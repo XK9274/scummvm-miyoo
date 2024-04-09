@@ -20,13 +20,13 @@
  */
 
 #include "common/config-manager.h"
+#include "common/file.h"
 #include "common/tokenizer.h"
 #include "image/png.h"
 #include "image/bmp.h"
 #include "ultima/ultima8/ultima8.h"
 #include "ultima/ultima8/audio/audio_process.h"
 #include "ultima/ultima8/audio/music_process.h"
-#include "ultima/ultima8/filesys/file_system.h"
 #include "ultima/ultima8/games/game_data.h"
 #include "ultima/ultima8/graphics/inverter_process.h"
 #include "ultima/ultima8/graphics/main_shape_archive.h"
@@ -767,9 +767,9 @@ void Debugger::dumpCurrentMap() {
 	s->EndPainting();
 
 #ifdef USE_PNG
-	Std::string filename = Common::String::format("map_%03d.png", currentMap->getNum());
+	Common::Path filename(Common::String::format("map_%03d.png", currentMap->getNum()));
 #else
-	Std::string filename = Common::String::format("map_%03d.bmp", currentMap->getNum());
+	Common::Path filename(Common::String::format("map_%03d.bmp", currentMap->getNum()));
 #endif
 
 	Common::DumpFile dumpFile;
@@ -783,9 +783,9 @@ void Debugger::dumpCurrentMap() {
 	}
 
 	if (result) {
-		debugPrintf("Map dumped: %s\n", filename.c_str());
+		debugPrintf("Map dumped: %s\n", filename.toString().c_str());
 	} else {
-		debugPrintf("Could not write file: %s\n", filename.c_str());
+		debugPrintf("Could not write file: %s\n", filename.toString().c_str());
 	}
 
 	delete g;
@@ -1748,11 +1748,11 @@ bool Debugger::cmdPlayMovie(int argc, const char **argv) {
 		return true;
 	}
 
-	Std::string filename = Common::String::format("static/%s.skf", argv[1]);
-	FileSystem *filesys = FileSystem::get_instance();
-	Common::SeekableReadStream *skf = filesys->ReadFile(filename);
-	if (!skf) {
+	Common::String filename = Common::String::format("static/%s.skf", argv[1]);
+	auto *skf = new Common::File();
+	if (!skf->open(filename.c_str())) {
 		debugPrintf("movie not found.\n");
+		delete skf;
 		return true;
 	}
 

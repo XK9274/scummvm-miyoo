@@ -62,7 +62,7 @@
 #define SDL_FULLSCREEN  0x40000000
 #endif
 
-static OSystem::GraphicsMode s_supportedGraphicsModes[] = {
+static const OSystem::GraphicsMode s_supportedGraphicsModes[] = {
 	{"surfacesdl", _s("SDL Surface"), GFX_SURFACESDL},
 	{nullptr, nullptr, 0}
 };
@@ -683,6 +683,11 @@ void SurfaceSdlGraphicsManager::setGraphicsModeIntern() {
 
 		_scalerPlugin = &_scalerPlugins[_videoMode.scalerIndex]->get<ScalerPluginObject>();
 		_scaler = _scalerPlugin->createInstance(format);
+
+		if (_mouseScaler != nullptr) {
+			delete _mouseScaler;
+			_mouseScaler = _scalerPlugin->createInstance(_cursorFormat);
+		}
 	}
 
 	_scaler->setFactor(_videoMode.scaleFactor);
@@ -1526,7 +1531,7 @@ void SurfaceSdlGraphicsManager::internUpdateScreen() {
 #endif
 }
 
-bool SurfaceSdlGraphicsManager::saveScreenshot(const Common::String &filename) const {
+bool SurfaceSdlGraphicsManager::saveScreenshot(const Common::Path &filename) const {
 	assert(_hwScreen != nullptr);
 
 	Common::StackLock lock(_graphicsMutex);
@@ -2235,10 +2240,6 @@ void SurfaceSdlGraphicsManager::blitCursor() {
 	const int h = _mouseCurState.h;
 
 	if (!w || !h || !_mouseOrigSurface) {
-		return;
-	}
-
-	if (!_mouseOrigSurface) {
 		return;
 	}
 

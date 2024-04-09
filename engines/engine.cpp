@@ -56,6 +56,7 @@
 
 #include "graphics/cursorman.h"
 #include "graphics/fontman.h"
+#include "graphics/paletteman.h"
 #include "graphics/pixelformat.h"
 #include "image/bmp.h"
 
@@ -63,6 +64,7 @@
 
 // FIXME: HACK for error()
 Engine *g_engine = 0;
+bool Engine::_quitRequested;
 
 // Output formatter for debug() and error() which invokes
 // the errorString method of the active engine, if any.
@@ -152,6 +154,7 @@ Engine::Engine(OSystem *syst)
 		_lastAutosaveTime(_system->getMillis()) {
 
 	g_engine = this;
+	_quitRequested = false;
 	Common::setErrorOutputFormatter(defaultOutputFormatter);
 	Common::setErrorHandler(defaultErrorHandler);
 
@@ -179,6 +182,16 @@ Engine::Engine(OSystem *syst)
 	// palettes till the user enables it again.
 	CursorMan.pushCursorPalette(NULL, 0, 0);
 
+	// If we go from engine A to engine B via launcher, the palette
+	// is not touched during this process, since our GUI is 16-bit
+	// or 32-bit.
+	//
+	// This may lead to residual palette entries held in the backend
+	// from a previous engine. Here we make sure we reset the palette.
+	byte dummyPalette[768];
+	memset(dummyPalette, 0, 768);
+	g_system->getPaletteManager()->setPalette(dummyPalette, 0, 256);
+
 	defaultSyncSoundSettings();
 }
 
@@ -195,7 +208,7 @@ Engine::~Engine() {
 }
 
 void Engine::initializePath(const Common::FSNode &gamePath) {
-	SearchMan.addDirectory(gamePath.getPath(), gamePath, 0, 4);
+	SearchMan.addDirectory(gamePath, 0, 4);
 }
 
 void initCommonGFX() {
@@ -224,7 +237,7 @@ void initCommonGFX() {
 			g_system->setScaler(ConfMan.get("scaler").c_str(), ConfMan.getInt("scale_factor"));
 
 		if (gameDomain->contains("shader"))
-			g_system->setShader(ConfMan.get("shader"));
+			g_system->setShader(ConfMan.getPath("shader"));
 
 		// TODO: switching between OpenGL and SurfaceSDL is quite fragile
 		// and the SDL backend doesn't really need this so leave it out
@@ -324,12 +337,12 @@ void initGraphicsModes(const Graphics::ModeList &modes) {
  * Inits any of the modes in "modes". "modes" is in the order of preference.
  * Return value is index in modes of resulting mode.
  */
-int initGraphicsAny(const Graphics::ModeWithFormatList &modes) {
+int initGraphicsAny(const Graphics::ModeWithFormatList &modes, int start) {
 	int candidate = -1;
 	OSystem::TransactionError gfxError = OSystem::kTransactionSizeChangeFailed;
 	int last_width = 0, last_height = 0;
 
-	for (candidate = 0; candidate < (int)modes.size(); candidate++) {
+	for (candidate = start; candidate < (int)modes.size(); candidate++) {
 		g_system->beginGFXTransaction();
 		initCommonGFX();
 #ifdef USE_RGB_COLOR
@@ -509,7 +522,7 @@ void GUIErrorMessageFormat(const char *fmt, ...) {
 }
 
 void GUIErrorMessageFormatU32StringPtr(const Common::U32String *fmt, ...) {
-	Common::U32String msg("");
+	Common::U32String msg;
 
 	va_list va;
 	va_start(va, fmt);
@@ -874,7 +887,7 @@ Common::Error Engine::loadGameStream(Common::SeekableReadStream *stream) {
 	return Common::kReadingFailed;
 }
 
-bool Engine::canLoadGameStateCurrently() {
+bool Engine::canLoadGameStateCurrently(Common::U32String *msg) {
 	// Do not allow loading by default
 	return false;
 }
@@ -901,7 +914,7 @@ Common::Error Engine::saveGameStream(Common::WriteStream *stream, bool isAutosav
 	return Common::kWritingFailed;
 }
 
-bool Engine::canSaveGameStateCurrently() {
+bool Engine::canSaveGameStateCurrently(Common::U32String *msg) {
 	// Do not allow saving by default
 	return false;
 }
@@ -972,11 +985,13 @@ void Engine::quitGame() {
 
 	event.type = Common::EVENT_QUIT;
 	g_system->getEventManager()->pushEvent(event);
+	_quitRequested = true;
 }
 
 bool Engine::shouldQuit() {
 	Common::EventManager *eventMan = g_system->getEventManager();
-	return (eventMan->shouldQuit() || eventMan->shouldReturnToLauncher());
+	return eventMan->shouldQuit() || eventMan->shouldReturnToLauncher()
+		|| _quitRequested;
 }
 
 GUI::Debugger *Engine::getOrCreateDebugger() {

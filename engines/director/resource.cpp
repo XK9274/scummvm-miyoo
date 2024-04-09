@@ -22,11 +22,13 @@
 #include "common/config-manager.h"
 #include "common/error.h"
 #include "common/file.h"
+#include "common/fs.h"
 #include "common/macresman.h"
 #include "common/memstream.h"
 #include "common/bufferedstream.h"
 #include "common/substream.h"
 #include "common/formats/winexe.h"
+#include "director/types.h"
 #include "graphics/wincursor.h"
 
 #include "director/director.h"
@@ -34,6 +36,7 @@
 #include "director/cast.h"
 #include "director/movie.h"
 #include "director/score.h"
+#include "director/util.h"
 #include "director/window.h"
 
 namespace Director {
@@ -84,7 +87,7 @@ Common::Error Window::loadInitialMovie() {
 		_currentMovie->loadSharedCastsFrom(sharedCastPath);
 
 	// load startup movie
-	Common::String startupPath = g_director->getStartupPath();
+	Common::Path startupPath = g_director->getStartupPath();
 	if (!startupPath.empty()) {
 		Common::SeekableReadStream *const stream = SearchMan.createReadStreamForMember(startupPath);
 		if (stream) {
@@ -157,7 +160,7 @@ void Window::probeResources(Archive *archive) {
 					_currentMovie = nullptr;
 				}
 
-				Archive *subMovie = g_director->openArchive(moviePath.toString());
+				Archive *subMovie = g_director->openArchive(moviePath);
 				if (subMovie) {
 					probeResources(subMovie);
 				}
@@ -173,14 +176,14 @@ void Window::probeResources(Archive *archive) {
 		// fork of the file to state which XObject or HyperCard XCMD/XFCNs
 		// need to be loaded in.
 		MacArchive *resFork = new MacArchive();
-		Common::String resForkPathName = archive->getPathName();
-		if (resFork->openFile(findPath(resForkPathName).toString())) {
+		Common::Path resForkPathName = findPath(archive->getPathName());
+		if (resFork->openFile(resForkPathName)) {
 			if (resFork->hasResource(MKTAG('X', 'C', 'O', 'D'), -1)) {
 				Common::Array<uint16> xcod = resFork->getResourceIDList(MKTAG('X', 'C', 'O', 'D'));
 				for (auto &iterator : xcod) {
 					Resource res = resFork->getResourceDetail(MKTAG('X', 'C', 'O', 'D'), iterator);
 					debug(0, "Detected XObject '%s'", res.name.c_str());
-					g_lingo->openXLib(res.name, kXObj);
+					g_lingo->openXLib(res.name, kXObj, resForkPathName);
 				}
 			}
 			if (resFork->hasResource(MKTAG('X', 'C', 'M', 'D'), -1)) {
@@ -188,7 +191,7 @@ void Window::probeResources(Archive *archive) {
 				for (auto &iterator : xcmd) {
 					Resource res = resFork->getResourceDetail(MKTAG('X', 'C', 'M', 'D'), iterator);
 					debug(0, "Detected XCMD '%s'", res.name.c_str());
-					g_lingo->openXLib(res.name, kXObj);
+					g_lingo->openXLib(res.name, kXObj, resForkPathName);
 				}
 			}
 			if (resFork->hasResource(MKTAG('X', 'F', 'C', 'N'), -1)) {
@@ -196,11 +199,39 @@ void Window::probeResources(Archive *archive) {
 				for (auto &iterator : xfcn) {
 					Resource res = resFork->getResourceDetail(MKTAG('X', 'F', 'C', 'N'), iterator);
 					debug(0, "Detected XFCN '%s'", res.name.c_str());
-					g_lingo->openXLib(res.name, kXObj);
+					g_lingo->openXLib(res.name, kXObj, resForkPathName);
 				}
 			}
 		}
 		delete resFork;
+	}
+
+	// Xtras
+	if (g_director->getVersion() >= 500) {
+		Common::Path basePath(g_director->getEXEName(), g_director->_dirSeparator);
+		basePath = basePath.getParent().appendComponent("Xtras");
+		basePath = findPath(basePath, false, false, true);
+		if (!basePath.empty()) {
+			Common::StringArray directory_list = basePath.splitComponents();
+			Common::FSNode d = Common::FSNode(*g_director->getGameDataDir());
+			bool escape = false;
+			for (auto &it : directory_list) {
+				d = d.getChild(it);
+				if (!d.exists()) {
+					escape = true;
+					break;
+				}
+			}
+			if (!escape) {
+				debug(0, "Detected Xtras folder");
+				Common::FSList xtras;
+				d.getChildren(xtras, Common::FSNode::kListFilesOnly);
+				for (auto &it : xtras) {
+					debug(0, "Detected Xtra '%s'", it.getName().c_str());
+					g_lingo->openXLib(it.getName(), kXtraObj, basePath.appendComponent(it.getName()));
+				}
+			}
+		}
 	}
 }
 
@@ -236,7 +267,7 @@ Archive *DirectorEngine::openArchive(const Common::Path &path) {
 			return nullptr;
 		}
 	}
-	result->setPathName(path.toString(g_director->_dirSeparator));
+	result->setPathName(path);
 	_allSeenResFiles.setVal(path, result);
 
 	addArchiveToOpenList(path);
@@ -276,6 +307,8 @@ Archive *DirectorEngine::loadEXE(const Common::Path &movie) {
 	if (initialTag == MKTAG('R', 'I', 'F', 'X') || initialTag == MKTAG('X', 'F', 'I', 'R')) {
 		// we've encountered a movie saved from Director, not a projector.
 		result = loadEXERIFX(exeStream, 0);
+		// ownership handed to loadEXERIFX
+		exeStream = nullptr;
 	} else if (initialTag == MKTAG('R', 'I', 'F', 'F') || initialTag == MKTAG('F', 'F', 'I', 'R')) { // This is just a normal movie
 		result = new RIFFArchive();
 
@@ -284,8 +317,10 @@ Archive *DirectorEngine::loadEXE(const Common::Path &movie) {
 			delete result;
 			return nullptr;
 		}
+		// ownership handed to RIFFArchive
+		exeStream = nullptr;
 	} else {
-		Common::WinResources *exe = Common::WinResources::createFromEXE(movie.toString());
+		Common::WinResources *exe = Common::WinResources::createFromEXE(movie);
 		if (!exe) {
 			debugC(5, kDebugLoading, "DirectorEngine::loadEXE(): Failed to open EXE '%s'", movie.toString().c_str());
 			delete exeStream;
@@ -327,19 +362,13 @@ Archive *DirectorEngine::loadEXE(const Common::Path &movie) {
 			delete exeStream;
 			return nullptr;
 		}
-
-		if (result)
-			result->setPathName(movie.toString(g_director->_dirSeparator));
-		else {
-			delete exeStream;
-		}
-
-		return result;
+		// ownership passed to an EXE loader
+		exeStream = nullptr;
 	}
 
 	if (result)
-		result->setPathName(movie.toString(g_director->_dirSeparator));
-	else
+		result->setPathName(movie);
+	else if (exeStream)
 		delete exeStream;
 
 	return result;
@@ -415,17 +444,25 @@ Archive *DirectorEngine::loadEXEv3(Common::SeekableReadStream *stream) {
 			return result;
 
 		warning("DirectorEngine::loadEXEv3(): Failed to load RIFF from EXE");
+		// ownership of stream is passed to result, which will clean it up
 		delete result;
 		result = nullptr;
 	}
 
+	Common::String fullPathStr = directoryName + mmmFileName;
+	fullPathStr = convertPath(fullPathStr);
+	Common::Path fullPath = findMoviePath(fullPathStr);
+	if (fullPath.empty()) {
+		warning("DirectorEngine::loadEXEv3(): Could not find '%s'", fullPathStr.c_str());
+		return nullptr;
+	}
+	// The EXE is kicking us to a different movie on startup;
+	// and we want to treat it as a proper movie change
+	// (instead of pretending that the EXE is this movie) so that
+	// elements like the search path are correct.
+	getCurrentWindow()->setNextMovie(fullPathStr);
+	// Return an empty archive to avoid "Game data not found".
 	result = createArchive();
-
-	if (!result->openFile(mmmFileName)) {
-		warning("DirectorEngine::loadEXEv3(): Could not open '%s'", mmmFileName.c_str());
-		delete result;
-		result = nullptr;
-	}
 	return result;
 }
 
@@ -434,6 +471,7 @@ Archive *DirectorEngine::loadEXEv4(Common::SeekableReadStream *stream) {
 
 	if (ver != MKTAG('P', 'J', '9', '3')) {
 		warning("DirectorEngine::loadEXEv4(): Invalid projector tag found in v4 EXE [%s]", tag2str(ver));
+		delete stream;
 		return nullptr;
 	}
 
@@ -456,6 +494,7 @@ Archive *DirectorEngine::loadEXEv5(Common::SeekableReadStream *stream) {
 
 	if (ver != MKTAG('P', 'J', '9', '5')) {
 		warning("DirectorEngine::loadEXEv5(): Invalid projector tag found in v5 EXE [%s]", tag2str(ver));
+		delete stream;
 		return nullptr;
 	}
 
@@ -480,6 +519,7 @@ Archive *DirectorEngine::loadEXEv7(Common::SeekableReadStream *stream) {
 
 	if (ver != MKTAG('P', 'J', '0', '0') && ver != MKTAG('P', 'J', '0', '1')) {
 		warning("DirectorEngine::loadEXEv7(): Invalid projector tag found in v7 EXE [%s]", tag2str(ver));
+		delete stream;
 		return nullptr;
 	}
 
@@ -523,7 +563,7 @@ Archive *DirectorEngine::loadMac(const Common::Path &movie) {
 			return nullptr;
 		}
 		result = new RIFXArchive();
-		result->setPathName(movie.toString(g_director->_dirSeparator));
+		result->setPathName(movie);
 
 		// First we need to detect PPC vs. 68k
 
@@ -549,9 +589,9 @@ Archive *DirectorEngine::loadMac(const Common::Path &movie) {
 
 void Window::loadStartMovieXLibs() {
 	if (strcmp(g_director->getGameId(), "warlock") == 0 && g_director->getPlatform() != Common::kPlatformWindows) {
-		g_lingo->openXLib("FPlayXObj", kXObj);
+		g_lingo->openXLib("FPlayXObj", kXObj, Common::Path());
 	}
-	g_lingo->openXLib("SerialPort", kXObj);
+	g_lingo->openXLib("SerialPort", kXObj, Common::Path());
 }
 
 ProjectorArchive::ProjectorArchive(Common::Path path)
@@ -707,7 +747,7 @@ bool ProjectorArchive::loadArchive(Common::SeekableReadStream *stream) {
 		// subtract 8 since we want to include tag and size as well
 		entry.offset = static_cast<uint32>(stream->pos() - 8);
 		entry.size = size + 8;
-		_files[path.toString()] = entry;
+		_files[path] = entry;
 
 		// Align size for the next seek.
 		size += (size % 2);
@@ -724,8 +764,7 @@ bool ProjectorArchive::loadArchive(Common::SeekableReadStream *stream) {
 }
 
 bool ProjectorArchive::hasFile(const Common::Path &path) const {
-	Common::String name = path.toString();
-	return (_files.find(name) != _files.end());
+	return (_files.find(path) != _files.end());
 }
 
 int ProjectorArchive::listMembers(Common::ArchiveMemberList &list) const {
@@ -740,17 +779,14 @@ int ProjectorArchive::listMembers(Common::ArchiveMemberList &list) const {
 }
 
 const Common::ArchiveMemberPtr ProjectorArchive::getMember(const Common::Path &path) const {
-	Common::String name = path.toString();
-
-	if (!hasFile(name))
+	if (!hasFile(path))
 		return Common::ArchiveMemberPtr();
 
-	return Common::ArchiveMemberPtr(new Common::GenericArchiveMember(name, *this));
+	return Common::ArchiveMemberPtr(new Common::GenericArchiveMember(path, *this));
 }
 
 Common::SeekableReadStream *ProjectorArchive::createReadStreamForMember(const Common::Path &path) const {
-	Common::String name = path.toString();
-	FileMap::const_iterator fDesc = _files.find(name);
+	FileMap::const_iterator fDesc = _files.find(path);
 
 	if (fDesc == _files.end())
 		return nullptr;

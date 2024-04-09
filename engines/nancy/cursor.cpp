@@ -30,12 +30,12 @@
 
 namespace Nancy {
 
-CursorManager::CursorManager()  :
+CursorManager::CursorManager() :
 	_isInitialized(false),
 	_curItemID(-1),
 	_curCursorType(kNormal),
 	_curCursorID(0),
-	_lastCursorID(0),
+	_lastCursorID(10000), // nonsense default value to ensure cursor is drawn the first time
 	_hasItem(false),
 	_numCursorTypes(0),
 	_puzzleExitCursor((g_nancy->getGameType() >= kGameTypeNancy4) ? kMoveBackward : kExit),
@@ -46,13 +46,7 @@ void CursorManager::init(Common::SeekableReadStream *chunkStream) {
 	chunkStream->seek(0);
 
 	// First, we need to figure out the number of possible CursorTypes in the current game
-	// These grew as the engine got more complicated, so we use nancy.dat to store a related property
-	// TODO: Change nancy.dat so it just directly stores the number of cursor types
-	if (g_nancy->getGameType() == kGameTypeVampire) {
-		_numCursorTypes = g_nancy->getStaticData().numNonItemCursors / 2;
-	} else {
-		_numCursorTypes = g_nancy->getStaticData().numNonItemCursors / 3;
-	}
+	_numCursorTypes = g_nancy->getStaticData().numCursorTypes;
 
 	// The structure of CURS is weird:
 
@@ -66,7 +60,7 @@ void CursorManager::init(Common::SeekableReadStream *chunkStream) {
 	// The only frame cursors used are the first two: the classic arrow cursor, and its hotspot variant, which is slightly shorter
 	// The same applies to the menu cursors; however, we completely ignore those (technically the arrow cursor has sliiiiightly
 	// different shading from the one in the frame array, but I don't care enough to implement it).
-	
+
 	// Following those are the ITEM arrays; these cursors are used to indicate that the player is holding an item.
 	// Their number is the same as the number of items described in INV, and their size is also _numCursorTypes.
 	// Out of those arrays, the only cursors that get used are the kNormal and kHotspot ones. The first few games also
@@ -79,7 +73,7 @@ void CursorManager::init(Common::SeekableReadStream *chunkStream) {
 	// however, this cannot happen until the engine is more mature and I'm more aware of what changes they made to the
 	// cursor code in later games.
 
-	uint numCursors = g_nancy->getStaticData().numNonItemCursors + g_nancy->getStaticData().numItems * _numCursorTypes;
+	uint numCursors = _numCursorTypes * (g_nancy->getGameType() == kGameTypeVampire ? 2 : 3) + g_nancy->getStaticData().numItems * _numCursorTypes;
 	_cursors.resize(numCursors);
 
 	for (uint i = 0; i < numCursors; ++i) {
@@ -144,7 +138,7 @@ void CursorManager::setCursor(CursorType type, int16 itemID) {
 			_curCursorID = kInvertedRotateLeft;
 			return;
 		}
-		
+
 		// fall through
 	case kRotateLeft:
 		// Only valid for nancy6 and up
@@ -256,7 +250,7 @@ void CursorManager::setCursor(CursorType type, int16 itemID) {
 		itemID = 0;
 	} else {
 		// Item held
-		itemsOffset = g_nancy->getStaticData().numNonItemCursors;
+		itemsOffset = _numCursorTypes * (g_nancy->getGameType() == kGameTypeVampire ? 2 : 3);
 		_hasItem = true;
 	}
 
@@ -285,12 +279,12 @@ void CursorManager::applyCursor() {
 			surf = &_invCursorsSurface;
 
 		} else {
-			surf = &g_nancy->_graphicsManager->_object0;
+			surf = &g_nancy->_graphics->_object0;
 		}
 
 		Graphics::ManagedSurface temp(*surf, bounds);
 
-		CursorMan.replaceCursor(temp, hotspot.x, hotspot.y, g_nancy->_graphicsManager->getTransColor(), false);
+		CursorMan.replaceCursor(temp, hotspot.x, hotspot.y, g_nancy->_graphics->getTransColor(), false);
 		if (g_nancy->getGameType() == kGameTypeVampire) {
 			byte palette[3 * 256];
 			surf->grabPalette(palette, 0, 256);

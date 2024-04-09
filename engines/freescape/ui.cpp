@@ -30,7 +30,7 @@ void FreescapeEngine::titleScreen() {
 	int maxWait = 60 * 6;
 	for (int i = 0; i < maxWait; i++ ) {
 		Common::Event event;
-		while (g_system->getEventManager()->pollEvent(event)) {
+		while (_eventManager->pollEvent(event)) {
 			switch (event.type) {
 			case Common::EVENT_QUIT:
 			case Common::EVENT_RETURN_TO_LAUNCHER:
@@ -104,8 +104,8 @@ Graphics::Surface *FreescapeEngine::drawStringsInSurface(const Common::Array<Com
 
 	uint32 front = _gfx->_texturePixelFormat.ARGBToColor(0xFF, r, g, b);
 
-	int x = 50;
-	int y = 32;
+	int x = isCastle() ? 45 : 55;
+	int y = isEclipse() || isCastle() ? 40 : 32;
 
 	for (int i = 0; i < int(lines.size()); i++) {
 		drawStringInSurface(lines[i], x, y, front, black, surface);
@@ -130,15 +130,18 @@ void FreescapeEngine::borderScreen() {
 
 	if (isDOS() || isSpectrum()) {
 		Common::Array<Common::String> lines;
-		lines.push_back("     CONFIGURATION MENU");
+		if (isDOS())
+			lines.push_back("    CONFIGURATION MENU  ");
+		else
+			lines.push_back("    CONTROL  OPTIONS  ");
 		lines.push_back("");
-		lines.push_back("     1: KEYBOARD ONLY      ");
-		lines.push_back("     2: IBM JOYSTICK       ");
-		lines.push_back("     3: AMSTRAD JOYSTICK   ");
+		lines.push_back("   1: KEYBOARD ONLY   ");
+		lines.push_back("   2: IBM JOYSTICK    ");
+		lines.push_back("   3: AMSTRAD JOYSTICK");
 		lines.push_back("");
-		lines.push_back("  SPACEBAR:  BEGIN MISSION");
+		lines.push_back(" SPACEBAR:  BEGIN MISSION");
 		lines.push_back("");
-		lines.push_back("  COPYRIGHT 1988 INCENTIVE");
+		lines.push_back(" COPYRIGHT 1988 INCENTIVE");
 		lines.push_back("");
 		Graphics::Surface *surface = drawStringsInSurface(lines);
 		drawBorderScreenAndWait(surface);
@@ -165,14 +168,14 @@ void FreescapeEngine::drawFullscreenMessage(Common::String message, uint32 front
 		numberOfLines = 10;
 	} else if (isSpectrum() || isCPC()) {
 		x = 60;
-		y = 35;
+		y = 40;
 		letterPerLine = 24;
 		numberOfLines = 12;
 	}
 
 	for (int i = 0; i < numberOfLines; i++) {
 		Common::String line = message.substr(letterPerLine * i, letterPerLine);
-		debug("'%s' %d", line.c_str(), line.size());
+		//debug("'%s' %d", line.c_str(), line.size());
 		drawStringInSurface(line, x, y, front, black, surface);
 		y = y + 8;
 	}
@@ -205,7 +208,7 @@ void FreescapeEngine::drawFullscreenMessageAndWait(Common::String message) {
 	Common::Event event;
 	bool cont = true;
 	while (!shouldQuit() && cont) {
-		while (g_system->getEventManager()->pollEvent(event)) {
+		while (_eventManager->pollEvent(event)) {
 
 			// Events
 			switch (event.type) {
@@ -248,7 +251,7 @@ void FreescapeEngine::drawBorderScreenAndWait(Graphics::Surface *surface) {
 	int maxWait = 6 * 60;
 	for (int i = 0; i < maxWait; i++ ) {
 		Common::Event event;
-		while (g_system->getEventManager()->pollEvent(event)) {
+		while (_eventManager->pollEvent(event)) {
 			switch (event.type) {
 			case Common::EVENT_QUIT:
 			case Common::EVENT_RETURN_TO_LAUNCHER:

@@ -53,11 +53,6 @@ class Sprite;
 class CastMember;
 class AudioDecoder;
 
-enum RenderMode {
-	kRenderModeNormal,
-	kRenderForceUpdate
-};
-
 struct Label {
 	Common::String comment;
 	Common::String name;
@@ -93,6 +88,7 @@ public:
 	void startPlay();
 	void step();
 	void stopPlay();
+	void setDelay(uint32 ticks);
 
 	void setCurrentFrame(uint16 frameId) { _nextFrame = frameId; }
 	uint16 getCurrentFrameNum() { return _curFrameNumber; }
@@ -120,23 +116,26 @@ public:
 	Common::List<Channel *> getSpriteIntersections(const Common::Rect &r);
 	uint16 getSpriteIdByMemberId(CastMemberID id);
 
-	bool renderTransition(uint16 frameId);
+	bool renderTransition(uint16 frameId, RenderMode mode);
 	void renderFrame(uint16 frameId, RenderMode mode = kRenderModeNormal);
-	void renderSprites(uint16 frameId, RenderMode mode = kRenderModeNormal);
-	bool renderPrePaletteCycle(uint16 frameId, RenderMode mode = kRenderModeNormal);
-	void setLastPalette(uint16 frameId);
+	void renderSprites(RenderMode mode = kRenderModeNormal);
+	bool renderPrePaletteCycle(RenderMode mode = kRenderModeNormal);
+	void setLastPalette();
 	bool isPaletteColorCycling();
-	void renderPaletteCycle(uint16 frameId, RenderMode mode = kRenderModeNormal);
+	void renderPaletteCycle(RenderMode mode = kRenderModeNormal);
 	void renderCursor(Common::Point pos, bool forceUpdate = false);
 	void updateWidgets(bool hasVideoPlayback);
 
 	void invalidateRectsForMember(CastMember *member);
 
-	void playSoundChannel(uint16 frameId, bool puppetOnly);
+	void playSoundChannel(bool puppetOnly);
 
 	Common::String formatChannelInfo();
 
 private:
+	bool isWaitingForNextFrame();
+	void updateCurrentFrame();
+	void updateNextFrameTime();
 	void update();
 	void playQueuedSound();
 
@@ -167,6 +166,7 @@ public:
 	Common::MemoryReadStreamEndian *_framesStream;
 
 	byte _currentFrameRate;
+	byte _puppetTempo;
 
 	bool _puppetPalette;
 	int _paletteTransitionIndex;
@@ -174,13 +174,14 @@ public:
 
 	PlayState _playState;
 	uint32 _nextFrameTime;
+	uint32 _nextFrameDelay;
 	int _lastTempo;
 	int _waitForChannel;
 	int _waitForVideoChannel;
 	bool _waitForClick;
 	bool _waitForClickCursor;
 	bool _cursorDirty;
-	int _activeFade;
+	bool _activeFade;
 	Cursor _defaultCursor;
 	CursorRef _currentCursor;
 	bool _skipTransition;

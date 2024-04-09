@@ -211,16 +211,29 @@ template<class TNumber, uint32 TLiteralMask, uint32 TTransparentRowSkipMask>
 bool CachedMToon::decompressMToonRLE(const RleFrame &frame, const Common::Array<TNumber> &coefsArray, Graphics::ManagedSurface &surface, bool isBottomUp, bool isKeyFrame, uint hackFlags) {
 	assert(sizeof(TNumber) == surface.format.bytesPerPixel);
 
+	size_t w = surface.w;
+	size_t h = surface.h;
+
 	size_t size = coefsArray.size();
-	if (size == 0)
-		return false;
+	if (size == 0) {
+		if (isKeyFrame) {
+			TNumber fillColor = 0;
+			if (surface.format.bytesPerPixel > 1)
+				fillColor = surface.format.RGBToColor(0, 0, 0);
+
+			for (size_t y = 0; y < h; y++) {
+				TNumber *rowData = static_cast<TNumber *>(surface.getBasePtr(0, y));
+				for (size_t x = 0; x < w; x++)
+					rowData[x] = fillColor;
+			}
+		}
+		return true;
+	}
 
 	const TNumber *coefs = &coefsArray[0];
 
 	size_t x = 0;
 	size_t y = 0;
-	size_t w = surface.w;
-	size_t h = surface.h;
 
 	if (w != frame.width || h != frame.height)
 		return false;
@@ -314,6 +327,29 @@ bool CachedMToon::decompressMToonRLE(const RleFrame &frame, const Common::Array<
 	return true;
 }
 
+template<class TDest, class TSrc>
+void CachedMToon::checkedMemCpy(Common::Array<TDest> &dest, size_t destIndex, const Common::Array<TSrc> &src, size_t srcIndex, size_t sizeBytes) {
+	if (sizeBytes == 0)
+		return;
+
+	size_t destSize = dest.size() * sizeof(TDest);
+	size_t srcSize = src.size() * sizeof(TSrc);
+
+	if (destIndex > dest.size() || srcIndex > src.size())
+		error("Out-of-range data copy offset while loading mToon");
+
+	size_t srcPos = srcIndex * sizeof(TSrc);
+	size_t destPos = destIndex * sizeof(TDest);
+
+	size_t srcAvail = srcSize - srcPos;
+	size_t destAvail = destSize - destPos;
+
+	if (srcAvail < sizeBytes || destAvail < sizeBytes)
+		error("Out-of-range data copy end while loading mToon");
+
+	memcpy(&dest[destIndex], &src[srcIndex], sizeBytes);
+}
+
 void CachedMToon::decompressRLEFrameToImage(size_t frameIndex, Graphics::ManagedSurface &surface) {
 	assert(surface.format == _rleOptimizedFormat);
 
@@ -348,6 +384,14 @@ void CachedMToon::loadRLEFrames(const Common::Array<uint8> &data) {
 
 		size_t baseOffset = frameDef.dataOffset;
 
+		if (frameDef.compressedSize == 0) {
+			rleFrame.isKeyframe = (i == 0);	// ???
+			continue;
+		}
+
+		if (frameDef.compressedSize < 20)
+			error("Invalid compressed data size");
+
 		uint32 headerInts[5];
 		for (size_t hi = 0; hi < 5; hi++) {
 			uint32 unpacked = 0;
@@ -373,15 +417,15 @@ void CachedMToon::loadRLEFrames(const Common::Array<uint8> &data) {
 		uint32 frameDataSize = headerInts[4];
 
 		if (frameDataSize > 0) {
+			// frameDataSize is sometimes set to frameDef.compressedSize but sometimes contains garbage,
+			// so we need to ignore it and derive size from the frameDef instead.
 			if (bpp == 8) {
-				rleFrame.data8.resize(frameDataSize);
-				memcpy(&rleFrame.data8[0], &data[baseOffset + 20], frameDataSize);
+				rleFrame.data8.resize(frameDef.compressedSize - 20);
+				checkedMemCpy(rleFrame.data8, 0, data, baseOffset + 20, frameDef.compressedSize - 20);
 			} else if (bpp == 16) {
-				// In RLE16, frameDataSize is sometimes set to frameDef.compressedSize but sometimes contains garbage,
-				// so we need to ignore it and derive size from the frameDef instead.
 				uint32 numDWords = (frameDef.compressedSize - 20) / 2;
 				rleFrame.data16.resize(numDWords);
-				memcpy(&rleFrame.data16[0], &data[baseOffset + 20], static_cast<size_t>(numDWords) * 2u);
+				checkedMemCpy(rleFrame.data16, 0, data, baseOffset + 20, static_cast<size_t>(numDWords) * 2u);
 
 				uint16 *i16 = &rleFrame.data16[0];
 				if (_metadata->imageFormat == MToonMetadata::kImageFormatWindows) {

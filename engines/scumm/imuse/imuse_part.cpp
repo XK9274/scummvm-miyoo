@@ -64,6 +64,7 @@ Part::Part() {
 	_percussion = 0;
 	_bank = 0;
 	_unassigned_instrument = false;
+	_se = nullptr;
 }
 
 void Part::saveLoadWithSerializer(Common::Serializer &ser) {
@@ -104,16 +105,14 @@ void Part::saveLoadWithSerializer(Common::Serializer &ser) {
 	ser.syncAsByte(_chorus, VER(8));
 	ser.syncAsByte(_percussion, VER(8));
 	ser.syncAsByte(_bank, VER(8));
+	ser.syncAsByte(_polyphony, VER(116));
+	ser.syncAsByte(_volControlSensitivity, VER(116));
 }
 
 void Part::set_detune(int8 detune) {
-	// Sam&Max does not have detune, so we just ignore this here. We still get
-	// this called, since Sam&Max uses the same controller for a different
-	// purpose.
-	if (_se->_newSystem)
-		return;
-
-	_detune_eff = clamp((_detune = detune) + _player->getDetune(), -128, 127);
+	// Sam&Max does not have detune except for the parameter faders, so the argument
+	// here will always be 0 and the only relevant part will be the detune from the player.
+	_detune_eff = _se->_newSystem ? _player->getDetune() : clamp((_detune = detune) + _player->getDetune(), -128, 127);
 	sendDetune();
 }
 
@@ -124,6 +123,13 @@ void Part::pitchBend(int16 value) {
 
 void Part::volume(byte value) {
 	_vol = value;
+	sendVolume(0);
+}
+
+void Part::volControlSensitivity(byte value) {
+	if (value > 127)
+		return;
+	_volControlSensitivity = value;
 	sendVolume(0);
 }
 
@@ -188,6 +194,13 @@ void Part::fix_after_load() {
 	set_detune(_detune);
 	set_pri(_pri);
 	set_pan(_pan);
+
+	if (!_se->_dynamicChanAllocation && !_mc) {
+		_mc = _se->allocateChannel(_player->getMidiDriver(), _pri_eff);
+		if (!_mc)
+			_se->suspendPart(this);
+	}
+
 	sendAll();
 }
 
@@ -322,13 +335,15 @@ void Part::uninit() {
 		return;
 	off();
 	_player->removePart(this);
+	_se->removeSuspendedPart(this);
 	_player = nullptr;
 }
 
 void Part::off() {
 	if (_mc) {
 		_mc->allNotesOff();
-		_mc->release();
+		if (!_se->reassignChannelAndResumePart(_mc))
+			_mc->release();
 		_mc = nullptr;
 	}
 }

@@ -39,6 +39,12 @@ MODULE_OBJS := \
 	imuse/drivers/pcspk.o \
 	input.o \
 	ks_check.o \
+	macgui/macgui.o \
+	macgui/macgui_dialogwindow.o \
+	macgui/macgui_impl.o \
+	macgui/macgui_indy3.o \
+	macgui/macgui_loom.o \
+	macgui/macgui_widgets.o \
 	metaengine.o \
 	midiparser_ro.o \
 	object.o \
@@ -46,7 +52,9 @@ MODULE_OBJS := \
 	players/player_ad.o \
 	players/player_apple2.o \
 	players/player_he.o \
-	players/player_mac.o \
+	players/player_mac_indy3.o \
+	players/player_mac_loom_monkey.o \
+	players/player_mac_new.o \
 	players/player_mod.o \
 	players/player_nes.o \
 	players/player_pce.o \
@@ -58,9 +66,7 @@ MODULE_OBJS := \
 	players/player_v2base.o \
 	players/player_v2cms.o \
 	players/player_v3a.o \
-	players/player_v3m.o \
 	players/player_v4a.o \
-	players/player_v5m.o \
 	resource_v2.o \
 	resource_v3.o \
 	resource_v4.o \

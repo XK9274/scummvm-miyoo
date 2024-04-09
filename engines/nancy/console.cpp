@@ -24,8 +24,8 @@
 #include "common/config-manager.h"
 
 #include "audio/audiostream.h"
-
 #include "image/bmp.h"
+#include "video/bink_decoder.h"
 
 #include "engines/nancy/nancy.h"
 #include "engines/nancy/console.h"
@@ -76,12 +76,25 @@ NancyConsole::~NancyConsole() {}
 void NancyConsole::postEnter() {
 	GUI::Debugger::postEnter();
 	if (!_videoFile.empty()) {
-		Video::VideoDecoder *dec = new AVFDecoder;
+		Common::Path withExt = _videoFile;
+		Video::VideoDecoder *dec = new AVFDecoder();
 
-		if (dec->loadFile(_videoFile)) {
+		if (!dec->loadFile(withExt.append(".avf"))) {
+			// No AVF found, try Bink
+			delete dec;
+			dec = new Video::BinkDecoder();
+
+			if (!dec->loadFile(withExt.append(".bik"))) {
+				debugPrintf("Failed to load video '%s'\n", _videoFile.toString(Common::Path::kNativeSeparator).c_str());
+				delete dec;
+				dec = nullptr;
+			}
+		}
+
+		if (dec) {
 			Graphics::ManagedSurface surf;
 
-			if (_paletteFile.size()) {
+			if (!_paletteFile.empty()) {
 				GraphicsManager::loadSurfacePalette(surf, _paletteFile);
 			}
 
@@ -98,17 +111,15 @@ void NancyConsole::postEnter() {
 				if (dec->needsUpdate()) {
 					const Graphics::Surface *frame = dec->decodeNextFrame();
 					if (frame) {
-						GraphicsManager::copyToManaged(*frame, surf, _paletteFile.size());
-						g_nancy->_graphicsManager->debugDrawToScreen(surf);
+						GraphicsManager::copyToManaged(*frame, surf, !_paletteFile.empty());
+						g_nancy->_graphics->debugDrawToScreen(surf);
 					}
 				}
 
 				g_system->delayMillis(10);
 			}
 
-			g_nancy->_graphicsManager->redrawAll();
-		} else {
-			debugPrintf("Failed to load '%s'\n", _videoFile.c_str());
+			g_nancy->_graphics->redrawAll();
 		}
 
 		_videoFile.clear();
@@ -119,11 +130,11 @@ void NancyConsole::postEnter() {
 	if (!_imageFile.empty()) {
 		Graphics::ManagedSurface surf;
 		if (g_nancy->_resource->loadImage(_imageFile, surf)) {
-			if (_paletteFile.size()) {
+			if (!_paletteFile.empty()) {
 				GraphicsManager::loadSurfacePalette(surf, _paletteFile);
 			}
 
-			g_nancy->_graphicsManager->debugDrawToScreen(surf);
+			g_nancy->_graphics->debugDrawToScreen(surf);
 
 			Common::EventManager *ev = g_system->getEventManager();
 			while (!g_nancy->shouldQuit()) {
@@ -139,9 +150,9 @@ void NancyConsole::postEnter() {
 				g_system->delayMillis(10);
 			}
 
-			g_nancy->_graphicsManager->redrawAll();
+			g_nancy->_graphics->redrawAll();
 		} else {
-			debugPrintf("Failed to load image '%s'\n", _imageFile.c_str());
+			debugPrintf("Failed to load image '%s'\n", _imageFile.toString().c_str());
 		}
 
 		_imageFile.clear();
@@ -173,7 +184,7 @@ bool NancyConsole::Cmd_ciftreeExport(int argc, const char **argv) {
 		return true;
 	}
 
-	Common::StringArray files;
+	Common::Array<Common::Path> files;
 
 	for (int i = 2; i < argc; ++i) {
 		files.push_back(argv[i]);
@@ -193,10 +204,15 @@ bool NancyConsole::Cmd_cifList(int argc, const char **argv) {
 		return true;
 	}
 
-	Common::Array<Common::String> list;
+	Common::Array<Common::Path> list;
 	g_nancy->_resource->list((argc == 2 ? "" : argv[2]), list, (CifInfo::ResType)atoi(argv[1]));
 
-	debugPrintColumns(list);
+	Common::StringArray listStr;
+	listStr.resize(list.size());
+	for (unsigned int i = 0; i < list.size(); i++) {
+		listStr[i] = list[i].toString();
+	}
+	debugPrintColumns(listStr);
 
 	return true;
 }
@@ -251,7 +267,7 @@ bool NancyConsole::Cmd_chunkExport(int argc, const char **argv) {
 	filename += '_';
 	filename += argv[2];
 	filename += ".dat";
-	dumpfile.open(filename);
+	dumpfile.open(Common::Path(filename));
 	dumpfile.write(buf, size);
 	dumpfile.close();
 	delete iff;
@@ -354,7 +370,7 @@ bool NancyConsole::Cmd_exportImage(int argc, const char **argv) {
 	Graphics::ManagedSurface surf;
 	if (g_nancy->_resource->loadImage(argv[1], surf)) {
 		Common::DumpFile f;
-		if (!f.open(Common::String(argv[1]) + ".bmp")) {
+		if (!f.open(Common::Path(argv[1]).appendInPlace(".bmp"))) {
 			debugPrintf("Couldn't open file for writing!");
 
 			return true;
@@ -376,7 +392,6 @@ bool NancyConsole::Cmd_playVideo(int argc, const char **argv) {
 		}
 
 		_videoFile = argv[1];
-		_videoFile += ".avf";
 		_paletteFile = argv[2];
 		return cmdExit(0, nullptr);
 	} else {
@@ -387,7 +402,6 @@ bool NancyConsole::Cmd_playVideo(int argc, const char **argv) {
 		}
 
 		_videoFile = argv[1];
-		_videoFile += ".avf";
 		return cmdExit(0, nullptr);
 	}
 }
@@ -412,7 +426,7 @@ bool NancyConsole::Cmd_playSound(int argc, const char **argv) {
 	}
 
 	Common::File *f = new Common::File;
-	if (!f->open(Common::String(argv[1]) + ".his")) {
+	if (!f->open(Common::Path(argv[1]).appendInPlace(".his"))) {
 		debugPrintf("Failed to open '%s.his'\n", argv[1]);
 		delete f;
 		return true;
@@ -442,7 +456,7 @@ bool NancyConsole::Cmd_loadScene(int argc, const char **argv) {
 		return true;
 	}
 
-	Common::String sceneName = Common::String::format("S%s", argv[1]);
+	Common::Path sceneName(Common::String::format("S%s", argv[1]));
 	IFF *iff = g_nancy->_resource->loadIFF(sceneName);
 	if (!iff) {
 		debugPrintf("Invalid scene S%s\n", argv[1]);
@@ -610,7 +624,7 @@ bool NancyConsole::Cmd_listActionRecords(int argc, const char **argv) {
 		Common::Queue<uint> unknownTypes;
 		Common::Queue<Common::String> unknownDescs;
 		Common::SeekableReadStream *chunk;
-		IFF *sceneIFF = g_nancy->_resource->loadIFF("S" + s);
+		IFF *sceneIFF = g_nancy->_resource->loadIFF(Common::Path("S" + s));
 		if (!sceneIFF) {
 			debugPrintf("Invalid scene S%s\n", argv[1]);
 			return true;
@@ -676,7 +690,7 @@ bool NancyConsole::Cmd_scanForActionRecordType(int argc, const char **argv) {
 		insertVal = s.asUint64();
 
 		if (insertVal != 0 || s.firstChar() == '0') {
-			if (i % 2)  {
+			if (i % 2) {
 				if (insertVal > 255) {
 					debugPrintf("Invalid input: %u is a byte, value cannot be over 255!\n", (uint32)insertVal);
 					return true;
@@ -685,22 +699,22 @@ bool NancyConsole::Cmd_scanForActionRecordType(int argc, const char **argv) {
 			} else {
 				vals.push_back(insertVal + 0x32);
 			}
-			
+
 		} else {
 			debugPrintf("Invalid input: %s\n", argv[i]);
 			return true;
 		}
 	}
 
-	Common::Array<Common::String> list;
+	Common::Array<Common::Path> list;
 	// Action records only appear in the ciftree and promotree
 	g_nancy->_resource->list("ciftree", list, CifInfo::kResTypeScript);
 	g_nancy->_resource->list("promotree", list, CifInfo::kResTypeScript);
 
 	char descBuf[0x30];
 
-	for (Common::String &cifName : list) {
-		Common::String name = cifName;
+	for (Common::Path &cifName : list) {
+		Common::String name = cifName.baseName();
 		if (name.hasSuffixIgnoreCase(".iff")) {
 			name = name.substr(0, name.size() - 4);
 		}
@@ -734,7 +748,7 @@ bool NancyConsole::Cmd_scanForActionRecordType(int argc, const char **argv) {
 						chunk->seek(0);
 						chunk->read(descBuf, 0x30);
 						descBuf[0x2F] = '\0';
-						debugPrintf("%s: ACT chunk %u, %s\n", cifName.c_str(), num, descBuf);
+						debugPrintf("%s: ACT chunk %u, %s\n", cifName.toString().c_str(), num, descBuf);
 					}
 
 					++num;
@@ -865,7 +879,7 @@ bool NancyConsole::Cmd_getInventory(int argc, const char **argv) {
 bool NancyConsole::Cmd_setInventory(int argc, const char **argv) {
 	auto *inventoryData = GetEngineData(INV);
 	assert(inventoryData);
-	
+
 	if (g_nancy->_gameFlow.curState != NancyState::kScene) {
 		debugPrintf("Not in the kScene state\n");
 		return true;
@@ -996,7 +1010,7 @@ bool NancyConsole::Cmd_soundInfo(int argc, const char **argv) {
 	Common::Array<byte> channelIDs;
 	if (argc == 1) {
 		debugPrintf("Currently playing sounds:\n\n");
-		
+
 		for (uint i = 0; i < g_nancy->getStaticData().soundChannelInfo.numChannels; ++i) {
 			channelIDs.push_back(i);
 		}
@@ -1013,7 +1027,7 @@ bool NancyConsole::Cmd_soundInfo(int argc, const char **argv) {
 			debugPrintf("Channel %u, filename %s\n", channelID, chan.name.c_str());
 			debugPrintf("Source rate %i, playing at %i\n", chan.stream->getRate(), g_nancy->_sound->_mixer->getChannelRate(chan.handle));
 			debugPrintf("Volume: %u, pan: %i, numLoops: %u\n\n", chan.volume, g_nancy->_sound->_mixer->getChannelBalance(chan.handle), chan.numLoops);
-			
+
 			if (chan.playCommands != SoundManager::kPlaySequential) {
 				debugPrintf("\tPlay commands 0x%08x\n", chan.playCommands);
 
@@ -1029,10 +1043,9 @@ bool NancyConsole::Cmd_soundInfo(int argc, const char **argv) {
 }
 
 bool NancyConsole::Cmd_showHotspots(int argc, const char **argv) {
-	ConfMan.setBool("debug_hotspots", !ConfMan.getBool("debug_hotspots", ConfMan.kTransientDomain), ConfMan.kTransientDomain);
+	ConfMan.setBool("debug_hotspots", !ConfMan.getBool("debug_hotspots", Common::ConfigManager::kTransientDomain), Common::ConfigManager::kTransientDomain);
 
 	return cmdExit(0, nullptr);
 }
-
 
 } // End of namespace Nancy

@@ -39,13 +39,16 @@ void AssemblyPuzzle::init() {
 
 	for (uint i = 0; i < _pieces.size(); ++i) {
 		Piece &piece = _pieces[i];
-		piece.curRotation = 0;
+		piece.curRotation = piece.placed ? piece.correctRotation : 0;
 		piece._drawSurface.create(_image, piece.srcRects[piece.curRotation]);
 		piece.setVisible(true);
 		piece.setTransparent(true);
-		piece.moveTo(piece.placed ? piece.destRects[0] : piece.startRect);
+		piece.moveTo(piece.placed ? piece.destRects[piece.curRotation] : piece.startRect);
 		piece.setZ(_z + i + _pieces.size());
 	}
+
+	rotateBase(true);
+	rotateBase(false);
 }
 
 void AssemblyPuzzle::registerGraphics() {
@@ -55,6 +58,9 @@ void AssemblyPuzzle::registerGraphics() {
 }
 
 void AssemblyPuzzle::readData(Common::SeekableReadStream &stream) {
+	_puzzleState = (AssemblyPuzzleData *)NancySceneState.getPuzzleData(AssemblyPuzzleData::getTag());
+	assert(_puzzleState);
+
 	readFilename(stream, _imageName);
 
 	uint16 numPieces = stream.readUint16LE();
@@ -74,6 +80,10 @@ void AssemblyPuzzle::readData(Common::SeekableReadStream &stream) {
 		piece.correctRotation = stream.readUint16LE();
 		piece.layer = stream.readUint16LE();
 		piece.placed = stream.readUint16LE();
+
+		if (_puzzleState->solvedPuzzle) {
+			piece.placed = true;
+		}
 	}
 	stream.skip((12 - numPieces) * 150);
 
@@ -114,7 +124,7 @@ void AssemblyPuzzle::execute() {
 		g_nancy->_sound->loadSound(_rotateSound);
 		g_nancy->_sound->loadSound(_pickUpSound);
 		g_nancy->_sound->loadSound(_placeDownSound);
-		
+
 		_state = kRun;
 		// fall through
 	case kRun:
@@ -137,10 +147,11 @@ void AssemblyPuzzle::execute() {
 		}
 
 		if (_completed) {
+			_puzzleState->solvedPuzzle = true;
 			NancySceneState.changeScene(_solveScene._sceneChange);
 		} else {
 			_exitScene.execute();
-		}		
+		}
 
 		break;
 	}
@@ -150,9 +161,9 @@ void AssemblyPuzzle::handleInput(NancyInput &input) {
 	if (_state == kActionTrigger && _completed && g_nancy->_sound->isSoundPlaying(_solveSound)) {
 		return;
 	}
-	
+
 	if (_pickedUpPiece == -1 && NancySceneState.getViewport().convertViewportToScreen(_exitHotspot).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(g_nancy->_cursorManager->_puzzleExitCursor);
+		g_nancy->_cursor->setCursorType(g_nancy->_cursor->_puzzleExitCursor);
 
 		if (input.input & NancyInput::kLeftMouseButtonUp) {
 			_state = kActionTrigger;
@@ -162,7 +173,7 @@ void AssemblyPuzzle::handleInput(NancyInput &input) {
 	}
 
 	if (_pickedUpPiece == -1 && NancySceneState.getViewport().convertViewportToScreen(_cwCursorDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kRotateCW);
+		g_nancy->_cursor->setCursorType(CursorManager::kRotateCW);
 
 		if (input.input & NancyInput::kLeftMouseButtonUp && !g_nancy->_sound->isSoundPlaying(_rotateSound)) {
 			g_nancy->_sound->playSound(_rotateSound);
@@ -172,7 +183,7 @@ void AssemblyPuzzle::handleInput(NancyInput &input) {
 	}
 
 	if (_pickedUpPiece == -1 && NancySceneState.getViewport().convertViewportToScreen(_ccwCursorDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kRotateCCW);
+		g_nancy->_cursor->setCursorType(CursorManager::kRotateCCW);
 
 		if (input.input & NancyInput::kLeftMouseButtonUp && !g_nancy->_sound->isSoundPlaying(_rotateSound)) {
 			g_nancy->_sound->playSound(_rotateSound);
@@ -191,7 +202,7 @@ void AssemblyPuzzle::handleInput(NancyInput &input) {
 				return;
 			}
 
-			g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+			g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 			if (input.input & NancyInput::kLeftMouseButtonUp) {
 				if (_pickedUpPiece != -1) {
@@ -213,7 +224,7 @@ void AssemblyPuzzle::handleInput(NancyInput &input) {
 							piece.registerGraphics();
 						}
 					}
-					
+
 					_pieces[i].setZ(_z + _pieces.size() * 2);
 					_pieces[i].registerGraphics();
 				} else {
@@ -240,7 +251,7 @@ void AssemblyPuzzle::handleInput(NancyInput &input) {
 
 		if (!otherIsPlaced && (!isWrong || (_allowWrongPieceHotspot && _layersAssembled + 1 == pickedUpPiece.layer))) {
 			if (NancySceneState.getViewport().convertViewportToScreen(pickedUpPiece.destRects[0]).contains(input.mousePos)) {
-				g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+				g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 				if (input.input & NancyInput::kLeftMouseButtonUp) {
 					if (!isWrong) {
@@ -305,7 +316,7 @@ void AssemblyPuzzle::rotateBase(bool ccw) {
 			} else if (piece.curRotation == 1 || piece.curRotation == 3) {
 				base = 1;
 			}
-			
+
 			piece.setZ(_z + base + 4 * (piece.layer - 1));
 			piece.registerGraphics();
 

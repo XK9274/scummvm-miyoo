@@ -122,7 +122,7 @@ public:
 	int getMouseLine(int x, int y);
 	Common::U32String getMouseLink(int x, int y);
 
-	void setImageArchive(Common::String name);
+	void setImageArchive(const Common::Path &name);
 
 private:
 	MacFontRun getTextChunks(int start, int end);
@@ -184,7 +184,7 @@ public:
 	// Markdown
 public:
 	void setMarkdownText(const Common::U32String &str);
-	const Surface *getImageSurface(Common::String &fname);
+	const Surface *getImageSurface(const Common::Path &fname);
 
 private:
 	void init(uint32 fgcolor, uint32 bgcolor, int maxWidth, TextAlign textAlignment, int interlinear, uint16 textShadow, bool macFontMode);
@@ -197,6 +197,11 @@ private:
 
 	void startMarking(int x, int y);
 	void updateTextSelection(int x, int y);
+
+	/**
+	 * Clears the text of the last chunk.
+	 */
+	void clearChunkInput();
 
 public:
 	int _cursorX, _cursorY;
@@ -238,7 +243,7 @@ private:
 	MacMenu *_menu;
 
 #ifdef USE_PNG
-	Common::HashMap<Common::String, Image::PNGDecoder *> _imageCache;
+	Common::HashMap<Common::Path, Image::PNGDecoder *, Common::Path::IgnoreCase_Hash, Common::Path::IgnoreCase_EqualTo> _imageCache;
 #endif
 	Common::Archive *_imageArchive = nullptr;
 };

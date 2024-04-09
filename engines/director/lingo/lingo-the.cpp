@@ -21,6 +21,8 @@
 
 #include "common/config-manager.h"
 #include "common/fs.h"
+#include "common/platform.h"
+#include "director/types.h"
 #include "graphics/macgui/macbutton.h"
 
 #include "director/director.h"
@@ -124,6 +126,7 @@ TheEntity entities[] = {
 	{ kTheResult,			"result",			false, 200, true },	// D2 f
 	{ kTheRightMouseDown,	"rightMouseDown",	false, 500, true },	//					D5 f
 	{ kTheRightMouseUp,		"rightMouseUp",		false, 500, true },	//					D5 f
+	{ kTheRollOver,			"rollOver",			false, 500, true },	//					D5 f, undocumented
 	{ kTheRomanLingo,		"romanLingo",		false, 300, false },	//		D3.1 p
 	{ kTheScummvmVersion,	"scummvmVersion",	false, 200, true }, // 					ScummVM only
 	{ kTheSearchCurrentFolder,"searchCurrentFolder",false,400, true },//			D4 f
@@ -160,6 +163,7 @@ TheEntity entities[] = {
 	{ kTheVideoForWindowsPresent,	"videoForWindowsPresent",	false, 400, true },	//		D4 f
 	{ kTheWindow,			"window",			true,  400, false },	//			D4
 	{ kTheWindowList,		"windowList",		false, 400, false },	//			D4 p
+	{ kTheXtras,			"xtras",			false, 500, false },	//			D4 p
 	{ kTheNOEntity, nullptr, false, 0, false }
 };
 
@@ -180,6 +184,7 @@ TheEntityField fields[] = {
 	{ kTheSprite,	"loc",			kTheLoc,		400 },//				D4 p ???
 	{ kTheSprite,	"locH",			kTheLocH,		200 },// D2 p
 	{ kTheSprite,	"locV",			kTheLocV,		200 },// D2 p
+	{ kTheSprite,	"memberNum",	kTheMemberNum,	500 },//					D5 p
 	{ kTheSprite,	"moveableSprite",kTheMoveableSprite,400 },//			D4 p
 	{ kTheSprite,	"pattern",		kThePattern,	200 },// D2 p
 	{ kTheSprite,	"puppet",		kThePuppet,		200 },// D2 p
@@ -209,6 +214,7 @@ TheEntityField fields[] = {
 	{ kTheCast,		"purgePriority",kThePurgePriority,400 },//				D4 p // 0 Never purge, 1 Purge Last, 2 Purge next, 2 Purge normal
 	{ kTheCast,		"scriptText",	kTheScriptText,	400 },//				D4 p
 	{ kTheCast,		"size",			kTheSize,		300 },//		D3.1 p
+	{ kTheCast,		"type",			kTheType,		500 },//					D5 p
 	{ kTheCast,		"width",		kTheWidth,		400 },//				D4 p
 
 	// Digital video fields
@@ -361,9 +367,8 @@ const char *Lingo::field2str(int id) {
 	warning("Lingo::getTheEntity(): Unprocessed getting entity %s", entity2str(entity));
 
 Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
-	if (debugChannelSet(3, kDebugLingoThe | kDebugLingoExec)) {
-		debugC(3, kDebugLingoThe | kDebugLingoExec, "Lingo::getTheEntity(%s, %s, %s)", entity2str(entity), id.asString(true).c_str(), field2str(field));
-	}
+	debugC(3, kDebugLingoThe, "Lingo::getTheEntity(%s, %s, %s)", entity2str(entity), id.asString(true).c_str(), field2str(field));
+	debugC(3, kDebugLingoExec, "Lingo::getTheEntity(%s, %s, %s)", entity2str(entity), id.asString(true).c_str(), field2str(field));
 
 	Datum d;
 	Movie *movie = _vm->getCurrentMovie();
@@ -429,7 +434,10 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		d = 1;
 		break;
 	case kTheCommandDown:
-		d = (movie->_keyFlags & Common::KBD_META) ? 1 : 0;
+		if (g_director->getPlatform() == Common::kPlatformWindows)
+			d = (movie->_keyFlags & Common::KBD_CTRL) ? 1 : 0;
+		else
+			d = (movie->_keyFlags & Common::KBD_META) ? 1 : 0;
 		break;
 	case kTheControlDown:
 		d = (movie->_keyFlags & Common::KBD_CTRL) ? 1 : 0;
@@ -714,7 +722,7 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		d = 0;	// Let's pretend the movie is compactified
 		break;
 	case kTheMovieFileSize:
-		d = movie->getArchive()->getFileSize();
+		d = (int)movie->getArchive()->getFileSize();
 		break;
 	case kTheMoviePath:
 	case kThePathName:
@@ -761,6 +769,9 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		break;
 	case kTheRightMouseUp:
 		d = g_system->getEventManager()->getButtonState() & (1 << Common::MOUSE_BUTTON_RIGHT) ? 0 : 1;
+		break;
+	case kTheRollOver:
+		d = score->getSpriteIDFromPos(g_director->getCurrentWindow()->getMousePos());
 		break;
 	case kTheRomanLingo:
 		d = g_lingo->_romanLingo;
@@ -817,7 +828,7 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		break;
 	case kTheSoundLevel:
 		// getting sound level of channel 1, maybe need to be amended in higher version
-		d = _vm->getCurrentWindow()->getSoundManager()->getSoundLevel(1);
+		d = _vm->getCurrentWindow()->getSoundManager()->getChannelVolume(1) / 32;
 		break;
 	case kTheSprite:
 		d = getTheSprite(id, field);
@@ -886,7 +897,7 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		break;
 	case kTheTraceLogFile:
 		d.type = STRING;
-		d.u.s = new Common::String(g_director->_traceLogFile);
+		d.u.s = new Common::String(g_director->_traceLogFile.toString(Common::Path::kNativeSeparator));
 		break;
 	case kTheUpdateMovieEnabled:
 		d = g_lingo->_updateMovieEnabled;
@@ -921,9 +932,8 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 	warning("Lingo::setTheEntity: Attempt to set read-only entity %s", entity2str(entity));
 
 void Lingo::setTheEntity(int entity, Datum &id, int field, Datum &d) {
-	if (debugChannelSet(3, kDebugLingoThe | kDebugLingoExec)) {
-		debugC(3, kDebugLingoThe | kDebugLingoExec, "Lingo::setTheEntity(%s, %s, %s, %s)", entity2str(entity), id.asString(true).c_str(), field2str(field), d.asString(true).c_str());
-	}
+	debugC(3, kDebugLingoThe, "Lingo::setTheEntity(%s, %s, %s, %s)", entity2str(entity), id.asString(true).c_str(), field2str(field), d.asString(true).c_str());
+	debugC(3, kDebugLingoExec, "Lingo::setTheEntity(%s, %s, %s, %s)", entity2str(entity), id.asString(true).c_str(), field2str(field), d.asString(true).c_str());
 
 	Movie *movie = _vm->getCurrentMovie();
 	Score *score = movie->getScore();
@@ -1126,10 +1136,7 @@ void Lingo::setTheEntity(int entity, Datum &id, int field, Datum &d) {
 			switch (field) {
 			case kTheVolume:
 				{
-					SoundChannel *chan = _vm->getCurrentWindow()->getSoundManager()->getChannel(id.asInt());
-					if (chan) {
-						chan->volume = (byte)d.asInt();
-					}
+					_vm->getCurrentWindow()->getSoundManager()->setChannelVolume(id.asInt(), MAX(0, MIN(d.asInt(), 255)));
 				}
 				break;
 			default:
@@ -1140,7 +1147,7 @@ void Lingo::setTheEntity(int entity, Datum &id, int field, Datum &d) {
 		break;
 	case kTheSoundLevel:
 		// setting all of the channel for now
-		_vm->getCurrentWindow()->getSoundManager()->setSoundLevel(-1, d.asInt());
+		_vm->getCurrentWindow()->getSoundManager()->setChannelVolume(-1, MAX(0, MIN(d.asInt() * 32, 255)));
 		break;
 	case kTheSprite:
 		setTheSprite(id, field, d);
@@ -1152,7 +1159,7 @@ void Lingo::setTheEntity(int entity, Datum &id, int field, Datum &d) {
 		g_director->getCurrentWindow()->setStageColor(g_director->transformColor(d.asInt()));
 
 		// Redraw the stage
-		score->renderSprites(score->getCurrentFrameNum(), kRenderForceUpdate);
+		score->renderSprites(kRenderForceUpdate);
 		g_director->getCurrentWindow()->render();
 		break;
 	case kTheSwitchColorDepth:
@@ -1195,14 +1202,14 @@ void Lingo::setTheEntity(int entity, Datum &id, int field, Datum &d) {
 	case kTheTraceLogFile:
 	{
 		if (d.asString().size()) {
-			Common::String logPath = ConfMan.get("path") + "/" + d.asString();
+			Common::Path logPath = ConfMan.getPath("path").appendComponent(d.asString());
 			Common::FSNode out(logPath);
 			if (!out.exists())
 				out.createWriteStream();
 			if (out.isWritable())
 				g_director->_traceLogFile = logPath;
 			else
-				warning("traceLogFile '%s' is not writeable", logPath.c_str());
+				warning("traceLogFile '%s' is not writeable", logPath.toString(Common::Path::kNativeSeparator).c_str());
 		} else {
 			g_director->_traceLogFile.clear();
 		}
@@ -1306,7 +1313,7 @@ Datum Lingo::getTheSprite(Datum &id1, int field) {
 		d = channel->getBbox().bottom;
 		break;
 	case kTheCastNum:
-		// TODO: How is this handled with multiple casts in D5?
+	case kTheMemberNum:
 		d = sprite->_castId.member;
 		break;
 	case kTheConstraint:
@@ -1469,14 +1476,13 @@ void Lingo::setTheSprite(Datum &id1, int field, Datum &d) {
 		}
 		break;
 	case kTheCastNum:
+	case kTheMemberNum:
 		{
 			CastMemberID castId = d.asMemberID();
 			CastMember *castMember = movie->getCastMember(castId);
 
 			if (castMember && castMember->_type == kCastDigitalVideo) {
-				Common::String path = castMember->getCast()->getVideoPath(castId.member);
-				if (!path.empty()) {
-					((DigitalVideoCastMember *)castMember)->loadVideo(path);
+				if (((DigitalVideoCastMember *)castMember)->loadVideoFromCast()) {
 					((DigitalVideoCastMember *)castMember)->startVideo(channel);
 					// b_updateStage needs to have _videoPlayback set to render video
 					// in the regular case Score::renderSprites sets it.
@@ -1641,7 +1647,7 @@ void Lingo::setTheSprite(Datum &id1, int field, Datum &d) {
 		break;
 	case kTheRect:
 		if (d.type == RECT || (d.type == ARRAY && d.u.farr->arr.size() >= 4)) {
-			score->renderSprites(score->getCurrentFrameNum(), kRenderForceUpdate);
+			score->renderSprites(kRenderForceUpdate);
 			channel->setBbox(
 				d.u.farr->arr[0].u.i, d.u.farr->arr[1].u.i,
 				d.u.farr->arr[2].u.i, d.u.farr->arr[3].u.i
@@ -1943,6 +1949,7 @@ void Lingo::getObjectProp(Datum &obj, Common::String &propName) {
 			g_lingo->lingoError("Lingo::getObjectProp: Object <%s> has no property '%s'", obj.asString(true).c_str(), propName.c_str());
 		}
 		g_lingo->push(d);
+		g_debugger->propReadHook(propName);
 		return;
 	}
 	if (obj.type == PARRAY) {
@@ -1951,6 +1958,7 @@ void Lingo::getObjectProp(Datum &obj, Common::String &propName) {
 			d = obj.u.parr->arr[index - 1].v;
 		}
 		g_lingo->push(d);
+		g_debugger->propReadHook(propName);
 		return;
 	}
 	if (obj.type == RECT) {
@@ -1966,6 +1974,7 @@ void Lingo::getObjectProp(Datum &obj, Common::String &propName) {
 			g_lingo->lingoError("Lingo::getObjectProp: Rect <%s> has no property '%s'", obj.asString(true).c_str(), propName.c_str());
 		}
 		g_lingo->push(d);
+		g_debugger->propReadHook(propName);
 		return;
 	}
 	if (obj.type == CASTREF) {
@@ -1979,15 +1988,65 @@ void Lingo::getObjectProp(Datum &obj, Common::String &propName) {
 		CastMemberID id = *obj.u.cast;
 		CastMember *member = movie->getCastMember(id);
 		if (!member) {
-			if (propName.equalsIgnoreCase("loaded")) {
-				d = 0;
-			} else if (propName.equalsIgnoreCase("filename")) {
-				d = Datum(Common::String());
-			} else if (id.member <= getMembersNum()) {
-				warning("Lingo::getObjectProp(): %s not found", id.asString().c_str());
-			} else {
-				g_lingo->lingoError("Lingo::getObjectProp(): %s not found and out of range", id.asString().c_str());
+			// No matching cast member. Many of the fields are accessible
+			// to indicate the cast member is empty, however the
+			// rest will throw a Lingo error.
+			Common::String key = Common::String::format("%d%s", kTheCast, propName.c_str());
+			bool emptyAllowed = false;
+			if (_theEntityFields.contains(key)) {
+				emptyAllowed = true;
+				switch (_theEntityFields[key]->field) {
+				case kTheCastType:
+				case kTheType:
+					d = Datum("empty");
+					d.type = SYMBOL;
+					break;
+				case kTheFileName:
+				case kTheScriptText:
+					d = Datum("");
+					break;
+				case kTheHeight:
+				case kTheLoaded:
+				case kTheModified:
+				case kThePurgePriority:
+				case kTheWidth:
+				case kTheCenter:
+				case kTheFrameRate:
+				case kThePausedAtStart:
+				case kThePreLoad:
+				case kTheDepth:
+				case kThePalette:
+					d = Datum(0);
+					break;
+				case kTheCrop:
+				case kTheVideo:
+					d = Datum(1);
+					break;
+				case kTheRect:
+					d = Datum(Common::Rect(0, 0, 0, 0));
+					break;
+				case kTheRegPoint:
+					d = Datum(Common::Point(0, 0));
+					break;
+				case kTheNumber:
+					d = Datum(id.member);
+					break;
+				default:
+					emptyAllowed = false;
+					break;
+				}
 			}
+
+			if (id.member <= getMembersNum()) {
+				// Cast member ID is within range (i.e. less than max)
+				// In real Director, accessing -any- of the properties will
+				// be allowed, but return garbage.
+				warning("Lingo::getObjectProp(): %s not found, but within cast ID range", id.asString().c_str());
+			} else if (!emptyAllowed) {
+				// Cast member ID is out of range, throw a Lingo error
+				g_lingo->lingoError("Lingo::getObjectProp(): %s not found and out of cast ID range", id.asString().c_str());
+			}
+
 			g_lingo->push(d);
 			return;
 		}
@@ -2013,6 +2072,7 @@ void Lingo::setObjectProp(Datum &obj, Common::String &propName, Datum &val) {
 	if (obj.type == OBJECT) {
 		if (obj.u.obj->hasProp(propName)) {
 			obj.u.obj->setProp(propName, val);
+			g_debugger->propWriteHook(propName);
 		} else {
 			g_lingo->lingoError("Lingo::setObjectProp: Object <%s> has no property '%s'", obj.asString(true).c_str(), propName.c_str());
 		}
@@ -2024,6 +2084,7 @@ void Lingo::setObjectProp(Datum &obj, Common::String &propName, Datum &val) {
 			PCell cell = PCell(propName, val);
 			obj.u.parr->arr.push_back(cell);
 		}
+		g_debugger->propWriteHook(propName);
 	} else if (obj.type == CASTREF) {
 		Movie *movie = _vm->getCurrentMovie();
 		if (!movie) {

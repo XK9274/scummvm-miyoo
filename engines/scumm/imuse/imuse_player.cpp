@@ -82,7 +82,8 @@ Player::Player() :
 	_vol_chan(0),
 	_abort(false),
 	_music_tick(0),
-	_parserType(kParserTypeNone) {
+	_parserType(kParserTypeNone),
+	_transitionTimer(0) {
 }
 
 Player::~Player() {
@@ -136,10 +137,8 @@ int Player::getMusicTimer() const {
 bool Player::isFadingOut() const {
 	int i;
 	for (i = 0; i < ARRAYSIZE(_parameterFaders); ++i) {
-		if (_parameterFaders[i].param == ParameterFader::pfVolume &&
-		        _parameterFaders[i].end == 0) {
+		if (_parameterFaders[i].param == ParameterFader::pfVolume && (_parameterFaders[i].incr || _parameterFaders[i].ifrac))
 			return true;
-		}
 	}
 	return false;
 }
@@ -160,6 +159,7 @@ void Player::clear() {
 	_midi = nullptr;
 	_id = 0;
 	_note_offset = 0;
+	_speed = _se->_newSystem ? 64 : 128;
 }
 
 void Player::hook_clear() {
@@ -211,7 +211,9 @@ int Player::start_seq_sound(int sound, bool reset_vars) {
 	_parser->setTrack(_track_index);
 
 	ptr = _se->findStartOfSound(sound, IMuseInternal::kMDhd);
-	setSpeed(reset_vars ? (ptr ? (READ_BE_UINT32(&ptr[4]) && ptr[15] ? ptr[15] : 128) : 128) : _speed);
+
+	int defSpeed = _se->_newSystem ? 64 : 128;
+	setSpeed(reset_vars ? (ptr ? (READ_BE_UINT32(&ptr[4]) && ptr[15] ? ptr[15] : defSpeed) : defSpeed) : _speed);
 
 	return 0;
 }
@@ -258,9 +260,21 @@ void Player::uninit_parts() {
 }
 
 void Player::setSpeed(byte speed) {
+	// While the old system (MI1, MI2, DOTT) uses 128 as the default,
+	// making anything below slower and anything above faster, the new
+	// system centers on 64. Consequently, the new system does not accept
+	// values above 127, while the old one accepts anything.
+	int shift = 7;
+
+	if (_se->_newSystem) {
+		shift = 6;
+		if (speed > 127)
+			return;
+	}
+
 	_speed = speed;
 	if (_parser)
-		_parser->setTimerRate(((_midi->getBaseTempo() * speed) >> 7) * _se->_tempoFactor / 100);
+		_parser->setTimerRate(((_midi->getBaseTempo() * speed) >> shift) * _se->_tempoFactor / 100);
 }
 
 void Player::send(uint32 b) {
@@ -416,18 +430,24 @@ void Player::sysEx(const byte *p, uint16 len) {
 	--len;
 
 	// Too big?
-	if (len >= sizeof(buf) * 2)
+	if (len >= sizeof(buf))
 		return;
 
 	if (!_scanning) {
 		for (a = 0; a < len + 1 && a < 19; ++a) {
 			snprintf((char *)&buf[a * 3], 3 * sizeof(char) + 1, " %02X", (int)p[a]);
 		}
-		if (a < len + 1) {
-			buf[a * 3] = buf[a * 3 + 1] = buf[a * 3 + 2] = '.';
+		if (a < len + 1 && (a * 3 < sizeof(buf) - 2)) {
+			if (a * 3 + 2 < int(sizeof(buf)))
+				buf[a * 3] = buf[a * 3 + 1] = buf[a * 3 + 2] = '.';
+			else
+				warning("Player::sysEx(): Message too long (truncated)");
 			++a;
 		}
-		buf[a * 3] = '\0';
+		if (a * 3 < sizeof(buf))
+			buf[a * 3] = '\0';
+		else
+			warning("Player::sysEx(): Message too long (truncated)");
 		debugC(DEBUG_IMUSE, "[%02d] SysEx:%s", _id, buf);
 	}
 
@@ -770,9 +790,15 @@ int Player::scan(uint totrack, uint tobeat, uint totick) {
 void Player::turn_off_parts() {
 	Part *part;
 
-	for (part = _parts; part; part = part->_next)
-		part->off();
-	_se->reallocateMidiChannels(_midi);
+	if (!_se->_dynamicChanAllocation) {
+		turn_off_pedals();
+		for (part = _parts; part; part = part->_next)
+			part->allNotesOff();
+	} else {
+		for (part = _parts; part; part = part->_next)
+			part->off();
+		_se->reallocateMidiChannels(_midi);
+	}
 }
 
 void Player::play_active_notes() {
@@ -907,41 +933,30 @@ void Player::onTimer() {
 	_parser->onTimer();
 }
 
-// "time" is referenced as hundredths of a second.
-// IS THAT CORRECT??
-// We convert it to microseconds before proceeding
 int Player::addParameterFader(int param, int target, int time) {
 	int start;
 
 	switch (param) {
 	case ParameterFader::pfVolume:
-		// HACK: If volume is set to 0 with 0 time,
-		// set it so immediately but DON'T clear
-		// the player. This fixes a problem with
-		// music being cleared inappropriately
-		// in S&M when playing with the Dinosaur.
-		if (!target && !time) {
-			setVolume(0);
+		if (!time) {
+			setVolume(target);
 			return 0;
 		}
-
-		// Volume fades are handled differently.
 		start = _volume;
 		break;
 
 	case ParameterFader::pfTranspose:
-		// FIXME: Is this transpose? And what's the scale?
 		// It's set to fade to -2400 in the tunnel of love.
-//		debug(0, "parameterTransition(3) outside Tunnel of Love?");
-		start = _transpose;
-//		target /= 200;
+		// debug(0, "parameterTransition(3) outside Tunnel of Love?");
+		if (!time) {
+			setDetune(target);
+			return 0;
+		}
+		start = _detune;
 		break;
 
 	case ParameterFader::pfSpeed: // impSpeed
-		// FIXME: Is the speed from 0-100?
-		// Right now I convert it to 0-128.
 		start = _speed;
-//		target = target * 128 / 100;
 		break;
 
 	case 127: {
@@ -965,7 +980,6 @@ int Player::addParameterFader(int param, int target, int time) {
 	for (i = ARRAYSIZE(_parameterFaders); i; --i, ++ptr) {
 		if (ptr->param == param) {
 			best = ptr;
-			start = ptr->end;
 			break;
 		} else if (!ptr->param) {
 			best = ptr;
@@ -974,13 +988,14 @@ int Player::addParameterFader(int param, int target, int time) {
 
 	if (best) {
 		best->param = param;
-		best->start = start;
-		best->end = target;
-		if (!time)
-			best->total_time = 1;
-		else
-			best->total_time = (uint32)time * 10000;
-		best->current_time = 0;
+		best->state = start;
+		best->ttime = best->cntdwn = time;
+		int diff = target - start;
+		best->dir = (diff >= 0) ? 1 : -1;
+		best->incr = diff / time;
+		best->ifrac = ABS<int>(diff) % time;
+		best->irem = 0;
+
 	} else {
 		debug(0, "IMuse Player %d: Out of parameter faders", _id);
 		return -1;
@@ -991,46 +1006,62 @@ int Player::addParameterFader(int param, int target, int time) {
 
 void Player::transitionParameters() {
 	uint32 advance = _midi->getBaseTempo();
-	int value;
 
-	ParameterFader *ptr = &_parameterFaders[0];
-	int i;
-	for (i = ARRAYSIZE(_parameterFaders); i; --i, ++ptr) {
-		if (!ptr->param)
-			continue;
+	_transitionTimer += advance;
+	while (_transitionTimer >= 16667) {
+		_transitionTimer -= 16667;
 
-		ptr->current_time += advance;
-		if (ptr->current_time > ptr->total_time)
-			ptr->current_time = ptr->total_time;
-		value = (int32)ptr->start + (int32)(ptr->end - ptr->start) * (int32)ptr->current_time / (int32)ptr->total_time;
+		ParameterFader *ptr = &_parameterFaders[0];
+		for (int i = ARRAYSIZE(_parameterFaders); i; --i, ++ptr) {
+			if (!ptr->param)
+				continue;
 
-		switch (ptr->param) {
-		case ParameterFader::pfVolume:
-			// Volume.
-			if (!value && !ptr->end) {
-				clear();
-				return;
+			int32 mod = ptr->incr;
+			ptr->irem += ptr->ifrac;
+			if (ptr->irem >= ptr->ttime) {
+				ptr->irem -= ptr->ttime;
+				mod += ptr->dir;
 			}
-			setVolume((byte)value);
-			break;
+			if (!mod) {
+				if (!ptr->cntdwn || !--ptr->cntdwn)
+					ptr->param = 0;
+				continue;
+			}
 
-		case ParameterFader::pfTranspose:
-			// FIXME: Is this really transpose?
-			setTranspose(0, value / 100);
-			setDetune(value % 100);
-			break;
+			ptr->state += mod;
 
-		case ParameterFader::pfSpeed: // impSpeed:
-			// Speed.
-			setSpeed((byte)value);
-			break;
 
-		default:
-			ptr->param = 0;
+			switch (ptr->param) {
+			case ParameterFader::pfVolume:
+				// Volume
+				if (ptr->state >= 0 && ptr->state <= 127) {
+					setVolume((byte)ptr->state);
+					if (ptr->state == 0) {
+						clear();
+						return;
+					}
+				}
+				break;
+
+			case ParameterFader::pfTranspose:
+				if (ptr->state >= -9216 && ptr->state <= 9216)
+					setDetune(ptr->state);
+				break;
+
+			case ParameterFader::pfSpeed:
+				// Speed.
+				if (ptr->state >= 0 && ptr->state <= 127) {
+					setSpeed((byte)ptr->state);
+				}
+				break;
+
+			default:
+				ptr->param = 0;
+			}
+
+			if (!ptr->cntdwn || !--ptr->cntdwn)
+				ptr->param = 0;
 		}
-
-		if (ptr->current_time >= ptr->total_time)
-			ptr->param = 0;
 	}
 }
 
@@ -1070,7 +1101,6 @@ void Player::metaEvent(byte type, byte *msg, uint16 len) {
 }
 
 
-
 ////////////////////////////////////////
 //
 //  Player save/load functions
@@ -1079,10 +1109,34 @@ void Player::metaEvent(byte type, byte *msg, uint16 len) {
 
 static void syncWithSerializer(Common::Serializer &s, ParameterFader &pf) {
 	s.syncAsSint16LE(pf.param, VER(17));
-	s.syncAsSint16LE(pf.start, VER(17));
-	s.syncAsSint16LE(pf.end, VER(17));
-	s.syncAsUint32LE(pf.total_time, VER(17));
-	s.syncAsUint32LE(pf.current_time, VER(17));
+	if (s.isLoading() && s.getVersion() < 116) {
+		int16 start, end;
+		uint32 tt, ct;
+		s.syncAsSint16LE(start, VER(17));
+		s.syncAsSint16LE(end, VER(17));
+		s.syncAsUint32LE(tt, VER(17));
+		s.syncAsUint32LE(ct, VER(17));
+		int32 diff = end - start;
+		if (pf.param && diff && tt) {
+			pf.dir = diff / ABS<int>(diff);
+			pf.incr = diff / (tt / 10000);
+			pf.ifrac = ABS<int>(diff) % (tt / 10000);
+			pf.state = (int32)start + diff * (int32)ct / (int32)tt;
+		} else {
+			pf.param = 0;
+		}
+		pf.irem = 0;
+		pf.cntdwn = 0;
+		
+	} else {
+		s.syncAsSByte(pf.dir, VER(116));
+		s.syncAsSint16LE(pf.incr, VER(116));
+		s.syncAsUint16LE(pf.ifrac, VER(116));
+		s.syncAsUint16LE(pf.irem, VER(116));
+		s.syncAsUint16LE(pf.ttime, VER(116));
+		s.syncAsUint16LE(pf.cntdwn, VER(116));
+		s.syncAsSint16LE(pf.state, VER(116));
+	}
 }
 
 void Player::saveLoadWithSerializer(Common::Serializer &s) {
@@ -1108,7 +1162,8 @@ void Player::saveLoadWithSerializer(Common::Serializer &s) {
 	s.syncAsByte(_volume, VER(8));
 	s.syncAsSByte(_pan, VER(8));
 	s.syncAsByte(_transpose, VER(8));
-	s.syncAsSByte(_detune, VER(8));
+	s.syncAsSByte(_detune, VER(8), VER(115));
+	s.syncAsSint16LE(_detune, VER(116));
 	s.syncAsUint16LE(_vol_chan, VER(8));
 	s.syncAsByte(_vol_eff, VER(8));
 	s.syncAsByte(_speed, VER(8));
@@ -1135,6 +1190,9 @@ void Player::saveLoadWithSerializer(Common::Serializer &s) {
 	s.syncBytes(_hook._part_program, 16, VER(8));
 	s.syncBytes(_hook._part_transpose, 16, VER(8));
 	s.syncArray(_parameterFaders, ARRAYSIZE(_parameterFaders), syncWithSerializer);
+
+	if (_se->_newSystem && s.isLoading() && s.getVersion() < VER(117) && _speed == 128)
+		_speed = 64;
 }
 
 } // End of namespace Scumm

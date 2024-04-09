@@ -97,31 +97,25 @@ QTVRXObject::QTVRXObject(ObjectType ObjectType) :Object<QTVRXObject>("QTVR") {
 	_objType = ObjectType;
 }
 
-void QTVR::open(int type) {
+void QTVR::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		QTVRXObject::initMethods(xlibMethods);
 		QTVRXObject *xobj = new QTVRXObject(kXObj);
 		g_lingo->exposeXObject(xlibName, xobj);
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
-void QTVR::close(int type) {
+void QTVR::close(ObjectType type) {
 	if (type == kXObj) {
 		QTVRXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
 
 void QTVR::m_new(int nargs) {
-	if (nargs != 0) {
-		warning("QTVR::m_new: expected 0 arguments");
-		g_lingo->dropStack(nargs);
-	}
+	g_lingo->printSTUBWithArglist("QTVR::m_new", nargs);
+	g_lingo->dropStack(nargs);
 	g_lingo->push(g_lingo->_state->me);
 }
 

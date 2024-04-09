@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.os.Process;
 import android.os.SystemClock;
 import android.provider.DocumentsContract;
 import android.text.TextUtils;
@@ -662,9 +663,18 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		protected void getDPI(float[] values) {
 			DisplayMetrics metrics = new DisplayMetrics();
 			getWindowManager().getDefaultDisplay().getMetrics(metrics);
+			Configuration config = getResources().getConfiguration();
 
 			values[0] = metrics.xdpi;
 			values[1] = metrics.ydpi;
+			// "On a medium-density screen, DisplayMetrics.density equals 1.0; on a high-density
+			//  screen it equals 1.5; on an extra-high-density screen, it equals 2.0; and on a
+			//  low-density screen, it equals 0.75. This figure is the factor by which you should
+			//  multiply the dp units in order to get the actual pixel count for the current screen."
+			//  In addition, take into account the fontScale setting set by the user.
+			//  We are not supposed to take this value directly because of non-linear scaling but
+			//  as we are doing our own rendering there is not much choice
+			values[2] = metrics.density * config.fontScale;
 		}
 
 		@Override
@@ -973,9 +983,9 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		                                                        }
 		                                                    });
 
-		float[] dpiValues = new float[] { 0.0f, 0.0f };
+		float[] dpiValues = new float[] { 0.0f, 0.0f, 0.0f };
 		_scummvm.getDPI(dpiValues);
-		Log.d(ScummVM.LOG_TAG, "Current xdpi: " + dpiValues[0] + " and ydpi: " + dpiValues[1]);
+		Log.d(ScummVM.LOG_TAG, "Current xdpi: " + dpiValues[0] + ", ydpi: " + dpiValues[1] + " and density: " + dpiValues[2]);
 
 		// Currently in release builds version string does not contain the revision info
 		// but in debug builds (daily builds) this should be there (see base/internal_version_h)
@@ -1093,9 +1103,14 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 			_scummvm.setPause(false);
 			try {
 				// 1s timeout
-				_scummvm_thread.join(1000);
+				_scummvm_thread.join(2000);
 			} catch (InterruptedException e) {
 				Log.i(ScummVM.LOG_TAG, "Error while joining ScummVM thread", e);
+			}
+
+			// Our join failed: kill ourselves to not have two ScummVM running at the same time
+			if (_scummvm_thread.isAlive()) {
+				Process.killProcess(Process.myPid());
 			}
 
 			_finishing = false;

@@ -141,7 +141,7 @@ SciEngine::SciEngine(OSystem *syst, const ADGameDescription *desc, SciGameId gam
 	assert(g_sci == nullptr);
 	g_sci = this;
 
-	const Common::FSNode gameDataDir(ConfMan.get("path"));
+	const Common::FSNode gameDataDir(ConfMan.getPath("path"));
 
 	SearchMan.addSubDirectoryMatching(gameDataDir, "actors");	// KQ6 hi-res portraits
 	SearchMan.addSubDirectoryMatching(gameDataDir, "aud");	// resource.aud and audio files
@@ -511,7 +511,7 @@ void SciEngine::suggestDownloadGK2SubTitlesPatch() {
 	Common::U32String altButton;
 	Common::U32String downloadMessage;
 
-	if (g_system->hasFeature(OSystem::kFeatureOpenUrl)) {
+	if (_system->hasFeature(OSystem::kFeatureOpenUrl)) {
 		altButton = _("Download patch");
 		downloadMessage = _("(or click 'Download patch' button. But note - it only downloads, you will have to continue from there)\n");
 	}
@@ -533,7 +533,7 @@ void SciEngine::suggestDownloadGK2SubTitlesPatch() {
 		"- restart the game\n"), altButton, false);
 	if (result) {
 		char url[] = "http://www.sierrahelp.com/Files/Patches/GabrielKnight/GK2Subtitles.zip";
-		g_system->openUrl(url);
+		_system->openUrl(url);
 	}
 }
 
@@ -575,7 +575,7 @@ bool SciEngine::initGame() {
 	if (_vocabulary)
 		_vocabulary->reset();
 
-	_gamestate->lastWaitTime = _gamestate->_screenUpdateTime = g_system->getMillis();
+	_gamestate->lastWaitTime = _gamestate->_screenUpdateTime = _system->getMillis();
 
 	// Load game language into printLang property of game object
 	setSciLanguage();
@@ -966,8 +966,7 @@ void SciEngine::sleep(uint32 msecs) {
 		return;
 	}
 
-	uint32 time;
-	const uint32 wakeUpTime = g_system->getMillis() + msecs;
+	const uint32 wakeUpTime = _system->getMillis() + msecs;
 
 	for (;;) {
 		// let backend process events and update the screen
@@ -986,12 +985,12 @@ void SciEngine::sleep(uint32 msecs) {
 			_gfxFrameout->updateScreen();
 		}
 #endif
-		time = g_system->getMillis();
+		uint32 time = _system->getMillis();
 		if (time + 10 < wakeUpTime) {
-			g_system->delayMillis(10);
+			_system->delayMillis(10);
 		} else {
 			if (time < wakeUpTime)
-				g_system->delayMillis(wakeUpTime - time);
+				_system->delayMillis(wakeUpTime - time);
 			break;
 		}
 	}
@@ -1053,14 +1052,14 @@ void SciEngine::updateSoundMixerVolumes() {
 }
 
 void SciEngine::loadMacExecutable() {
-	Common::String filename = _resMan->getMacExecutableName();
+	Common::Path filename = _resMan->getMacExecutableName();
 	if (filename.empty())
 		return;
 
 	if (!_macExecutable.open(filename) || !_macExecutable.hasResFork()) {
 		// KQ6/Freddy require the executable to load their icon bar palettes
 		if (hasMacIconBar())
-			error("Could not load Mac resource fork '%s'", filename.c_str());
+			error("Could not load Mac resource fork '%s'", filename.toString().c_str());
 	}
 }
 
@@ -1086,8 +1085,8 @@ void SciEngine::loadMacFonts() {
 				_gfxMacFontManager = nullptr;
 			}
 		} else {
-			Common::String filename = _resMan->getMacExecutableName();
-			warning("Macintosh executable \"%s\" not found, using SCI fonts", filename.c_str());
+			Common::Path filename = _resMan->getMacExecutableName();
+			warning("Macintosh executable \"%s\" not found, using SCI fonts", filename.toString().c_str());
 		}
 		break;
 	case GID_LSL6:

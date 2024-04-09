@@ -81,14 +81,18 @@ FreescapeEngine::FreescapeEngine(OSystem *syst, const ADGameDescription *gd)
 	if (!Common::parseBool(ConfMan.get("invert_y"), _invertY))
 		error("Failed to parse bool from disable_falling option");
 
+	_gameStateControl = kFreescapeGameStateStart;
 	_startArea = 0;
 	_startEntrance = 0;
+	_endArea = 0;
+	_endEntrance = 0;
 	_currentArea = nullptr;
 	_gotoExecuted = false;
 	_rotation = Math::Vector3d(0, 0, 0);
 	_position = Math::Vector3d(0, 0, 0);
 	_lastPosition = Math::Vector3d(0, 0, 0);
 	_hasFallen = false;
+	_maxFallingDistance = 64;
 	_velocity = Math::Vector3d(0, 0, 0);
 	_cameraFront = Math::Vector3d(0, 0, 0);
 	_cameraRight = Math::Vector3d(0, 0, 0);
@@ -152,6 +156,7 @@ FreescapeEngine::FreescapeEngine(OSystem *syst, const ADGameDescription *gd)
 	_initialCountdown = 0;
 	_countdown = 0;
 	_ticks = 0;
+	_ticksFromEnd = 0;
 	_lastTick = -1;
 	_lastMinute = -1;
 	_frameLimiter = nullptr;
@@ -159,10 +164,24 @@ FreescapeEngine::FreescapeEngine(OSystem *syst, const ADGameDescription *gd)
 
 	_underFireFrames = 0;
 	_shootingFrames = 0;
+	_delayedShootObject = nullptr;
+	_avoidRenderingFrames = 0;
+	_endGamePlayerEndArea = false;
+	_endGameKeyPressed = false;
 
 	_maxShield = 63;
 	_maxEnergy = 63;
 	_gameStateBits = 0;
+	_eventManager = new EventManagerWrapper(g_system->getEventManager());
+
+	// Workaround to make the game playable on iOS: remove when there
+	// is a better way to hint the best controls
+#ifdef IPHONE
+	const Common::String &gameDomain = ConfMan.getActiveDomainName();
+	ConfMan.setBool("gamepad_controller", true, gameDomain);
+	ConfMan.setBool("gamepad_controller_minimal_layout", true, gameDomain);
+	ConfMan.setInt("gamepad_controller_directional_input", 1 /* kDirectionalInputDpad */, gameDomain);
+#endif
 
 	g_freescape = this;
 }
@@ -198,6 +217,13 @@ FreescapeEngine::~FreescapeEngine() {
 	for (auto &it : _indicators) {
 		it->free();
 		delete it;
+	}
+
+	for (auto &it : _soundsFx) {
+		if (it._value) {
+			free(it._value->data);
+			free(it._value);
+		}
 	}
 }
 
@@ -284,16 +310,24 @@ void FreescapeEngine::takeDamageFromSensor() {
 	_gameStateVars[k8bitVariableShield]--;
 }
 
-void FreescapeEngine::drawBackground() {
+void FreescapeEngine::clearBackground() {
 	_gfx->clear(0, 0, 0, true);
 	_gfx->setViewport(_fullscreenViewArea);
 	_gfx->drawBackground(_currentArea->_usualBackgroundColor);
 	_gfx->setViewport(_viewArea);
+}
+
+void FreescapeEngine::drawBackground() {
+	clearBackground();
 	_gfx->drawBackground(_currentArea->_skyColor);
 }
 
 void FreescapeEngine::drawFrame() {
-	_gfx->updateProjectionMatrix(70.0, _nearClipPlane, _farClipPlane);
+	int farClipPlane = _farClipPlane;
+	if (_currentArea->isOutside())
+		farClipPlane *= 100;
+
+	_gfx->updateProjectionMatrix(90.0, _nearClipPlane, farClipPlane);
 	_gfx->positionCamera(_position, _position + _cameraFront);
 
 	if (_underFireFrames > 0) {
@@ -301,16 +335,22 @@ void FreescapeEngine::drawFrame() {
 
 		if (isDriller() && (isDOS() || isAmiga() || isAtariST()))
 			underFireColor = 1;
-		else if (isDark() && (isDOS() || isAmiga() || isAtariST()))
-			underFireColor = 4;
+		else if (isDark() && (isDOS() || isAmiga() || isAtariST())) {
+			if (_renderMode == Common::kRenderCGA)
+				underFireColor = 3;
+			else
+				underFireColor = 4;
+		}
 
 		_currentArea->remapColor(_currentArea->_usualBackgroundColor, underFireColor);
 		_currentArea->remapColor(_currentArea->_skyColor, underFireColor);
 	}
 
 	drawBackground();
-	if (!_playerWasCrushed) // Avoid rendering inside objects
+	if (_avoidRenderingFrames == 0) // Avoid rendering inside objects
 		_currentArea->draw(_gfx, _ticks / 10);
+	else
+		_avoidRenderingFrames--;
 
 	if (_underFireFrames > 0) {
 		for (auto &it : _sensors) {
@@ -342,12 +382,14 @@ void FreescapeEngine::drawFrame() {
 
 void FreescapeEngine::pressedKey(const int keycode) {}
 
+void FreescapeEngine::releasedKey(const int keycode) {}
+
 void FreescapeEngine::resetInput() {
 	_shootMode = false;
 	centerCrossair();
 	g_system->warpMouse(_crossairPosition.x, _crossairPosition.y);
-	g_system->getEventManager()->purgeMouseEvents();
-	g_system->getEventManager()->purgeKeyboardEvents();
+	_eventManager->purgeMouseEvents();
+	_eventManager->purgeKeyboardEvents();
 	rotate(0, 0);
 }
 
@@ -360,15 +402,20 @@ void FreescapeEngine::processInput() {
 	Common::Point mousePos;
 
 	if (_demoMode && !_demoEvents.empty()) {
-		g_system->getEventManager()->purgeMouseEvents();
-		g_system->getEventManager()->purgeKeyboardEvents();
-		g_system->getEventManager()->pushEvent(_demoEvents.front());
+		_eventManager->purgeMouseEvents();
+		_eventManager->purgeKeyboardEvents();
+		_eventManager->pushEvent(_demoEvents.front());
 		_demoEvents.remove_at(0);
 	}
 
-	while (g_system->getEventManager()->pollEvent(event)) {
-		if (_demoMode) {
+	while (_eventManager->pollEvent(event)) {
+		if (_gameStateControl != kFreescapeGameStatePlaying) {
 			if (event.type == Common::EVENT_SCREEN_CHANGED)
+				; // Allow event
+			else if (_gameStateControl == kFreescapeGameStateEnd && event.type == Common::EVENT_KEYDOWN) {
+				_endGameKeyPressed = true;
+				continue;
+			} else if (event.type == Common::EVENT_KEYDOWN && event.kbd.keycode == Common::KEYCODE_ESCAPE)
 				; // Allow event
 			else if (event.customType != 0xde00)
 				continue;
@@ -376,7 +423,7 @@ void FreescapeEngine::processInput() {
 
 		switch (event.type) {
 		case Common::EVENT_JOYBUTTON_DOWN:
-			if (_hasFallen)
+			if (_hasFallen || _playerWasCrushed)
 				break;
 			switch (event.joystick.button) {
 			case Common::JOYSTICK_BUTTON_B:
@@ -439,7 +486,10 @@ void FreescapeEngine::processInput() {
 				decreaseStepSize();
 				break;
 			case Common::KEYCODE_r:
-				rise();
+				if (isEclipse())
+					pressedKey(Common::KEYCODE_r);
+				else
+					rise();
 				break;
 			case Common::KEYCODE_f:
 				lower();
@@ -464,8 +514,8 @@ void FreescapeEngine::processInput() {
 				} else {
 					g_system->lockMouse(false);
 					g_system->warpMouse(_crossairPosition.x, _crossairPosition.y);
-					g_system->getEventManager()->purgeMouseEvents();
-					g_system->getEventManager()->purgeKeyboardEvents();
+					_eventManager->purgeMouseEvents();
+					_eventManager->purgeKeyboardEvents();
 				}
 				break;
 			case Common::KEYCODE_i:
@@ -475,6 +525,13 @@ void FreescapeEngine::processInput() {
 				pressedKey(event.kbd.keycode);
 				break;
 			}
+			break;
+
+		case Common::EVENT_KEYUP:
+			if (_hasFallen)
+				break;
+
+			releasedKey(event.kbd.keycode);
 			break;
 
 		case Common::EVENT_QUIT:
@@ -509,7 +566,7 @@ void FreescapeEngine::processInput() {
 					event.relMouse.y = -event.relMouse.y;
 
 				g_system->warpMouse(mousePos.x, mousePos.y);
-				g_system->getEventManager()->purgeMouseEvents();
+				_eventManager->purgeMouseEvents();
 			}
 
 			rotate(event.relMouse.x * _mouseSensitivity, event.relMouse.y * _mouseSensitivity);
@@ -601,7 +658,6 @@ Common::Error FreescapeEngine::run() {
 		gotoArea(_startArea, _startEntrance);
 
 	debugC(1, kFreescapeDebugMove, "Starting area %d", _currentArea->getAreaID());
-	bool endGame = false;
 	// Draw first frame
 
 	g_system->showMouse(false);
@@ -614,11 +670,12 @@ Common::Error FreescapeEngine::run() {
 
 	while (!shouldQuit()) {
 		updateTimeVariables();
-		if (endGame) {
+		if (_gameStateControl == kFreescapeGameStateRestart) {
 			initGameState();
 			gotoArea(_startArea, _startEntrance);
-			endGame = false;
-		}
+		} else if (_gameStateControl == kFreescapeGameStateEnd)
+			endGame();
+
 		processInput();
 		if (_demoMode)
 			generateDemoInput();
@@ -626,16 +683,35 @@ Common::Error FreescapeEngine::run() {
 		checkSensors();
 		drawFrame();
 
+		if (_shootingFrames == 0) {
+			if (_delayedShootObject) {
+				executeObjectConditions(_delayedShootObject, true, false, false);
+				executeLocalGlobalConditions(true, false, false); // Only execute "on shot" room/global conditions
+				_delayedShootObject = nullptr;
+			}
+		}
+
 		_gfx->flipBuffer();
 		_frameLimiter->delayBeforeSwap();
 		g_system->updateScreen();
 		_frameLimiter->startFrame();
 		if (_vsyncEnabled) // if vsync is enabled, the framelimiter will not work
 			g_system->delayMillis(15); // try to target ~60 FPS
-		endGame = checkIfGameEnded();
+
+		checkIfGameEnded();
 	}
 
+	_eventManager->clearExitEvents();
 	return Common::kNoError;
+}
+
+void FreescapeEngine::endGame() {
+	_shootingFrames = 0;
+	_delayedShootObject = nullptr;
+	if (_gameStateControl == kFreescapeGameStateEnd && !isPlayingSound() && !_endGamePlayerEndArea) {
+		_endGamePlayerEndArea = true;
+		gotoArea(_endArea, _endEntrance);
+	}
 }
 
 void FreescapeEngine::loadBorder() {
@@ -674,6 +750,57 @@ void FreescapeEngine::processBorder() {
 }
 
 bool FreescapeEngine::checkIfGameEnded() {
+	if (_gameStateControl != kFreescapeGameStatePlaying)
+		return false;
+
+	if (_avoidRenderingFrames > 0)
+		return false;
+
+	if (_gameStateVars[k8bitVariableShield] == 0) {
+		if (isSpectrum())
+			playSound(14, true);
+
+		if (!_noShieldMessage.empty())
+			insertTemporaryMessage(_noShieldMessage, _countdown - 2);
+		_gameStateControl = kFreescapeGameStateEnd;
+	} else if (_gameStateVars[k8bitVariableEnergy] == 0) {
+		if (isSpectrum())
+			playSound(14, true);
+
+		if (!_noEnergyMessage.empty())
+			insertTemporaryMessage(_noEnergyMessage, _countdown - 2);
+		_gameStateControl = kFreescapeGameStateEnd;
+	} else if (_hasFallen) {
+		_hasFallen = false;
+		if (isSpectrum())
+			playSound(14, false);
+
+		if (!_fallenMessage.empty())
+			insertTemporaryMessage(_fallenMessage, _countdown - 4);
+		_gameStateControl = kFreescapeGameStateEnd;
+	} else if (_countdown <= 0) {
+		if (isSpectrum())
+			playSound(14, false);
+
+		if (!_timeoutMessage.empty())
+			insertTemporaryMessage(_timeoutMessage, _countdown - 4);
+		_gameStateControl = kFreescapeGameStateEnd;
+	} else if (_playerWasCrushed) {
+		if (isSpectrum())
+			playSound(25, true);
+
+		_playerWasCrushed = false;
+		if (!_crushedMessage.empty())
+			insertTemporaryMessage(_crushedMessage, _countdown - 4);
+		_gameStateControl = kFreescapeGameStateEnd;
+	} else if (_forceEndGame) {
+		if (isSpectrum())
+			playSound(14, true);
+		_forceEndGame = false;
+		if (!_forceEndGameMessage.empty())
+			insertTemporaryMessage(_forceEndGameMessage, _countdown - 4);
+		_gameStateControl = kFreescapeGameStateEnd;
+	}
 	return false; // TODO
 }
 
@@ -694,10 +821,36 @@ uint16 FreescapeEngine::getGameBit(int index) {
 }
 
 void FreescapeEngine::initGameState() {
+	_gameStateControl = kFreescapeGameStatePlaying;
+
 	for (int i = 0; i < k8bitMaxVariable; i++) // TODO: check maximum variable
 		_gameStateVars[i] = 0;
 
+	for (auto &it : _areaMap)
+		it._value->resetArea();
+
 	_gameStateBits = 0;
+
+	_flyMode = false;
+	_noClipMode = false;
+	_playerWasCrushed = false;
+	_shootingFrames = 0;
+	_delayedShootObject = nullptr;
+	_underFireFrames = 0;
+	_avoidRenderingFrames = 0;
+	_yaw = 0;
+	_pitch = 0;
+	_endGameKeyPressed = false;
+	_endGamePlayerEndArea = false;
+
+	_demoIndex = 0;
+	_demoEvents.clear();
+
+	removeTimers();
+	startCountdown(_initialCountdown - 1);
+	int seconds, minutes, hours;
+	getTimeFromCountdown(seconds, minutes, hours);
+	_lastMinute = minutes;
 }
 
 void FreescapeEngine::rotate(float xoffset, float yoffset) {
@@ -767,7 +920,7 @@ void FreescapeEngine::drawStringInSurface(const Common::String &str, int x, int 
 					if (_font.get(position + j * 32 + i))
 						surface->setPixel(x + 8 - i + 8 * c, y + j, fontColor);
 					else
-						surface->setPixel(x + 8 - i + 8 * c, y + j, backColor);;
+						surface->setPixel(x + 8 - i + 8 * c, y + j, backColor);
 				}
 			}
 		}
@@ -889,8 +1042,7 @@ Graphics::ManagedSurface *FreescapeEngine::loadAndConvertNeoImage(Common::Seekab
 	decoder.loadStream(*stream);
 	Graphics::ManagedSurface *surface = new Graphics::ManagedSurface();
 	surface->copyFrom(*decoder.getSurface());
-	surface->convertToInPlace(_gfx->_currentPixelFormat, decoder.getPalette(),
-		decoder.getPaletteStartIndex(), decoder.getPaletteColorCount());
+	surface->convertToInPlace(_gfx->_currentPixelFormat, decoder.getPalette(), decoder.getPaletteColorCount());
 	return surface;
 }
 

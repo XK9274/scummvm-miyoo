@@ -554,7 +554,7 @@ void ScummEngine_v5::o5_actorOps() {
 			// but for the Smirk close-up we want the same colors
 			// as the floppy version.
 
-			if (_game.id == GID_MONKEY && _currentRoom == 76) {
+			if (_game.id == GID_MONKEY && _currentRoom == 76 && enhancementEnabled(kEnhVisualChanges)) {
 				if (i == 3)
 					i = 1;
 				else if (i == 9)
@@ -831,7 +831,7 @@ void ScummEngine_v5::o5_chainScript() {
 	// FIXME: Do we still need this workaround, 19 years later? I can't
 	// reproduce the original crash anymore, maybe we handle uninitialized
 	// local values the same way the original interpreter did, now?
-	if (_game.id == GID_INDY3 && vm.slot[cur].number == 32 && script == 33) {
+	if (_game.id == GID_INDY3 && cur != 0xFF && vm.slot[cur].number == 32 && script == 33) {
 		vars[5] = vm.localvar[cur][5];
 	}
 
@@ -995,22 +995,6 @@ void ScummEngine_v5::o5_doSentence() {
 
 	int objectA = getVarOrDirectWord(PARAM_2);
 	int objectB = getVarOrDirectWord(PARAM_3);
-
-	//	HACK: breath mint(object 458) should only be given to actors.
-	//	Giving it to non-actor objects crashes the game.
-	//	The sentence doesn't run a script if the recipient is not an actor.
-	//	Trac #13196
-	//	This bug occurred always when breath mint was given to non-actor objects
-	// 	and sometimes when other non actor objects were given to breathe mint
-	//	Giving pot or red herring to breath mint triggered the bug as these two objects' scripts
-	//	reverse the sentence (in case if the user had reversed the items), effectively making the sentence
-	//	such that the breath mint is being given to the pot/red herring.
-	// 	But giving hunk o' meat to breath mint didn't trigger the bug as such reversal is not done
-	//	by hunk o' meat's script.
-	if (((_game.id == GID_MONKEY_VGA && (_game.features & GF_DEMO)) ||
-		 (_game.id == GID_MONKEY_EGA && (_game.features & GF_DEMO)))
-		&& verb == 3 && objectA == 458 && !isValidActor(objectB))
-		return;
 
 	doSentence(verb, objectA, objectB);
 }
@@ -1206,8 +1190,9 @@ void ScummEngine_v5::o5_expression() {
 void ScummEngine_v5::o5_faceActor() {
 	int act = getVarOrDirectByte(PARAM_1);
 	int obj = getVarOrDirectWord(PARAM_2);
-	Actor *a = derefActor(act, "o5_faceActor");
-	a->faceToObject(obj);
+	Actor *a = derefActorSafe(act, "o5_faceActor");
+	if (a)
+		a->faceToObject(obj);
 }
 
 void ScummEngine_v5::o5_findInventory() {
@@ -2006,6 +1991,18 @@ void ScummEngine_v5::o5_putActorAtObject() {
 	else {
 		x = 240;
 		y = 120;
+
+		// WORKAROUND: When Guybrush dives down to the Mad Monkey, he
+		// is positioned near the anchor (though since it can't be
+		// found yet, it uses this default position). He's then lowered
+		// to the ocean floor by adjusting his elevation. But he will
+		// be drawn for a split second at the unelevated position. This
+		// is a bug in the original game, and we work around it by
+		// adjusting the elevation immediately.
+
+		if (_game.id == GID_MONKEY2 && a->_number == 1 && vm.slot[_currentScript].number == 58 && enhancementEnabled(kEnhMinorBugFixes)) {
+			a->setElevation(99);
+		}
 	}
 	a->putActor(x, y);
 }

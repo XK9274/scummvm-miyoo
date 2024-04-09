@@ -381,14 +381,13 @@ bool Script::loadAllMasks(Common::Array<Mask> &maskList, int offset) {
 		tempMask._z = maskStream.readUint16LE();
 		tempMask._number = maskStream.readUint16LE();
 
-		const Common::String msStreamName = Common::String::format("MS%02d", tempMask._number);
+		const Common::Path msStreamName(Common::String::format("MS%02d", tempMask._number));
 		Common::SeekableReadStream *msStream = SearchMan.createReadStreamForMember(msStreamName);
 		if (!msStream) {
 			tempMask._width = 0;
 			tempMask._height = 0;
 			tempMask._data = nullptr;
-			warning("loadAllMasks: Can't load %s", msStreamName.c_str());
-			delete msStream;
+			warning("loadAllMasks: Can't load %s", msStreamName.toString().c_str());
 		} else {
 			msStream = Resource::getDecompressedStream(msStream);
 

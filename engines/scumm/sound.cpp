@@ -109,7 +109,7 @@ Sound::Sound(ScummEngine *parent, Audio::Mixer *mixer, bool useReplacementAudioT
 	// This timer targets every talkie game, except for LOOM CD
 	// which is handled differently, and except for COMI which
 	// handles lipsync within Digital iMUSE.
-	if (_vm->_game.version >= 5 && _vm->_game.version <= 7) {
+	if (_vm->_game.version >= 5 && _vm->_game.version <= 7 && _vm->_game.heversion == 0) {
 		startSpeechTimer();
 	}
 }
@@ -120,7 +120,7 @@ Sound::~Sound() {
 	free(_offsetTable);
 	delete _loomSteamCDAudioHandle;
 	delete _talkChannelHandle;
-	if (_vm->_game.version >= 5 && _vm->_game.version <= 7) {
+	if (_vm->_game.version >= 5 && _vm->_game.version <= 7 && _vm->_game.heversion == 0) {
 		stopSpeechTimer();
 	}
 }
@@ -382,24 +382,6 @@ void Sound::triggerSound(int soundID) {
 		return;
 	}
 
-	// Support for SFX in Monkey Island 1, Mac version
-	// This is rather hackish right now, but works OK. SFX are not sounding
-	// 100% correct, though, not sure right now what is causing this.
-	else if (READ_BE_UINT32(ptr) == MKTAG('M','a','c','1')) {
-		// Read info from the header
-		size = READ_BE_UINT32(ptr+0x60);
-		rate = READ_BE_UINT16(ptr+0x64);
-
-		// Skip over the header (fixed size)
-		ptr += 0x72;
-
-		// Allocate a sound buffer, copy the data into it, and play
-		sound = (byte *)malloc(size);
-		memcpy(sound, ptr, size);
-
-		stream = Audio::makeRawStream(sound, size, rate, Audio::FLAG_UNSIGNED);
-		_mixer->playStream(Audio::Mixer::kSFXSoundType, nullptr, stream, soundID);
-	}
 	// WORKAROUND bug #2221
 	else if (READ_BE_UINT32(ptr) == 0x460e200d) {
 		// This sound resource occurs in the Macintosh version of Monkey Island.
@@ -529,68 +511,7 @@ void Sound::triggerSound(int soundID) {
 			warning("Scumm::Sound::triggerSound: encountered audio resource with chunk type 'SOUN' and sound type %d", type);
 		}
 	}
-	else if ((_vm->_game.platform == Common::kPlatformMacintosh) && (_vm->_game.id == GID_INDY3) && ptr[4] != 0x7F) {
-		// Sound format as used in Indy3 EGA Mac.
-		// It seems to be closely related to the Amiga format, see player_v3a.cpp
-		//
-		// We assume that if byte 5 is 0x7F, it's music because that's
-		// where the priority of the track is stored, and it's always
-		// that value. See player_v2.cpp
-		//
-		// The following is known:
-		// offset 0, 16 LE: total size
-		// offset 2-7: ?
-		// offset 8, 16BE: offset to sound data (usually 0x1C = 28 -> header size 28?)
-		// offset 10-11: ? another offset, maybe related to looping?
-		// offset 12, 16BE: size of sound data
-		// offset 14-15: ? often the same as 12-13: maybe loop size/end?
-		// offset 16-19: ? all 0?
-		// offset 20, 16BE: rate divisor
-		// offset 22-23: ? often identical to the rate divisior? (but not in sound 8, which loops)
-		// offset 24, byte (?): volume
-		// offset 25: ? same as volume -- maybe left vs. right channel?
-		// offset 26: if == 0: stop current identical sound (see ptr[26] comment below)
-		// offset 27: ?  loopcount? 0xff == -1 for infinite?
-
-		size = READ_BE_UINT16(ptr + 12);
-		assert(size);
-
-		rate = 3579545 / READ_BE_UINT16(ptr + 20);
-		sound = (byte *)malloc(size);
-		int vol = ptr[24] * 4;
-		int loopStart = 0, loopEnd = 0;
-		int loopcount = ptr[27];
-
-		memcpy(sound, ptr + READ_BE_UINT16(ptr + 8), size);
-		Audio::SeekableAudioStream *plainStream = Audio::makeRawStream(sound, size, rate, 0);
-
-		if (loopcount > 1) {
-			loopStart = READ_BE_UINT16(ptr + 10) - READ_BE_UINT16(ptr + 8);
-			loopEnd = READ_BE_UINT16(ptr + 14);
-
-			// TODO: Currently we will only ever play till "loopEnd", even when we only have
-			// a finite repetition count.
-			stream = new Audio::SubLoopingAudioStream(plainStream, loopcount == 255 ? 0 : loopcount, Audio::Timestamp(0, loopStart, rate), Audio::Timestamp(0, loopEnd, rate));
-		} else {
-			stream = plainStream;
-		}
-
-		// When unset, we assume that this byte is meant to interrupt any other
-		// instance of the current sound (as done by the Indy3 Amiga driver,
-		// which was checked against disassembly). A good test for the expected
-		// behavior is to ring the boxing bell in room 73; in the original
-		// interpreter it rings 3 times in a row, and if we don't do this the
-		// second bell sound is never heard. Another example is the thunder
-		// sound effect when Indy is outside the windows of Castle Brunwald
-		// (room 13): it's meant to have a couple of "false starts".
-		// TODO: do an actual disasm of Indy3 Macintosh (anyone? ;)
-		if (!ptr[26])
-			_mixer->stopID(soundID);
-
-		_mixer->playStream(Audio::Mixer::kSFXSoundType, nullptr, stream, soundID, vol, 0);
-	}
 	else {
-
 		if (_vm->_game.id == GID_MONKEY_VGA || _vm->_game.id == GID_MONKEY_EGA) {
 			// Works around the fact that in some places in MonkeyEGA/VGA,
 			// the music is never explicitly stopped.
@@ -602,9 +523,8 @@ void Sound::triggerSound(int soundID) {
 			}
 		}
 
-		if (_vm->_musicEngine) {
+		if (_vm->_musicEngine)
 			_vm->_musicEngine->startSound(soundID);
-		}
 
 		if (_vm->_townsPlayer)
 			_currentCDSound = _vm->_townsPlayer->getCurrentCdaSound();
@@ -639,7 +559,8 @@ void Sound::processSfxQueues() {
 			finished = !_mixer->isSoundHandleActive(*_talkChannelHandle);
 		}
 
-		if ((uint) act < 0x80 && ((_vm->_game.version == 8) || (_vm->_game.version <= 7 && !_vm->_string[0].no_talk_anim))) {
+		if (_vm->_game.heversion == 0 &&
+			((uint)act < 0x80 && ((_vm->_game.version == 8) || (_vm->_game.version <= 7 && !_vm->_string[0].no_talk_anim)))) {
 			a = _vm->derefActor(act, "processSfxQueues");
 			if (a->isInCurrentRoom()) {
 				if (finished || (isMouthSyncOff(_curSoundPos) && _mouthSyncMode)) {
@@ -798,7 +719,7 @@ void Sound::startTalkSound(uint32 offset, uint32 length, int mode, Audio::SoundH
 			if (!file)
 				error("startTalkSound: Out of memory");
 
-			if (!_vm->openFile(*file, _sfxFilename)) {
+			if (!_vm->openFile(*file, Common::Path(_sfxFilename))) {
 				warning("startTalkSound: could not open sfx file %s", _sfxFilename.c_str());
 				return;
 			}
@@ -915,7 +836,7 @@ void Sound::startTalkSound(uint32 offset, uint32 length, int mode, Audio::SoundH
 		if (!file)
 			error("startTalkSound: Out of memory");
 
-		if (!_vm->openFile(*file, _sfxFilename)) {
+		if (!_vm->openFile(*file, Common::Path(_sfxFilename))) {
 			warning("startTalkSound: could not open sfx file %s", _sfxFilename.c_str());
 			return;
 		}
@@ -1316,7 +1237,7 @@ void Sound::setupSfxFile() {
 	 * same directory */
 
 	Common::String basename[2];
-	Common::String tmp;
+	Common::Path tmp;
 
 	const char *ptr = strchr(_vm->_filenamePattern.pattern, '.');
 	if (ptr) {
@@ -1331,11 +1252,12 @@ void Sound::setupSfxFile() {
 		if ((_vm->_game.heversion <= 62 && _vm->_game.platform == Common::kPlatformMacintosh) || (_vm->_game.heversion >= 70)) {
 			tmp = _vm->generateFilename(-2);
 		} else {
-			tmp = basename[0] + "tlk";
+			tmp = basename[0];
+			tmp.appendInPlace("tlk");
 		}
 
-		if (file.open(tmp))
-			_sfxFilename = tmp;
+		if (file.open(Common::Path(tmp)))
+			_sfxFilename = tmp.toString('/');
 
 		if (_vm->_game.heversion <= 74)
 			_sfxFileEncByte = 0x69;
@@ -1344,10 +1266,11 @@ void Sound::setupSfxFile() {
 	} else {
 		for (uint j = 0; j < 2 && !file.isOpen(); ++j) {
 			for (int i = 0; extensions[i].ext; ++i) {
-				tmp = basename[j] + extensions[i].ext;
+				tmp = basename[j];
+				tmp.appendInPlace(extensions[i].ext);
 				if (_vm->openFile(file, tmp)) {
 					_soundMode = extensions[i].mode;
-					_sfxFilename = tmp;
+					_sfxFilename = tmp.toString('/');
 					break;
 				}
 			}
@@ -2182,6 +2105,7 @@ static void convertADResource(ResourceManager *res, const GameSettings& game, Re
 		int  current_note[3];
 		int track_time[3];
 		byte *track_data[3];
+		memset(current_instr, 0, sizeof(current_instr));
 
 		int track_ctr = 0;
 		byte chunk_type = 0;
@@ -2466,7 +2390,7 @@ int ScummEngine::readSoundResourceSmallHeader(ResId idx) {
 		}
 	}
 
-	if ((_sound->_musicType == MDT_PCSPK || _sound->_musicType == MDT_PCJR) && wa_offs != 0) {
+	if ((_sound->_musicType == MDT_PCSPK || _sound->_musicType == MDT_PCJR || _sound->_musicType == MDT_MACINTOSH) && wa_offs != 0) {
 		if (_game.features & GF_OLD_BUNDLE) {
 			_fileHandle->seek(wa_offs, SEEK_SET);
 			_fileHandle->read(_res->createResource(rtSound, idx, wa_size), wa_size);

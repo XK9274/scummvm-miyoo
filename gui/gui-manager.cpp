@@ -112,8 +112,14 @@ void GuiManager::initIconsSet() {
 	Common::StackLock lock(_iconsMutex);
 
 	_iconsSet.clear();
-
+#ifdef EMSCRIPTEN
+	Common::Path iconsPath = ConfMan.getPath("iconspath");
+	_iconsSet = Common::SearchSet();
+	_iconsSet.addDirectory("gui-icons/", iconsPath, 0, 3, false);
+	_iconsSetChanged = true;
+#else
 	_iconsSetChanged = Common::generateZipSet(_iconsSet, "gui-icons.dat", "gui-icons*.dat");
+#endif
 }
 
 void GuiManager::computeScaleFactor() {
@@ -975,8 +981,8 @@ Graphics::MacWindowManager *GuiManager::getWM() {
 		return _wm;
 
 	if (ConfMan.hasKey("extrapath")) {
-		Common::FSNode dir(ConfMan.get("extrapath"));
-		SearchMan.addDirectory(dir.getPath(), dir);
+		Common::FSNode dir(ConfMan.getPath("extrapath"));
+		SearchMan.addDirectory(dir);
 	}
 
 	uint32 wmMode = Graphics::kWMModeNoDesktop | Graphics::kWMMode32bpp | Graphics::kWMModeNoCursorOverride;

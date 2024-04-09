@@ -44,11 +44,11 @@ void RenderObject::init() {
 }
 
 void RenderObject::registerGraphics() {
-	g_nancy->_graphicsManager->addObject(this);
+	g_nancy->_graphics->addObject(this);
 }
 
 RenderObject::~RenderObject() {
-	g_nancy->_graphicsManager->removeObject(this);
+	g_nancy->_graphics->removeObject(this);
 	if (_drawSurface.getPixels()) {
 		_drawSurface.free();
 	}
@@ -83,7 +83,7 @@ void RenderObject::setVisible(bool visible) {
 
 void RenderObject::setTransparent(bool isTransparent) {
 	if (isTransparent) {
-		_drawSurface.setTransparentColor(g_nancy->_graphicsManager->getTransColor());
+		_drawSurface.setTransparentColor(g_nancy->_graphics->getTransColor());
 	} else {
 		_drawSurface.clearTransparentColor();
 	}
@@ -95,7 +95,7 @@ void RenderObject::grabPalette(byte *colors, uint paletteStart, uint paletteSize
 	}
 }
 
-void RenderObject::setPalette(const Common::String &paletteName, uint paletteStart, uint paletteSize) {
+void RenderObject::setPalette(const Common::Path &paletteName, uint paletteStart, uint paletteSize) {
 	GraphicsManager::loadSurfacePalette(_drawSurface, paletteName, paletteStart, paletteSize);
 	_needsRedraw = true;
 }

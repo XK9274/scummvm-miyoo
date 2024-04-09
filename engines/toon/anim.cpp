@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #include "common/debug.h"
@@ -32,7 +39,7 @@ bool Animation::loadAnimation(const Common::String &file) {
 	debugC(1, kDebugAnim, "loadAnimation(%s)", file.c_str());
 
 	uint32 fileSize = 0;
-	uint8 *fileData = _vm->resources()->getFileData(file, &fileSize);
+	uint8 *fileData = _vm->resources()->getFileData(Common::Path(file), &fileSize);
 	if (!fileData)
 		return false;
 

@@ -125,6 +125,9 @@ struct ScriptPatch {
 	{"warlock", nullptr, kPlatformWindows, "STARBIRD:ABOUT", kScoreScript, 4, DEFAULT_CAST_LIB,
 			1, "installmenu A13", ""},
 
+	// Typo
+	{"rodneyfs", nullptr, kPlatformMacintosh, "Shared Cast", kMovieScript, 496, DEFAULT_CAST_LIB,
+			7, "if the soundLevel <> 7 then set the the soundLevel to 7", "if the soundLevel <> 7 then set the soundLevel to 7"},
 
 	// Patching dead loop which was fixed in v2
 	{"lzone", "", kPlatformMacintosh, "DATA:R-A:Ami-00", kScoreScript, 3, DEFAULT_CAST_LIB,
@@ -246,6 +249,139 @@ struct ScriptPatch {
 
 	{nullptr, nullptr, kPlatformUnknown, nullptr, kNoneScript, 0, 0, 0, nullptr, nullptr}
 };
+
+/*
+ * Cosmology of Kyoto has a text entry system, however for the English version
+ * at least you are very unlikely to guess the correct sequence of letters that
+ * constitute a valid answer. This is an attempt to make things fairer by removing
+ * the need for precise whitespace and punctuation. As a fallback, "yes" should
+ * always mean a yes response, and "no" should always mean a no response.
+ */
+
+const char *kyotoTextEntryFix = " \
+on scrubInput inputString \r\
+  set result = \"\" \r\
+  repeat with x = 1 to the number of chars in inputString \r\
+    if chars(inputString, x, x) = \" \" then continue \r\
+	else if chars(inputString, x, x) = \".\" then continue \r\
+	else if chars(inputString, x, x) = \"!\" then continue \r\
+	else if chars(inputString, x, x) = \"?\" then continue \r\
+	else if chars(inputString, x, x) = \"。\" then continue \r\
+	else \r\
+      set result = result & char x of inputString \r\
+	end if \r\
+  end repeat \r\
+  return result \r\
+end \r\
+\r\
+on checkkaiwa kaiwatrue, kaiwafalse \r\
+  global myparadata \r\
+  if (keyCode() <> 36) and (keyCode() <> 76) then \r\
+    exit \r\
+  end if \r\
+  put \"Original YES options: \" & kaiwatrue \r\
+  put \"Original NO options: \" & kaiwafalse \r\
+  -- pre-scrub all input and choices to remove effect of whitespace/punctuation \r\
+  set kaiwaans = scrubInput(field \"KaiwaWindow\") \r\
+  set kaiwatrue = scrubInput(kaiwatrue) \r\
+  set kaiwafalse = scrubInput(kaiwafalse) \r\
+  -- yes and no should always give consistent results \r\
+  if kaiwaans = \"yes\" then \r\
+    return \"YES\" \r\
+  else if kaiwaans = \"no\" then \r\
+    return \"NO\" \r\
+  end if \r\
+  repeat with y = 1 to the number of items in kaiwatrue \r\
+    if item y of kaiwatrue starts kaiwaans then \r\
+      when keyDown then CheckQuit \r\
+      put EMPTY into field \"KaiwaWindow\" \r\
+      return \"YES\" \r\
+    end if \r\
+  end repeat \r\
+  repeat with n = 1 to the number of items in kaiwafalse \r\
+    if item n of kaiwafalse starts kaiwaans then \r\
+      when keyDown then CheckQuit \r\
+      put EMPTY into field \"KaiwaWindow\" \r\
+      return \"NO\" \r\
+    end if \r\
+  end repeat \r\
+    set kaiwafool to scrubInput(\"あほんだら,ばか,うんこ,しっこ,しね,死ね,うるさい,うるせえ,\" & \"fool,simpleton,stupid person,kill,Shut up!,Get out of my hair!\") \r\
+  repeat with f = 1 to the number of items in kaiwafool \r\
+    if item f of kaiwafool starts kaiwaans then \r\
+      myparadata(maddparadata, 2, 1) \r\
+      when keyDown then CheckQuit \r\
+      put EMPTY into field \"KaiwaWindow\" \r\
+      return \"error\" \r\
+    end if \r\
+  end repeat \r\
+  when keyDown then CheckQuit \r\
+  put EMPTY into field \"KaiwaWindow\" \r\
+  return \"error\" \r\
+end \r\
+";
+
+/* AMBER: Journeys Beyond has a check to ensure that the CD and hard disk data are on
+ * different drive letters. ScummVM will pretend that every drive letter contains the
+ * game contents, so we need to hotpatch the CD detection routine to return D:.
+ */
+const char *amberDriveDetectionFix = " \
+on GetCDLetter tagFile, discNumber\r\
+  return \"D:\"\r\
+end \r\
+";
+
+struct ScriptHandlerPatch {
+	const char *gameId;
+	const char *extra;
+	Common::Platform platform; // Specify kPlatformUnknown for skipping platform check
+	const char *movie;
+	ScriptType type;
+	uint16 id;
+	uint16 castLib;
+	const char *handlerBody;
+} const scriptHandlerPatches[] = {
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\dd_dairi\\shared.dxr", kMovieScript, 906, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\findfldr\\shared.dxr", kMovieScript, 802, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\ichi\\shared.dxr", kMovieScript, 906, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\jigoku\\shared.dxr", kMovieScript, 840, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\kusamura\\shared.dxr", kMovieScript, 906, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\map01\\shared.dxr", kMovieScript, 906, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\map02\\shared.dxr", kMovieScript, 906, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\map03\\shared.dxr", kMovieScript, 906, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\map04\\shared.dxr", kMovieScript, 906, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\opening\\shared.dxr", kMovieScript, 802, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\rajoumon\\shared.dxr", kMovieScript, 840, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"kyoto", nullptr, kPlatformWindows, "ck_data\\rokudou\\shared.dxr", kMovieScript, 846, DEFAULT_CAST_LIB, kyotoTextEntryFix},
+	{"amber", nullptr, kPlatformWindows, "AMBER_F\\AMBER_JB.EXE", kMovieScript, 7, DEFAULT_CAST_LIB, amberDriveDetectionFix},
+	{nullptr, nullptr, kPlatformUnknown, nullptr, kNoneScript, 0, 0, nullptr},
+
+};
+
+void LingoArchive::patchScriptHandler(ScriptType type, CastMemberID id) {
+	const ScriptHandlerPatch *patch = scriptHandlerPatches;
+	Common::String movie = g_director->getCurrentPath() + cast->getMacName();
+
+	// So far, we have not many patches, so do linear lookup
+	while (patch->gameId) {
+		// First, we do cheap comparisons
+		if (patch->type != type || patch->id != id.member || patch->castLib != id.castLib ||
+				(patch->platform != kPlatformUnknown && patch->platform != g_director->getPlatform())) {
+			patch++;
+			continue;
+		}
+
+		// Now expensive ones
+		U32String moviename = punycode_decode(patch->movie);
+		if (movie.compareToIgnoreCase(moviename) || strcmp(patch->gameId, g_director->getGameId())
+				|| (patch->extra && strcmp(patch->extra, g_director->getExtra()))) {
+			patch++;
+			continue;
+		}
+		patchCode(Common::U32String(patch->handlerBody), patch->type, patch->id);
+		patch++;
+	}
+}
+
 
 Common::U32String LingoCompiler::patchLingoCode(const Common::U32String &line, LingoArchive *archive, ScriptType type, CastMemberID id, int linenum) {
 	if (!archive)

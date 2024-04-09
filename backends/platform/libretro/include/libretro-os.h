@@ -24,8 +24,7 @@
 #include "common/mutex.h"
 #include "common/list.h"
 #include "common/events.h"
-#include "graphics/palette.h"
-#include "graphics/surface.h"
+#include "backends/modular-backend.h"
 
 #define BASE_CURSOR_SPEED 4
 #define CURSOR_STATUS_DOING_JOYSTICK  (1 << 0)
@@ -35,6 +34,7 @@
 #define CURSOR_STATUS_DOING_SLOWER    (1 << 4)
 
 #define LIBRETRO_G_SYSTEM dynamic_cast<OSystem_libretro *>(g_system)
+#define LIBRETRO_GRAPHICS_MANAGER dynamic_cast<LibretroGraphics *>(_graphicsManager)
 
 /**
  *  Dummy mutex implementation
@@ -47,27 +47,11 @@ public:
 	bool unlock() override { return 0; };
 };
 
-class LibretroPalette {
-public:
-	const byte *_prevColorsSource;
-	unsigned char _colors[256 * 3];
-	LibretroPalette(void);
-	~LibretroPalette(void) {};
-	void set(const byte *colors, uint start, uint num);
-	void get(byte *colors, uint start, uint num) const;
-	unsigned char *getColor(uint aIndex) const;
-	void reset(void) { _prevColorsSource = NULL; }
-};
 
-class OSystem_libretro : public EventsBaseBackend, public PaletteManager {
+class OSystem_libretro : public EventsBaseBackend, ModularGraphicsBackend {
 private:
-	int _mouseX;
-	int _mouseY;
 	int _relMouseX;
 	int _relMouseY;
-	int _mouseHotspotX;
-	int _mouseHotspotY;
-	int _mouseKeyColor;
 	float _mouseXAcc;
 	float _mouseYAcc;
 	float _dpadXAcc;
@@ -77,81 +61,36 @@ private:
 	float _adjusted_cursor_speed;
 	float _inverse_acceleration_time;
 	uint32 _startTime;
-	uint8 _threadSwitchCaller;
 	uint8 _cursorStatus;
 	Common::String s_systemDir;
 	Common::String s_saveDir;
-	static Common::List<Common::Event> _events;
+	Common::String s_playlistDir;
+	Common::List<Common::Event> _events;
 
 public:
 	Audio::MixerImpl *_mixer;
-	Graphics::Surface _screen;
-	Graphics::Surface _gameScreen;
-	Graphics::Surface _overlay;
-	Graphics::Surface _mouseImage;
-	LibretroPalette _mousePalette;
-	LibretroPalette _gamePalette;
-	bool _overlayVisible;
-	bool _overlayInGUI;
-	bool _mouseDontScale;
 	bool _mouseButtons[2];
 	bool _ptrmouseButton;
-	bool _mousePaletteEnabled;
-	bool _mouseVisible;
+	int _mouseX;
+	int _mouseY;
 
 	/* Base */
 	OSystem_libretro(void);
 	~OSystem_libretro(void) override;
 	void initBackend(void) override;
 	void engineInit(void) override;
-	void engineDone(void) override;
-	bool hasFeature(Feature f) override;
-	void setFeatureState(Feature f, bool enable) override;
-	bool getFeatureState(Feature f) override;
 	void refreshRetroSettings(void);
+	void refreshScreen(void);
 	void destroy(void);
 	void quit() override {}
+
 private:
 	bool checkPathSetting(const char *setting, Common::String const &defaultPath, bool isDirectory = true);
-
-	/* Graphics */
-public:
-	Common::List<Graphics::PixelFormat> getSupportedFormats() const override;
-	const GraphicsMode *getSupportedGraphicsModes(void) const override;
-	void initSize(uint width, uint height, const Graphics::PixelFormat *format) override;
-	int16 getHeight(void) override;
-	int16 getWidth(void) override;
-	Graphics::PixelFormat getScreenFormat(void) const override;
-	void copyRectToScreen(const void *buf, int pitch, int x, int y, int w, int h) override;
-	void updateScreen(void) override;
-	void showOverlay(bool inGUI) override;
-	void hideOverlay(void) override;
-	void clearOverlay(void) override;
-	void grabOverlay(Graphics::Surface &surface) override;
-	void copyRectToOverlay(const void *buf, int pitch, int x, int y, int w, int h) override;
-	int16 getOverlayHeight(void) override;
-	int16 getOverlayWidth(void) override;
-	Graphics::PixelFormat getOverlayFormat() const override;
-	const Graphics::Surface &getScreen(void);
-	bool showMouse(bool visible) override;
-	void warpMouse(int x, int y) override;
-	void setMouseCursor(const void *buf, uint w, uint h, int hotspotX, int hotspotY, uint32 keycolor = 255, bool dontScale = false, const Graphics::PixelFormat *format = NULL, const byte *mask = nullptr) override;
-	void setCursorPalette(const byte *colors, uint start, uint num) override;
-	int getDefaultGraphicsMode() const override { return 0; }
-	bool isOverlayVisible() const override { return false; }
-	bool setGraphicsMode(int mode, uint flags = kGfxModeNoFlags) override { return true; }
-	int getGraphicsMode() const override { return 0; }
-	PaletteManager *getPaletteManager() override { return this; }
-	Graphics::Surface *lockScreen() override { return &_gameScreen; }
-	void unlockScreen() override {}
-protected:
-	void setPalette(const byte *colors, uint start, uint num) override;
-	void grabPalette(byte *colors, uint start, uint num) const override;
+	void setLibretroDir(const char * path, Common::String &var);
 
 	/* Events */
 public:
 	bool pollEvent(Common::Event &event) override;
-	uint8 getThreadSwitchCaller(void);
 	uint32 getMillis(bool skipRecord = false) override;
 	void delayMillis(uint msecs) override;
 	Common::MutexInternal *createMutex(void) override;
@@ -161,18 +100,22 @@ public:
 	/* Utils */
 	void getTimeAndDate(TimeDate &t, bool skipRecord) const override;
 	Audio::Mixer *getMixer(void) override;
-	Common::String getDefaultConfigFileName(void) override;
+	Common::Path getDefaultConfigFileName(void) override;
 	void logMessage(LogMessageType::Type type, const char *message) override;
 	int testGame(const char *filedata, bool autodetect);
-	void addSysArchivesToSearchSet(Common::SearchSet &s, int priority = 0) override {}
+	void addSysArchivesToSearchSet(Common::SearchSet &s, int priority = 0) override;
+	const char * const *buildHelpDialogData() override;
+	Common::String getSaveDir(void);
+	GUI::OptionsContainerWidget *buildBackendOptionsWidget(GUI::GuiObject *boss, const Common::String &name, const Common::String &target) const override;
+	void applyBackendSettings() override;
+	const Graphics::Surface &getScreen(void);
 private:
 	bool parseGameName(const Common::String &gameName, Common::String &engineId, Common::String &gameId);
 
 	/* Inputs */
 public:
 	void processInputs(void);
-	static void processKeyEvent(bool down, unsigned keycode, uint32 character, uint16 key_modifiers);
-	void setShakePos(int shakeXOffset, int shakeYOffset) override {}
+	void processKeyEvent(bool down, unsigned keycode, uint32 character, uint16 key_modifiers);
 private:
 	void updateMouseXY(float deltaAcc, float * cumulativeXYAcc, int doing_x);
 	void getMouseXYFromAnalog(bool is_x, int16 coor);

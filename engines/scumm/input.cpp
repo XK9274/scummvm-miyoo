@@ -27,7 +27,6 @@
 
 #include "scumm/debugger.h"
 #include "scumm/dialogs.h"
-#include "scumm/gfx_mac.h"
 #include "scumm/insane/insane.h"
 #include "scumm/imuse/imuse.h"
 #include "scumm/imuse_digi/dimuse_engine.h"
@@ -35,6 +34,7 @@
 #include "scumm/he/intern_he.h"
 #include "scumm/he/logic_he.h"
 #endif
+#include "scumm/macgui/macgui.h"
 #include "scumm/resource.h"
 #include "scumm/scumm_v0.h"
 #include "scumm/scumm_v6.h"
@@ -192,14 +192,14 @@ void ScummEngine::parseEvent(Common::Event event) {
 		// NumLock is enabled. This fixes fighting in Indy 3 (Trac #11227)
 
 		if (event.kbd.keycode >= Common::KEYCODE_KP0 && event.kbd.keycode <= Common::KEYCODE_KP9) {
-			_keyPressed = event.kbd;
-			_keyPressed.ascii = (_keyPressed.keycode - Common::KEYCODE_KP0) + '0';
+			event.kbd.ascii = (event.kbd.keycode - Common::KEYCODE_KP0) + '0';
+			event.kbd.flags = Common::KBD_NUM;
 		}
 
-		if (_keyPressed.ascii >= 512) {
+		if (event.kbd.ascii >= 512) {
 			debugC(DEBUG_GENERAL, "keyPressed > 512 (%d)", event.kbd.ascii);
 		} else {
-			_keyDownMap[_keyPressed.ascii] = false;
+			_keyDownMap[event.kbd.ascii] = false;
 
 			// Due to some weird bug with capslock key pressed
 			// generated keydown event is for lower letter but
@@ -637,7 +637,7 @@ void ScummEngine::waitForBannerInput(int32 waitTime, Common::KeyState &ks, bool 
 		}
 	} else {
 		while (!validKey && !leftBtnClicked && !rightBtnClicked && !(handleMouseWheel && _mouseWheelFlag)) {
-			waitForTimer(1); // Allow the engine to update the screen and fetch new inputs...
+			waitForTimer(1, true); // Allow the engine to update the screen and fetch new inputs...
 
 			if (_game.version > 2 && _game.version < 7 && (_guiCursorAnimCounter++ & 16)) {
 				_guiCursorAnimCounter = 0;
@@ -935,6 +935,24 @@ void ScummEngine::processKeyboard(Common::KeyState lastKeyHit) {
 	bool optionKeysEnabled = !isUsingOriginalGUI();
 	bool isSegaCD = _game.platform == Common::kPlatformSegaCD;
 	bool isNES = _game.platform == Common::kPlatformNES;
+	bool inSaveRoom = false;
+
+	// The following check is used by v3 games which have writable savegame names
+	// and also support some key combinations which in our case are mapped to SHIFT-<letter>
+	// The originals don't do this, because they use either CTRL or ALT as their key modifier,
+	// and those key modifiers serve other functions within the ScummVM backend.
+	if (_game.version == 3) {
+		int saveRoom = -1;
+		if (_game.id == GID_ZAK) {
+			saveRoom = 50;
+		} else if (_game.id == GID_INDY3) {
+			saveRoom = 14;
+		} else if (_game.id == GID_LOOM) {
+			saveRoom = 70;
+		}
+
+		inSaveRoom = _currentRoom == saveRoom;
+	}
 
 	// In FM-TOWNS games F8 / restart is always enabled
 	if (_game.platform == Common::kPlatformFMTowns)
@@ -1168,7 +1186,7 @@ void ScummEngine::processKeyboard(Common::KeyState lastKeyHit) {
 			mainmenuKeyEnabled && (lastKeyHit.keycode == Common::KEYCODE_d && lastKeyHit.hasFlags(Common::KBD_CTRL))) {
 			// Drafts menu
 			if (_macGui) {
-				((MacLoomGui *)_macGui)->runDraftsInventory();
+				_macGui->runDraftsInventory();
 			} else {
 				showDraftsInventory();
 			}
@@ -1264,7 +1282,7 @@ void ScummEngine::processKeyboard(Common::KeyState lastKeyHit) {
 			}
 
 			if ((_game.version > 2 && _game.version < 5)) {
-				if (lastKeyHit.keycode == Common::KEYCODE_s && lastKeyHit.hasFlags(Common::KBD_SHIFT)) {
+				if (lastKeyHit.keycode == Common::KEYCODE_s && lastKeyHit.hasFlags(Common::KBD_SHIFT) && !inSaveRoom) {
 					_internalSpeakerSoundsAreOn ^= 1;
 
 					if (_internalSpeakerSoundsAreOn) {

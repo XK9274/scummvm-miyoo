@@ -57,6 +57,7 @@ struct ScriptViewport;
 struct ScriptCamera;
 struct ScriptOverlay;
 
+#define MAX_GAME_STATE_NAME_LENGTH 100
 #define GAME_STATE_RESERVED_INTS 5
 
 // Savegame data format
@@ -173,7 +174,7 @@ struct GameState {
 	int   entered_at_x = 0, entered_at_y = 0, entered_edge = 0;
 	bool  voice_avail; // whether voice-over is available
 	SpeechMode speech_mode; // speech mode (text, voice, or both)
-	int   cant_skip_speech = 0;
+	int   speech_skip_style = 0;
 	int32_t   script_timers[MAX_TIMERS];
 	int   sound_volume = 0, speech_volume = 0;
 	int   normal_font = 0, speech_font = 0;
@@ -221,7 +222,7 @@ struct GameState {
 	char  playmp3file_name[PLAYMP3FILE_MAX_FILENAME_LEN];
 	char  globalstrings[MAXGLOBALSTRINGS][MAX_MAXSTRLEN];
 	char  lastParserEntry[MAX_MAXSTRLEN];
-	char  game_name[100];
+	char  game_name[MAX_GAME_STATE_NAME_LENGTH];
 	int   ground_level_areas_disabled = 0;
 	int   next_screen_transition = 0;
 	int   gamma_adjustment = 0;

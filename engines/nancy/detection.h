@@ -27,22 +27,23 @@
 namespace Nancy {
 
 enum GameType {
-	kGameTypeNone = 0,
+	kGameTypeNone 	 = 0,
 	kGameTypeVampire = 1,
-	kGameTypeNancy1 = 2,
-	kGameTypeNancy2 = 3,
-	kGameTypeNancy3 = 4,
-	kGameTypeNancy4 = 5,
-	kGameTypeNancy5 = 6,
-	kGameTypeNancy6 = 7,
-	kGameTypeNancy7 = 8,
-	kGameTypeNancy8 = 9,
-	kGameTypeNancy9 = 10
+	kGameTypeNancy1  = 2,
+	kGameTypeNancy2  = 3,
+	kGameTypeNancy3  = 4,
+	kGameTypeNancy4  = 5,
+	kGameTypeNancy5  = 6,
+	kGameTypeNancy6  = 7,
+	kGameTypeNancy7  = 8,
+	kGameTypeNancy8  = 9,
+	kGameTypeNancy9  = 10,
+	kGameTypeNancy10 = 11,
+	kGameTypeNancy11 = 12,
 };
 
 enum NancyGameFlags {
-	GF_COMPRESSED 		= 1 << 0,
-	GF_PLG_BYTE_IN_BSUM	= 1 << 1
+	GF_COMPRESSED 		= 1 << 0
 };
 
 struct NancyGameDescription {
@@ -55,7 +56,8 @@ enum NancyDebugChannels {
 	kDebugActionRecord	= 1 << 1,
 	kDebugScene			= 1 << 2,
 	kDebugSound			= 1 << 3,
-	kDebugVideo			= 1 << 4
+	kDebugVideo			= 1 << 4,
+	kDebugHypertext		= 1 << 5
 };
 
 // Settings found in the original engine

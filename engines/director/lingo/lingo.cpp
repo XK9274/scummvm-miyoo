@@ -186,7 +186,7 @@ Lingo::Lingo(DirectorEngine *vm) : _vm(vm) {
 	_itemDelimiter = ',';
 	_exitLock = false;
 	_preLoadEventAbort = false;
-	_romanLingo = (_vm->getLanguage() != Common::JA_JPN); // Japanrdr gamrs typically require 3-byte encodings
+	_romanLingo = (_vm->getLanguage() != Common::JA_JPN); // Japanese games typically require double-byte encoding
 
 	_searchPath.type = ARRAY;
 	_searchPath.u.farr = new FArray;
@@ -222,6 +222,9 @@ Lingo::~Lingo() {
 	cleanupFuncs();
 	cleanupMethods();
 	delete _compiler;
+	for (auto &it : _openXLibsState) {
+		delete it._value;
+	}
 }
 
 void Lingo::reloadBuiltIns() {
@@ -337,6 +340,30 @@ Symbol Lingo::getHandler(const Common::String &name) {
 	sym.name = new Common::String(name);
 	return sym;
 }
+
+
+void LingoArchive::patchCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName, uint32 preprocFlags) {
+	debugC(1, kDebugCompile, "Patching code for type %s(%d) with id %d in '%s%s'\n"
+			"***********\n%s\n\n***********", scriptType2str(type), type, id, utf8ToPrintable(g_director->getCurrentPath()).c_str(), utf8ToPrintable(cast->getMacName()).c_str(), formatStringForDump(code.encode()).c_str());
+	if (!getScriptContext(type, id)) {
+		// If there's no existing script context, don't try and patch it.
+		warning("Script not defined for type %d, id %d", type, id);
+		return;
+	}
+
+	ScriptContext *sc = g_lingo->_compiler->compileLingo(code, nullptr, type, CastMemberID(id, cast->_castLibID), scriptName, false, preprocFlags);
+
+	if (sc) {
+		for (auto &it : sc->_functionHandlers) {
+			it._value.ctx = scriptContexts[type][id];
+			scriptContexts[type][id]->_functionHandlers[it._key] = it._value;
+			functionHandlers[it._key] = it._value;
+		}
+		sc->_functionHandlers.clear();
+		delete sc;
+	}
+}
+
 
 void LingoArchive::addCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName, uint32 preprocFlags) {
 	debugC(1, kDebugCompile, "Add code for type %s(%d) with id %d in '%s%s'\n"
@@ -880,6 +907,16 @@ Datum::Datum(const CastMemberID &val) {
 	ignoreGlobal = false;
 }
 
+Datum::Datum(const Common::Point &point) {
+	type = POINT;
+	u.farr = new FArray;
+	u.farr->arr.push_back(Datum(point.x));
+	u.farr->arr.push_back(Datum(point.y));
+	refCount = new int;
+	*refCount = 1;
+	ignoreGlobal = false;
+}
+
 Datum::Datum(const Common::Rect &rect) {
 	type = RECT;
 	u.farr = new FArray;
@@ -1389,16 +1426,16 @@ void Lingo::runTests() {
 	Common::File inFile;
 	Common::ArchiveMemberList fsList;
 	SearchMan.listMatchingMembers(fsList, "*.lingo");
-	Common::StringArray fileList;
+	Common::Array<Common::Path> fileList;
 
 	LingoArchive *mainArchive = g_director->getCurrentMovie()->getMainLingoArch();
 
-	Common::String startMovie = _vm->getStartMovie().startMovie;
-	if (startMovie.size() > 0) {
+	Common::Path startMovie = Common::Path(_vm->getStartMovie().startMovie, g_director->_dirSeparator);
+	if (!startMovie.empty()) {
 		fileList.push_back(startMovie);
 	} else {
 		for (auto &it : fsList)
-			fileList.push_back(it->getName());
+			fileList.push_back(it->getPathInArchive());
 	}
 
 	Common::sort(fileList.begin(), fileList.end());
@@ -1414,7 +1451,7 @@ void Lingo::runTests() {
 
 			stream->read(script, size);
 
-			debug(">> Compiling file %s of size %d, id: %d", fileList[i].c_str(), size, counter);
+			debug(">> Compiling file %s of size %d, id: %d", fileList[i].toString(g_director->_dirSeparator).c_str(), size, counter);
 
 			mainArchive->addCode(Common::U32String(script, Common::kMacRoman), kTestScript, counter);
 
@@ -1468,6 +1505,7 @@ void Lingo::executePerFrameHook(int frame, int subframe) {
 			for (uint i = 0; i < _actorList.u.farr->arr.size(); i++) {
 				Datum actor = _actorList.u.farr->arr[i];
 				Symbol method = actor.u.obj->getMethod("stepFrame");
+				debugC(1, kDebugLingoExec, "Executing perFrameHook : <%s>, frame %d, subframe %d", actor.asString(true).c_str(), frame, subframe);
 				if (method.nargs == 1)
 					push(actor);
 				LC::call(method, method.nargs, false);

@@ -400,18 +400,11 @@ void LauncherDialog::addGame() {
 		if (_browser->runModal() > 0) {
 			// User made his choice...
 #if defined(USE_CLOUD) && defined(USE_LIBCURL)
-			Common::String selectedDirectory = _browser->getResult().getPath();
-			Common::String bannedDirectory = CloudMan.getDownloadLocalDirectory();
-			if (selectedDirectory.size() && selectedDirectory.lastChar() != '/' && selectedDirectory.lastChar() != '\\')
-				selectedDirectory += '/';
-			if (bannedDirectory.size() && bannedDirectory.lastChar() != '/' && bannedDirectory.lastChar() != '\\') {
-				if (selectedDirectory.size()) {
-					bannedDirectory += selectedDirectory.lastChar();
-				} else {
-					bannedDirectory += '/';
-				}
-			}
-			if (selectedDirectory.size() && bannedDirectory.size() && selectedDirectory.equalsIgnoreCase(bannedDirectory)) {
+			Common::Path selectedDirectory = _browser->getResult().getPath();
+			Common::Path bannedDirectory = CloudMan.getDownloadLocalDirectory();
+			selectedDirectory.removeTrailingSeparators();
+			bannedDirectory.removeTrailingSeparators();
+			if (!selectedDirectory.empty() && !bannedDirectory.empty() && selectedDirectory.equalsIgnoreCase(bannedDirectory)) {
 				MessageDialog alert(_("This directory cannot be used yet, it is being downloaded into!"));
 				alert.runModal();
 				return;
@@ -456,6 +449,15 @@ void LauncherDialog::removeGame(int item) {
 	MessageDialog alert(_("Do you really want to remove this game configuration?"), _("Yes"), _("No"));
 
 	if (alert.runModal() == GUI::kMessageOK) {
+		int nextPos = -1;
+		if (_groupBy != kGroupByNone && getType() == kLauncherDisplayList) {
+			// Find the position of the next item in the sorted list.
+			nextPos = getNextPos(item);
+		} else if (_groupBy != kGroupByNone && getType() == kLauncherDisplayGrid) {
+			// Find the position of the next item in the sorted grid.
+			nextPos = getNextPos(item);
+		}
+
 		// Remove the currently selected game from the list
 		assert(item >= 0);
 		ConfMan.removeGameDomain(_domains[item]);
@@ -464,7 +466,7 @@ void LauncherDialog::removeGame(int item) {
 		ConfMan.flushToDisk();
 
 		// Update the ListWidget/GridWidget and force a redraw
-		updateListing();
+		updateListing(nextPos);
 		g_gui.scheduleTopDialogRedraw();
 	}
 }
@@ -630,7 +632,7 @@ void LauncherDialog::handleOtherEvent(const Common::Event &evt) {
 	Dialog::handleOtherEvent(evt);
 	if (evt.type == Common::EVENT_DROP_FILE) {
 		// If the path is a file, take the parent directory for the detection
-		Common::String path = evt.path;
+		Common::Path path = evt.path;
 		Common::FSNode node(path);
 		if (!node.isDirectory())
 			path = node.getParent().getPath();
@@ -638,7 +640,7 @@ void LauncherDialog::handleOtherEvent(const Common::Event &evt) {
 	}
 }
 
-bool LauncherDialog::doGameDetection(const Common::String &path) {
+bool LauncherDialog::doGameDetection(const Common::Path &path) {
 	// Allow user to add a new game to the list.
 	// 2) try to auto detect which game is in the directory, if we cannot
 	//    determine it uniquely present a list of candidates to the user
@@ -988,7 +990,8 @@ public:
 	LauncherDisplayType getType() const override { return kLauncherDisplayList; }
 
 protected:
-	void updateListing() override;
+	void updateListing(int selPos = -1) override;
+	int getNextPos(int item) override;
 	void groupEntries(const Common::Array<LauncherEntry> &metadata);
 	void updateButtons() override;
 	void selectTarget(const Common::String &target) override;
@@ -1010,7 +1013,8 @@ public:
 	LauncherDisplayType getType() const override { return kLauncherDisplayGrid; }
 
 protected:
-	void updateListing() override;
+	void updateListing(int selPos = -1) override;
+	int getNextPos(int item) override;
 	void groupEntries(const Common::Array<LauncherEntry> &metadata);
 	void updateButtons() override;
 	void selectTarget(const Common::String &target) override;
@@ -1124,7 +1128,7 @@ void LauncherSimple::build() {
 	updateButtons();
 }
 
-void LauncherSimple::updateListing() {
+void LauncherSimple::updateListing(int selPos) {
 	Common::U32StringArray l;
 	ThemeEngine::FontColor color;
 	int numEntries = ConfMan.getInt("gui_list_max_scan_entries");
@@ -1143,7 +1147,7 @@ void LauncherSimple::updateListing() {
 
 		if (scanEntries) {
 			Common::String path;
-			if (!iter->domain->tryGetVal("path", path) || !Common::FSNode(path).isDirectory()) {
+			if (!iter->domain->tryGetVal("path", path) || !Common::FSNode(Common::Path::fromConfig(path)).isDirectory()) {
 				color = ThemeEngine::kFontColorAlternate;
 				// If more conditions which grey out entries are added we should consider
 				// enabling this so that it is easy to spot why a certain game entry cannot
@@ -1163,7 +1167,9 @@ void LauncherSimple::updateListing() {
 
 	groupEntries(domainList);
 
-	if (oldSel < (int)l.size() && oldSel >= 0)
+	if (_groupBy != kGroupByNone && selPos != -1) {
+		_list->setSelected(_list->getNewSel(selPos));
+	} else if (oldSel < (int)l.size() && oldSel >= 0)
 		_list->setSelected(oldSel);	// Restore the old selection
 	else if (oldSel != -1)
 		// Select the last entry if the list has been reduced
@@ -1176,6 +1182,10 @@ void LauncherSimple::updateListing() {
 
 	// Close groups that the user closed earlier
 	_list->loadClosedGroups(Common::U32String(groupingModes[_groupBy].name));
+}
+
+int LauncherSimple::getNextPos(int item) {
+	return _list->getNextPos(item);
 }
 
 void LauncherSimple::groupEntries(const Common::Array<LauncherEntry> &metadata) {
@@ -1560,7 +1570,7 @@ void LauncherGrid::handleCommand(CommandSender *sender, uint32 cmd, uint32 data)
 	}
 }
 
-void LauncherGrid::updateListing() {
+void LauncherGrid::updateListing(int selPos) {
 	// Retrieve a list of all games defined in the config file
 	_domains.clear();
 	const Common::ConfigManager::DomainMap &domains = ConfMan.getGameDomains();
@@ -1583,7 +1593,7 @@ void LauncherGrid::updateListing() {
 		iter->domain->tryGetVal("language", language);
 		iter->domain->tryGetVal("platform", platform);
 		iter->domain->tryGetVal("extra", extra);
-		valid_path = (!iter->domain->tryGetVal("path", path) || !Common::FSNode(path).isDirectory()) ? false : true;
+		valid_path = (!iter->domain->tryGetVal("path", path) || !Common::FSNode(Common::Path::fromConfig(path)).isDirectory()) ? false : true;
 		gridList.push_back(GridItemInfo(k++, engineid, gameid, iter->description, iter->title, extra, Common::parseLanguage(language), Common::parsePlatform(platform), valid_path));
 		_domains.push_back(iter->key);
 	}
@@ -1593,7 +1603,9 @@ void LauncherGrid::updateListing() {
 	_grid->setEntryList(&gridList);
 	groupEntries(domainList);
 
-	if (oldSel < (int)gridList.size() && oldSel >= 0)
+	if (_groupBy != kGroupByNone && selPos != -1) {
+		_grid->setSelected(_grid->getNewSel(selPos));
+	} else if (oldSel < (int)gridList.size() && oldSel >= 0)
 		_grid->setSelected(oldSel);	// Restore the old selection
 	else if (oldSel != -1)
 		// Select the last entry if the list has been reduced
@@ -1601,6 +1613,10 @@ void LauncherGrid::updateListing() {
 	updateButtons();
 
 	_grid->loadClosedGroups(Common::U32String(groupingModes[_groupBy].name));
+}
+
+int LauncherGrid::getNextPos(int oldSel) {
+	return _grid->getNextPos(oldSel);
 }
 
 void LauncherGrid::updateButtons() {

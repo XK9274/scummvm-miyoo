@@ -29,6 +29,20 @@
 namespace VCruise {
 
 static const VCruiseGameDescription gameDescriptions[] = {
+	{ // A.D. 2044, GOG English digital version
+		{
+			"ad2044",
+			"English Digital",
+			AD_ENTRY2s("ad2044.exe", "0ab1e3f8b3a17a5b18bb5ee356face25", 327168,
+					   "00010001.wav", "d385bb2f1b10ea8c13bbb2948794c9f6", 74950),
+			Common::UNK_LANG,
+			Common::kPlatformWindows,
+			VCRUISE_GF_WANT_MP3 | ADGF_UNSTABLE,
+			GUIO0()
+		},
+		GID_AD2044,
+		Common::EN_ANY,
+	},
 	{ // Reah: Face the Unknown, English DVD version
 		{
 			"reah",
@@ -37,7 +51,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0170_b.wav", "5b705300b4fee3ceb821a1b55884a722", 129248),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_MP3,
+			VCRUISE_GF_WANT_MP3,
 			GUIO0()
 		},
 		GID_REAH,
@@ -51,7 +65,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0170_b.wav", "5b705300b4fee3ceb821a1b55884a722", 129248),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_MP3,
+			VCRUISE_GF_WANT_MP3,
 			GUIO0()
 		},
 		GID_REAH,
@@ -65,7 +79,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0170_b.wav", "5b705300b4fee3ceb821a1b55884a722", 129248),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING,
+			ADGF_NO_FLAGS,
 			GUIO0()
 		},
 		GID_REAH,
@@ -79,7 +93,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0170_b.wav", "36c0bf57ab5a748ef6699a159195b3ae", 124356),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING,
+			ADGF_NO_FLAGS,
 			GUIO0()
 		},
 		GID_REAH,
@@ -93,11 +107,26 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0170_b.wav", "5f84af02d1193ce9c47fe0dc821f0613", 121220),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING,
+			ADGF_NO_FLAGS,
 			GUIO0()
 		},
 		GID_REAH,
 		Common::DE_DEU,
+	},
+	{ // Reah: Face the Unknown, Russian 6 CD Version
+		{
+			"reah",
+			"Russian CD",
+			AD_ENTRY3s("Reah.exe", "c44224a888035c14e876cbc45519faca", 305664,
+					   "0170_b.wav", "4632023ed0bab3fc800abfa5ef65ceaf", 119850,
+					   "Speech01.txt", "734478c94944eab9c954c612c70efb9a", 72694),
+			Common::RU_RUS,
+			Common::kPlatformWindows,
+			VCRUISE_GF_FORCE_LANGUAGE,
+			GUIO0()
+		},
+		GID_REAH,
+		Common::RU_RUS,
 	},
 	{ // Reah: Face the Unknown, English digital (GOG) version + German VO community patch
 		{
@@ -107,7 +136,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0170_b.wav", "5f84af02d1193ce9c47fe0dc821f0613", 121220),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_MP3,
+			VCRUISE_GF_WANT_MP3,
 			GUIO0()
 		},
 		GID_REAH,
@@ -122,7 +151,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech01.txt", "a4eaace1299de1d70805532fc0643a77", 72689),
 			Common::RU_RUS,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_MP3 | VCRUISE_GF_FORCE_LANGUAGE,
+			VCRUISE_GF_WANT_MP3 | VCRUISE_GF_FORCE_LANGUAGE,
 			GUIO0()
 		},
 		GID_REAH,
@@ -135,7 +164,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 			AD_ENTRY1s("Reah.exe", "4667d7e3d886f01ec28040a9022b1b56", 281600),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING,
+			ADGF_NO_FLAGS,
 			GUIO0()
 		},
 		GID_REAH,
@@ -150,7 +179,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "374d93abc3422840623acc618ecb2b1e", 1553784),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | ADGF_CD | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			ADGF_CD | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -164,7 +193,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "f2b7eccfb1e9af0282b541c5eac66cc7", 1613240),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -179,7 +208,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 			AD_ENTRY1s("disk1.pak", "41bd7514a7d783c555f3783c9417bf9e", 272405273),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -192,7 +221,20 @@ static const VCruiseGameDescription gameDescriptions[] = {
 			AD_ENTRY1s("setup.pak", "eaaed2f6655342b4c320bdeb6f5ccfb9", 272655597),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
+			GUIO0()
+		},
+		GID_SCHIZM,
+		Common::EN_GRB,
+	},
+	{ // Schizm: Mysterious Journey, English DVD Version, unknown variant
+		{
+			"schizm",
+			"English DVD",
+			AD_ENTRY1s("setup.pak", "964e386b187752d53b69f9c55c4f6e6b", 274948185),
+			Common::UNK_LANG,
+			Common::kPlatformWindows,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -205,7 +247,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 			AD_ENTRY1s("disk1.pak", "a3453878ad86d012b483a82e04276667", 272507257),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -218,7 +260,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 			AD_ENTRY1s("disk1.pak", "dcb27eb3d8a0029c551df5f779af36fc", 274285596),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -231,7 +273,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 			AD_ENTRY1s("disk1.pak", "2f964852baf18f90e884d6873b1bad23", 272798001),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_GENTEE_PACKAGE,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -246,7 +288,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "374d93abc3422840623acc618ecb2b1e", 1553784),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -260,7 +302,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "f2b7eccfb1e9af0282b541c5eac66cc7", 1613240),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -274,7 +316,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "7a398f17e847a46de629a09fa6178b00", 1409560),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -288,7 +330,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "cd46a5df85a879bf293871b5911abcc3", 1305470),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -302,7 +344,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "9838f59fce21ba3a1eecc3d84c5be8b1", 1502674),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -316,7 +358,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "6d8e4b97710b858525d9965ef1e627ab", 1280506),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -330,7 +372,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "4fc0053f66657e416b69419106d238a5", 1592106),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -344,7 +386,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "0001_a.wav", "ba8fc041a92f1afceee35bdbb84eb2cd", 1427794),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -361,7 +403,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -376,7 +418,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -391,7 +433,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -406,7 +448,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -421,7 +463,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -436,7 +478,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -451,7 +493,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,
@@ -466,7 +508,7 @@ static const VCruiseGameDescription gameDescriptions[] = {
 					   "Speech10.txt", "88fdaab90be33bca88db423e1acda8c3", 63697),
 			Common::UNK_LANG,
 			Common::kPlatformWindows,
-			ADGF_TESTING | VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
+			VCRUISE_GF_WANT_OGG_VORBIS | VCRUISE_GF_NEED_JPEG | VCRUISE_GF_STEAM_LANGUAGES,
 			GUIO0()
 		},
 		GID_SCHIZM,

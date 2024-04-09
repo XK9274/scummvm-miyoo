@@ -35,7 +35,12 @@ enum class OverlayType {
 	koNumber = 1,
 	koNumberRange = 2,
 	koInventoryItem = 3,
-	koText = 4
+	koText = 4,
+	koInventory = 5, // lba2
+	koSysText = 6, // lba2
+	koFlash = 7, //lba2
+	koRain = 8, //lba2
+	koMax
 };
 
 enum class OverlayPosType {
@@ -136,7 +141,7 @@ private:
 public:
 	Redraw(TwinEEngine *engine);
 
-	bool _inSceneryView = false; // FlagMCGA
+	bool _flagMCGA = false;
 
 	/** Request background redraw */
 	bool _firstTime = false;
@@ -154,7 +159,8 @@ public:
 	void setRenderText(const Common::String &text);
 
 	// InitIncrustDisp
-	void addOverlay(OverlayType type, int16 info0, int16 x, int16 y, int16 info1, OverlayPosType posType, int16 lifeTime);
+	int32 addOverlay(OverlayType type, int16 info0, int16 x, int16 y, int16 info1, OverlayPosType posType, int16 lifeTime);
+	void posObjIncrust(OverlayListStruct *ptrdisp, int32 num); // lba2
 
 	/**
 	 * Add a certain region to redraw list array
@@ -190,11 +196,6 @@ public:
 	 * @param listSize number of drawing objects in the list
 	 */
 	void sortDrawingList(DrawListStruct *list, int32 listSize) const;
-
-	/**
-	 * Zooms the area around the scenery view focus positions
-	 */
-	void zoomScreenScale();
 };
 
 } // namespace TwinE

@@ -24,7 +24,6 @@
 #include "engines/util.h"
 #include "graphics/cursorman.h"
 #include "graphics/managed_surface.h"
-#include "graphics/palette.h"
 #include "graphics/screen.h"
 #include "crab/crab.h"
 #include "crab/app.h"
@@ -130,7 +129,7 @@ Common::Error CrabEngine::run() {
 }
 
 void CrabEngine::initializePath(const Common::FSNode &gamePath) {
-	SearchMan.addDirectory(gamePath.getPath(), gamePath, 0, 5);
+	SearchMan.addDirectory(gamePath, 0, 5);
 }
 
 Common::Error CrabEngine::saveGameState(int slot, const Common::String &desc, bool isAutosave) {
@@ -179,7 +178,7 @@ Common::Error CrabEngine::syncGame(Common::Serializer &s) {
 	return Common::kNoError;
 }
 
-bool CrabEngine::canSaveGameStateCurrently() {
+bool CrabEngine::canSaveGameStateCurrently(Common::U32String *msg) {
 	return _screenSettings->_inGame;
 }
 

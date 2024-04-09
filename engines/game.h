@@ -24,11 +24,12 @@
 
 #include "common/array.h"
 #include "common/hash-str.h"
-#include "common/str.h"
-#include "common/ustr.h"
-#include "common/str-array.h"
 #include "common/language.h"
+#include "common/path.h"
 #include "common/platform.h"
+#include "common/str.h"
+#include "common/str-array.h"
+#include "common/ustr.h"
 
 /**
  * @defgroup engines_game Games
@@ -129,7 +130,12 @@ struct FileProperties {
 /**
  * A map of all relevant existing files while detecting.
  */
-typedef Common::HashMap<Common::String, FileProperties, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> FilePropertiesMap;
+typedef Common::HashMap<Common::Path, FileProperties, Common::Path::IgnoreCase_Hash, Common::Path::IgnoreCase_EqualTo> FilePropertiesMap;
+
+/**
+ * A map using a composed key to cache file properties
+ */
+typedef Common::HashMap<Common::String, FileProperties, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> CachedPropertiesMap;
 
 /**
  * Details about a given game.
@@ -165,6 +171,11 @@ struct DetectedGame {
 	bool hasUnknownFiles;
 
 	/**
+	 * A game was detected and is selected in the Mass Add list.
+	 */
+	bool isSelected;
+
+	/**
 	 * An optional list of the files that were used to match the game with the engine's detection tables
 	 */
 	FilePropertiesMap matchedFiles;
@@ -181,7 +192,7 @@ struct DetectedGame {
 	Common::String description;
 	Common::Language language;
 	Common::Platform platform;
-	Common::String path;
+	Common::Path path;
 	Common::String shortPath;
 	Common::String extra;
 

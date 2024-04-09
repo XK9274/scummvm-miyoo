@@ -275,13 +275,13 @@ void Mouse::setMouseCoords(int mx, int my) {
 
 	if (mx < dims.left)
 		mx = dims.left;
-	else if (mx > dims.width())
-		mx = dims.width();
+	else if (mx >= dims.right)
+		mx = dims.right - 1;
 
 	if (my < dims.top)
 		my = dims.top;
-	else if (my > dims.height())
-		my = dims.height();
+	else if (my >= dims.bottom)
+		my = dims.bottom - 1;
 
 	_mousePos.x = mx;
 	_mousePos.y = my;
@@ -561,7 +561,7 @@ void Mouse::update() {
 			if (frame >= 0 && (uint)frame < mouse->frameCount()) {
 				const ShapeFrame *f = mouse->getFrame(frame);
 				CursorMan.replaceCursor(f->getSurface(), f->_xoff, f->_yoff, f->_keycolor);
-				CursorMan.replaceCursorPalette(mouse->getPalette()->_palette, 0, 256);
+				CursorMan.replaceCursorPalette(mouse->getPalette()->data(), 0, 256);
 				CursorMan.showMouse(true);
 			} else {
 				CursorMan.showMouse(false);

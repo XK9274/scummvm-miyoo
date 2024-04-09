@@ -76,30 +76,24 @@ DirUtilXObject::DirUtilXObject(ObjectType ObjectType) :Object<DirUtilXObject>("D
 	_objType = ObjectType;
 }
 
-void DirUtilXObj::open(int type) {
+void DirUtilXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		DirUtilXObject::initMethods(xlibMethods);
 		DirUtilXObject *xobj = new DirUtilXObject(kXObj);
 		g_lingo->exposeXObject(xlibName, xobj);
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
-void DirUtilXObj::close(int type) {
+void DirUtilXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		DirUtilXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
 void DirUtilXObj::m_new(int nargs) {
-	if (nargs != 0) {
-		warning("DirUtilXObj::m_new: expected 0 arguments");
-		g_lingo->dropStack(nargs);
-	}
+	g_lingo->printSTUBWithArglist("DirUtilXObj::m_new", nargs);
+	g_lingo->dropStack(nargs);
 	g_lingo->push(g_lingo->_state->me);
 }
 

@@ -67,7 +67,7 @@ public:
 	void init() override;
 
 	uint16 _objectID = 0;
-	Common::String _imageName;
+	Common::Path _imageName;
 	Common::Array<FrameBlitDescription> _blitDescriptions;
 
 	int16 _drawnFrameID = -1;
@@ -118,6 +118,18 @@ public:
 
 protected:
 	Common::String getRecordTypeName() const override { return "PopInvViewPriorScene"; }
+};
+
+class GoInvViewScene : public ActionRecord {
+public:
+	void readData(Common::SeekableReadStream &stream) override;
+	void execute() override;
+
+protected:
+	Common::String getRecordTypeName() const override { return "GoInvViewScene"; }
+
+	uint16 _itemID = 0;
+	bool _addToInventory = false;
 };
 
 } // End of namespace Action

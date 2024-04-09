@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #ifndef TOON_AUDIO_H
@@ -102,7 +109,7 @@ public:
 	AudioStreamPackage(ToonEngine *vm);
 	~AudioStreamPackage();
 
-	bool loadAudioPackage(const Common::String &indexFile, const Common::String &streamFile);
+	bool loadAudioPackage(const Common::Path &indexFile, const Common::Path &streamFile);
 	void getInfo(int32 id, int32 *offset, int32 *size);
 	Common::SeekableReadStream *getStream(int32 id, bool ownMemory = false);
 protected:
@@ -152,7 +159,7 @@ public:
 	void setAmbientSFXVolume(int32 id, int volume);
 
 	void closeAudioPack(int32 id);
-	bool loadAudioPack(int32 id, const Common::String &indexFile, const Common::String &packFile);
+	bool loadAudioPack(int32 id, const Common::Path &indexFile, const Common::Path &packFile);
 
 	AudioStreamInstance *_channels[16];  // 0-1 : music
 	                                     // 2 : voice

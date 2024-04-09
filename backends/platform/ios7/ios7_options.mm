@@ -177,25 +177,23 @@ void IOS7OptionsWidget::defineLayout(GUI::ThemeEval &layouts, const Common::Stri
 
 	layouts.addDialog(layoutName, overlayedLayout)
 	        .addLayout(GUI::ThemeLayout::kLayoutVertical)
-	            .addPadding(0, 0, 0, 0)
 #if TARGET_OS_IOS
 	            .addWidget("OnscreenControl", "Checkbox")
 #endif
 	            .addWidget("GamepadController", "Checkbox")
 			.addLayout(GUI::ThemeLayout::kLayoutHorizontal)
-				.addPadding(0, 0, 0, 0)
+				.addPadding(16, 16, 0, 0)
 				.addWidget("GamepadControllerLeftButton", "OptionsLabel")
 				.addWidget("GamepadControllerLeftButtonPopUp", "PopUp")
 			.closeLayout()
 	        .addLayout(GUI::ThemeLayout::kLayoutHorizontal)
-	            .addPadding(0, 0, 0, 0)
+	            .addPadding(16, 16, 0, 0)
 	            .addWidget("GamepadControllerOpacity", "OptionsLabel")
 	            .addWidget("GamepadControllerOpacitySlider", "Slider")
 	            .addWidget("GamepadControllerOpacityLabel", "OptionsLabel")
 	        .closeLayout()
 	            .addWidget("GamepadControllerMinimalLayout", "Checkbox")
-	            .addWidget("KeyboardFunctionBar", "Checkbox");
-
+                .addWidget("KeyboardFunctionBar", "Checkbox");
 #if TARGET_OS_IOS
 	layouts.addWidget("PreferredTouchModeText", "", -1, layouts.getVar("Globals.Line.Height"));
 
@@ -203,19 +201,19 @@ void IOS7OptionsWidget::defineLayout(GUI::ThemeEval &layouts, const Common::Stri
 
 	if (inAppDomain) {
 		layouts.addLayout(GUI::ThemeLayout::kLayoutHorizontal)
-			.addPadding(0, 0, 0, 0)
+			.addPadding(16, 16, 0, 0)
 			.addWidget("TouchModeMenusText", "OptionsLabel")
 			.addWidget("TouchModeMenus", "PopUp")
 			.closeLayout();
 	}
 	layouts.addLayout(GUI::ThemeLayout::kLayoutHorizontal)
-		.addPadding(0, 0, 0, 0)
+		.addPadding(16, 16, 0, 0)
 		.addWidget("TouchMode2DGamesText", "OptionsLabel")
 		.addWidget("TouchMode2DGames", "PopUp")
 		.closeLayout();
 
 	layouts.addLayout(GUI::ThemeLayout::kLayoutHorizontal)
-		.addPadding(0, 0, 0, 0)
+		.addPadding(16, 16, 0, 0)
 		.addWidget("TouchMode3DGamesText", "OptionsLabel")
 		.addWidget("TouchMode3DGames", "PopUp")
 		.closeLayout();
@@ -223,13 +221,13 @@ void IOS7OptionsWidget::defineLayout(GUI::ThemeEval &layouts, const Common::Stri
 	layouts.addWidget("OrientationText", "", -1, layouts.getVar("Globals.Line.Height"));
 	if (inAppDomain) {
 		layouts.addLayout(GUI::ThemeLayout::kLayoutHorizontal)
-			.addPadding(0, 0, 0, 0)
+			.addPadding(16, 16, 0, 0)
 			.addWidget("OMenusText", "OptionsLabel")
 			.addWidget("OMenus", "PopUp")
 		.closeLayout();
 	}
 	layouts.addLayout(GUI::ThemeLayout::kLayoutHorizontal)
-			.addPadding(0, 0, 0, 0)
+			.addPadding(16, 16, 0, 0)
 			.addWidget("OGamesText", "OptionsLabel")
 			.addWidget("OGames", "PopUp")
 		.closeLayout();
@@ -522,13 +520,13 @@ void OSystem_iOS7::registerDefaultSettings(const Common::String &target) const {
 	ConfMan.registerDefault("touch_mode_2d_games", "touchpad");
 	ConfMan.registerDefault("touch_mode_3d_games", "gamepad");
 
-	ConfMan.registerDefault("keyboard_fn_bar", true);
+	ConfMan.registerDefault("keyboard_fn_bar", isiOSAppOnMac() ? false : true);
 
 #if TARGET_OS_IOS
 	ConfMan.registerDefault("orientation_menus", "auto");
 	ConfMan.registerDefault("orientation_games", "auto");
 
-	ConfMan.registerDefault("onscreen_control", true);
+	ConfMan.registerDefault("onscreen_control", isiOSAppOnMac() ? false : true);
 #endif
 }
 

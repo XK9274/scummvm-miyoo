@@ -86,7 +86,7 @@ enum ViewFlags {
 	fIgnoreObjects  = (1 << 9),     // 0x0200
 	fUpdatePos      = (1 << 10),    // 0x0400
 	fOnLand         = (1 << 11),    // 0x0800
-	fDontupdate     = (1 << 12),    // 0x1000
+	fDontUpdate     = (1 << 12),    // 0x1000
 	fFixLoop        = (1 << 13),    // 0x2000
 	fDidntMove      = (1 << 14),    // 0x4000
 	fAdjEgoXY       = (1 << 15)     // 0x8000
@@ -141,9 +141,15 @@ struct ScreenObjEntry {
 	uint8 wander_count;
 	// end of motion related variables
 	uint8 loop_flag;
+	bool ignoreLoopFlag;
 
 	void reset() { memset(this, 0, sizeof(ScreenObjEntry)); }
 	ScreenObjEntry() { reset(); }
+
+	void setLoopFlag(uint8 flag) {
+		loop_flag = flag;
+		ignoreLoopFlag = false;
+	}
 }; // struct vt_entry
 
 } // End of namespace Agi

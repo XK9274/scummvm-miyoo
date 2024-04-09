@@ -36,7 +36,7 @@ static const MightAndMagicGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("wallpix.dta", "86a7ef03fd5bf434d83012b07fa92680", 123059),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_TESTING,
+			ADGF_NO_FLAGS,
 			GUIO0()
 		},
 		GType_MightAndMagic1,
@@ -51,7 +51,7 @@ static const MightAndMagicGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("wallpix.dta", "86a7ef03fd5bf434d83012b07fa92680", 123059),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_TESTING,
+			ADGF_NO_FLAGS,
 			GUIO0()
 		},
 		GType_MightAndMagic1,
@@ -172,6 +172,23 @@ static const MightAndMagicGameDescription GAME_DESCRIPTIONS[] = {
 			Common::FR_FRA,
 			Common::kPlatformDOS,
 			ADGF_NO_FLAGS,
+			GUIO_XEEN
+		},
+		GType_WorldOfXeen,
+		0
+	},
+
+	{
+		// World of Xeen, Spanish fan-translation
+		// https://bugs.scummvm.org/ticket/14976
+		{
+			"worldofxeen",
+			"CD",
+			AD_ENTRY2s("xeen.cc", "8ca98eba894b104e82963b0f4952e795", 13445166,
+					   "dark.cc", "9f319d7457e822f2484fa1daa26b2687", 11331280),
+			Common::ES_ESP,
+			Common::kPlatformDOS,
+			ADGF_CD,
 			GUIO_XEEN
 		},
 		GType_WorldOfXeen,

@@ -1,7 +1,113 @@
 Umfangreichere Informationen über die Änderungen des aktuellen Codes findest Du unter:
         https://github.com/scummvm/scummvm/commits/
 
-#### 2.8.0 (XXXX-XX-XX)
+#### 2.9.0 (XX.XX.XXXX)
+
+ Neue Spiele:
+   - Unterstützung für Orion Burger hinzugefügt.
+
+ Allgemein:
+   - Fehler bei der Erkennung der GLSL-Version auf einigen OpenGL ES2-Plattformen behoben.
+   - libopenmpt wurde als neue, optionale Abhängigkeit zur Sound-Behandlung hinzugefügt. 
+
+ MM:
+   - Unterstützung für MT32/LAPC-1 für die Xeen-Engine hinzugefügt.
+   - Fehler in Xeen behoben, der dafür sorgt, dass einige Sound-Effekte abrupt beendet werden.
+
+ TsAGE:
+   - Unterstützung für russische Fan-Übersetzung hinzugefügt.
+
+
+#### 2.8.1 (31.03.2024)
+
+ Allgemein:
+   - Fehler bei der Erkennung der GLSL-Version auf einigen OpenGL ES2-Plattformen behoben.
+   - Es wird nun nicht mehr versucht, Shader unter alten OpenGL-Versionen zu nutzen.
+
+ AGI:
+   - Absturz in Space Quest 1 Version 1.0X behoben.
+   - Nachrichten-Boxen in Mixed-Up Mother Goose korrigiert.
+   - Grafik-Darstellung in der Amiga-Version von Miged-Up Mother Goose korrigiert.
+   - Die Uhrzeit und die beiden höchsten Geschwindigkeitsstufen funktionieren nun auch in Gold Rush korrekt.
+   - Fehler behoben, der dafür sorgt, dass die Atari ST-Version von Manhunter 1 nicht startet.
+   - Fehler behoben, der dafür sorgt, dass die CoCo3-Version von Leisure Suit Larry 1 nicht startet.
+   - Fehler behoben, der dafür sorgt, dass die CoCo3-Version einiger inoffizieller Ports nicht starten.
+   - Amiga-Menüs in Space Quest 1, Manhunter 1 und Manhunter 2 korrigiert.
+   - Fehler bei der Darstellung von Graham in King's Quest 1 korrigiert.
+   - Fehler behoben, der dafür sorgt, dass Alexander in King's Quest 3 auf Treppen stecken bleibt.
+   - Fehler behoben, der dafür sorgt, dass Larry in Leisure Suit Larry 1 nicht zum Ladendieb wird.
+   - Fehler bei der Darstellung der Enten-Familie in Donald Duck's Playground behoben.
+   - "Phil's Quest: The Search for Tolbaga" kann jetzt ohne direkten Tod gespielt werden.
+   - Die Buttons im Fan-Spiel "DG: The AGIMouse Adventure" frieren jetzt nicht mehr ein.
+   - Nicht erkannte Wörter im Fan-Spiel "V - The Graphical Adventure" korrigiert.
+   - Erkennung der Macintosh-Version von Mixed-Up Mother Goose korrigiert.
+
+ AGS:
+   - Die Erkennungs-Datenbank wurde aktualisiert.
+   - Charaktere von Sierra-Spielen können nun einfacher in QfG2 AGDI importiert werden.
+   - Grafikfehler in Unavowed und Heroine's Quest behoben.
+   - Schrift-Darstellung in Kathy Rain korrigiert.
+   - Absturz in Alum korrigiert.
+   - Absturz am Beginn von Falcon City behoben.
+
+ SWORD2:
+   - Absturz behoben, der dann auftritt, wenn das Spiel beendet wird, während es pausiert ist.
+
+ MM:
+   - Engine ist jetzt aktiviert, sodass MM1 und Xeen kompiliert werden kann.
+   - Unterstützung für MT32/LAPC-1 für die Xeen-Engine hinzugefügt.
+   - Fehler in Xeen behoben, der dafür sorgt, dass einige Sound-Effekte abrupt beendet werden.
+
+ mTropolis:
+   - Absturz in Muppet Treasure Island auf einigen Plattformen behoben.
+   - Das Juwelen-Puzzle in Muppet Treasure Island wird jetzt korrekt randomisiert.
+
+ NANCY:
+   - Telefon-Hinweise in Secrets Can Kill korrigiert.
+   - Abstürze und Grafikfehler auf ARM-Geräten im Labyrinth-Minispiel in
+     Message in a Haunted Mansion korrigiert.
+   - Die "M"-Taste auf der Tastatur funktioniert in Message in a Haunted Mansion jetzt korrekt.
+   - Allgemeine Tastenkürzel werden jetzt im Engine-Tastenkürzel-Menü angezeigt.
+   - Das virtuelle Keyboard wird im Lade-/Speicher-Menü korrekt ausgelöst.
+
+ SCUMM:
+   - Grafikfehler (und teilweise auch Abstürze) in den Mac-Versionen von Loom und
+     Indiana Jones and the Last Crusade bei der Verwendung von Menü-Tastenkürzeln behoben.
+   - Die originalen Lade- und Speicher-Bildschirme in den Mac-Versionen von Indiana Jones
+     and the last Crusade können nun korrekt aktiviert und deaktiviert werden.
+
+ TWINE:
+   - Leitern können nun wieder korrekt genutzt werden.
+   - Fehler beim Zoomen in Szenen korrigiert.
+   - Animationsfehler nach der Nutzung der Holomap korrigiert.
+
+ Ultima:
+   - Die Minimap funktioniert in Ultima VIII jetzt korrekt.
+   - Fehler bei der Nutzung von Büchern in Ultima VIII behoben.
+   - Fehler bei der Text-Darstellung von Plaketten in Ultima VIII behoben.
+   - Ultima VIII stürzt nicht mehr ab, wenn Items an den Rand des Bildschirms gezogen werden.
+   - In Ultima VIII springt der Charakter nicht mehr unerwartet, wenn die linke Maustaste geklickt wird.
+   - Kamera im Shrine of the Anicent Ones in Ultima VIII korrigiert.
+   - Ungültige Item-Ablage innerhalb von Containern in Ultima VIII korrigiert.
+   - Nie endender Lava-Sound in Ultima VIII korrigiert.
+
+ V-Cruise:
+   - Absturz in Reah: Face the Unknown und Schizm: Mysterious Journey behoben, der auftritt,
+     wenn die Musik stummgeschaltet ist.
+
+ Android-Portierung:
+   - Absturz in der eingebauten Hilfe korrigiert, der bei der Nutzung des deutschen Sprachpaketes auftritt.
+
+ Atari-Portierung:
+   - Absturz beim Beenden von ScummVM korrigiert.
+   - Spielablauf in BBVS (und möglicherweise anderen Spielen) durch die Verwendung präziserer Mathematik verbessert.
+
+ macOS-Portierung:
+   - Fehler behoben, der dazu geführt hat, dass in einigen Mac-Spielen die Ressourcen nicht korrekt geladen werden.
+   - Das Programm-Icon wurde an moderne Standards angepasst.
+
+
+#### 2.8.0 "Mysteries, Mammoths, and Muppets" (30.12.2023)
 
  Neue Spiele:
    - Unterstützung für die macOS-Versionen von Syberia und Syberia II hinzugefügt.
@@ -12,8 +118,15 @@ Umfangreichere Informationen über die Änderungen des aktuellen Codes findest D
    - Unterstützung für Might and Magic Book One hinzugefügt.
    - Unterstützung für Muppet Tresure Island hinzugefügt.
    - Unterstützung für Primordia, Shardlight und Technobabylon hinzugefügt.
+   - Unterstützung für The Excavation of Hob's Barrow, Strangeland und Whispers
+     of a Machine hinzugefügt.
+   - Unterstützung für AGS-Spiele von Stranga und Cloak and Dagger hinzugefügt.
    - Unterstützung für Adibou 1 (Adi Jr.) hinzugefügt.
    - Unterstützung für Dark Side hinzugefügt.
+   - Unterstützung für Kingdom: The Far Reaches hinzugefügt.
+   - Unterstützung für Escape From Hell hinzugefügt.
+   - Unterstützung für Wrath of the Gods, Gadget: Invention, Travel and Adventure,
+     The Dark Eye und 4 weitere Director-Titel hinzugefügt.
 
  Neue Plattformen:
    - Vollständig erneute Portierung für libretro hinzugefügt.
@@ -27,7 +140,7 @@ Umfangreichere Informationen über die Änderungen des aktuellen Codes findest D
      (Embedded Audio Synthesis) hinzugefügt.
    - Unterstützung für YUV442 und YUV444 im Theora-Decoder hinzugefügt.
    - Spezielle CPU-Routinen zum Grafik-Blitting zu ManagedSurface hinzugefügt.
-   - Das Standard-GM-Gerät wurde für eine verbesserte Kompatibilität auf "auto" gesetzt.
+   - Unterstützung für General MIDI ist jetzt standardmäßig aktiviert.
 
  AGS:
    - Code-Basis mit dem offiziellen AGS-Code in Version 3.6.0.53 synchronisiert.
@@ -78,7 +191,7 @@ Umfangreichere Informationen über die Änderungen des aktuellen Codes findest D
      Die Schrift-Darstellung ist nun pixelgetreu.
    - Unterstützung für die Macintosh- und DOS/V-Versionen von Indiana Jones and the Fate of Atlantis,
      die von MicroMouse vertrieben wurden, hinzugefügt.
-   - Unterstützung für Netzwerk-Multiplay-erSpiele für Backyard Football, Backyard Baseball 2001 und
+   - Unterstützung für Netzwerk-Multiplayer-Spiele für Backyard Football, Backyard Baseball 2001 und
      Backyard Football 2002 hinzugefügt.
 
 
@@ -139,8 +252,12 @@ Umfangreichere Informationen über die Änderungen des aktuellen Codes findest D
    - Neue Engine-Option hinzugefügt, mit der die Gesundheits-Edelsteine durch
      eine HP/SP-Leiste ersetzt werden können.
 
+ RiscOS-Version:
+   - Doppeltes Buffering wird jetzt im Vollbildmodus genutzt, wenn V-Sync aktiviert ist.
+   - Unterstützung für Hardware-Farbpaletten hinzugefügt.
 
-#### 2.7.1 (2023-XX-XX)
+
+#### 2.7.1 (31.07.2023)
 
  Allgemein:
   - Die Wiedergabe-Geschwindigkeit von Theora-Videos wurde korrigiert.

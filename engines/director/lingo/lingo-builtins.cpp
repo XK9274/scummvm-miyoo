@@ -29,15 +29,16 @@
 
 #include "director/director.h"
 #include "director/cast.h"
+#include "director/channel.h"
 #include "director/debugger.h"
 #include "director/frame.h"
 #include "director/movie.h"
 #include "director/score.h"
 #include "director/sound.h"
 #include "director/sprite.h"
-#include "director/channel.h"
-#include "director/window.h"
 #include "director/stxt.h"
+#include "director/util.h"
+#include "director/window.h"
 #include "director/castmember/castmember.h"
 #include "director/castmember/bitmap.h"
 #include "director/castmember/palette.h"
@@ -114,6 +115,7 @@ static BuiltinProto builtins[] = {
 	{ "showResFile",	LB::b_showResFile,	0, 1, 200, CBLTIN },	// D2 c
 	{ "showXlib",		LB::b_showXlib,		0, 1, 200, CBLTIN },	// D2 c
 	{ "xFactoryList",	LB::b_xFactoryList,	1, 1, 300, FBLTIN },	//		D3 f
+	{ "xtra",			LB::b_xtra,			1, 1, 500, FBLTIN },	//				D5 f
 	// Control
 	{ "abort",			LB::b_abort,		0, 0, 400, CBLTIN },	//			D4 c
 	{ "continue",		LB::b_continue,		0, 0, 200, CBLTIN },	// D2 c
@@ -130,6 +132,7 @@ static BuiltinProto builtins[] = {
 		// play done													// D2
 	{ "preLoad",		LB::b_preLoad,		-1,0, 300, CBLTIN },	//		D3.1 c
 	{ "preLoadCast",	LB::b_preLoadCast,	-1,0, 300, CBLTIN },	//		D3.1 c
+	{ "preLoadMember",	LB::b_preLoadCast,	-1,0, 500, CBLTIN },	//				D5 c
 	{ "quit",			LB::b_quit,			0, 0, 200, CBLTIN },	// D2 c
 	{ "restart",		LB::b_restart,		0, 0, 200, CBLTIN },	// D2 c
 	{ "return",			LB::b_return,		0, 1, 200, CBLTIN },	// D2 f
@@ -166,7 +169,7 @@ static BuiltinProto builtins[] = {
 	{ "constrainV",		LB::b_constrainV,	2, 2, 200, FBLTIN },	// D2 f
 	{ "copyToClipBoard",LB::b_copyToClipBoard,1,1, 400, CBLTIN }, //			D4 c
 	{ "duplicate",		LB::b_duplicate,	1, 2, 400, CBLTIN },	//			D4 c
-	{ "editableText",	LB::b_editableText,	0, 0, 200, CBLTIN },	// D2, FIXME: the field in D4+
+	{ "editableText",	LB::b_editableText,	0, 0, 200, CBLTIN },	// D2
 	{ "erase",			LB::b_erase,		1, 1, 400, CBLTIN },	//			D4 c
 	{ "findEmpty",		LB::b_findEmpty,	1, 1, 400, FBLTIN },	//			D4 f
 		// go															// D2
@@ -187,6 +190,7 @@ static BuiltinProto builtins[] = {
 	{ "spriteBox",		LB::b_spriteBox,	5, 5, 200, CBLTIN },	// D2 c
 	{ "unLoad",			LB::b_unLoad,		0, 2, 300, CBLTIN },	//		D3.1 c
 	{ "unLoadCast",		LB::b_unLoadCast,	0, 2, 300, CBLTIN },	//		D3.1 c
+	{ "unLoadMember",	LB::b_unLoadCast,	0, 2, 500, CBLTIN },	//				D5 c
 	{ "updateStage",	LB::b_updateStage,	0, 0, 200, CBLTIN },	// D2 c
 	{ "zoomBox",		LB::b_zoomBox,		-1,0, 200, CBLTIN },	// D2 c
 	{"immediateSprite", LB::b_immediateSprite, -1, 0, 200, CBLTIN}, // D2 c
@@ -215,6 +219,7 @@ static BuiltinProto builtins[] = {
 	{ "version",		LB::b_version,		0, 0, 300, KBLTIN },	//		D3 k
 	// References
 	{ "cast",			LB::b_cast,			1, 1, 400, FBLTIN },	//			D4 f
+	{ "member",			LB::b_member,		1, 2, 500, FBLTIN },	//				D5 f
 	{ "script",			LB::b_script,		1, 1, 400, FBLTIN },	//			D4 f
 	{ "window",			LB::b_window,		1, 1, 400, FBLTIN },	//			D4 f
 	// Chunk operations
@@ -436,7 +441,7 @@ void LB::b_power(int nargs) {
 	Datum d1 = g_lingo->pop();
 	Datum d2 = g_lingo->pop();
 	Datum res(pow(d2.asFloat(), d1.asFloat()));
-	g_lingo->push(d1);
+	g_lingo->push(res);
 }
 
 void LB::b_random(int nargs) {
@@ -1181,7 +1186,7 @@ void LB::b_closeResFile(int nargs) {
 	}
 
 	Datum d = g_lingo->pop();
-	Common::String resFileName = g_director->getCurrentWindow()->getCurrentPath() + d.asString();
+	Common::Path resFileName(g_director->getCurrentWindow()->getCurrentPath() + d.asString(), g_director->_dirSeparator);
 
 	if (g_director->_openResFiles.contains(resFileName)) {
 		g_director->_openResFiles.erase(resFileName);
@@ -1210,7 +1215,9 @@ void LB::b_getNthFileNameInFolder(int nargs) {
 		return;
 	}
 
-	Common::Path path = findPath(pathRaw, true, true, true);
+	// getNthFileNameInFolder requires an absolute path as an input.
+	// relative paths will not match anything.
+	Common::Path path = findAbsolutePath(pathRaw, true);
 	// for directory, we either return the correct path, which we can access recursively.
 	// or we get a wrong path, which will lead us to a non-exist file node
 
@@ -1230,7 +1237,7 @@ void LB::b_getNthFileNameInFolder(int nargs) {
 	if (cache) {
 		Common::ArchiveMemberList files;
 
-		cache->listMatchingMembers(files, path.toString() + (path.empty() ? "*" : "/*"), true);
+		cache->listMatchingMembers(files, path.append(path.empty() ? "*" : "/*", '/'), true);
 
 		for (auto &fi : files) {
 			fileNameList.push_back(Common::lastPathComponent(fi->getName(), '/'));
@@ -1241,7 +1248,7 @@ void LB::b_getNthFileNameInFolder(int nargs) {
 	if (d.exists()) {
 		Common::FSList f;
 		if (!d.getChildren(f, Common::FSNode::kListAll)) {
-			warning("Cannot access directory %s", path.toString().c_str());
+			warning("Cannot access directory %s", path.toString(Common::Path::kNativeSeparator).c_str());
 		} else {
 			for (uint i = 0; i < f.size(); i++)
 				fileNameList.push_back(f[i].getName());
@@ -1279,7 +1286,7 @@ void LB::b_openDA(int nargs) {
 
 void LB::b_openResFile(int nargs) {
 	Datum d = g_lingo->pop();
-	Common::String resPath = g_director->getCurrentWindow()->getCurrentPath() + d.asString();
+	Common::Path resPath(g_director->getCurrentWindow()->getCurrentPath() + d.asString(), g_director->_dirSeparator);
 
 	if (g_director->getPlatform() == Common::kPlatformWindows) {
  		warning("STUB: BUILDBOT: b_openResFile(%s) on Windows", d.asString().c_str());
@@ -1288,7 +1295,7 @@ void LB::b_openResFile(int nargs) {
 
 	if (!g_director->_allSeenResFiles.contains(resPath)) {
 		MacArchive *arch = new MacArchive();
-		if (arch->openFile(findPath(resPath).toString())) {
+		if (arch->openFile(findPath(resPath))) {
 			g_director->_openResFiles.setVal(resPath, arch);
 			g_director->_allSeenResFiles.setVal(resPath, arch);
 			g_director->addArchiveToOpenList(resPath);
@@ -1299,16 +1306,15 @@ void LB::b_openResFile(int nargs) {
 }
 
 void LB::b_openXlib(int nargs) {
-	// TODO: When Xtras are implemented, determine whether to initialize
-	// the XObject or Xtra version of FileIO
 	Common::String xlibName;
 
 	Datum d = g_lingo->pop();
+
+	Common::Path xlibPath = findXLibPath(d.asString(), true, false);
 	if (g_director->getPlatform() == Common::kPlatformMacintosh) {
 		// try opening the file as a Macintosh resource fork
-		Common::String resPath = g_director->getCurrentWindow()->getCurrentPath() + d.asString();
 		MacArchive *resFile = new MacArchive();
-		if (resFile->openFile(resPath)) {
+		if (resFile->openFile(xlibPath)) {
 			uint32 XCOD = MKTAG('X', 'C', 'O', 'D');
 			uint32 XCMD = MKTAG('X', 'C', 'M', 'D');
 			uint32 XFCN = MKTAG('X', 'F', 'C', 'N');
@@ -1317,19 +1323,19 @@ void LB::b_openXlib(int nargs) {
 
 			for (uint i = 0; i < rsrcList.size(); i++) {
 				xlibName = resFile->getResourceDetail(XCOD, rsrcList[i]).name.c_str();
-				g_lingo->openXLib(xlibName, kXObj);
+				g_lingo->openXLib(xlibName, kXObj, xlibPath);
 			}
 
 			rsrcList = resFile->getResourceIDList(XCMD);
 			for (uint i = 0; i < rsrcList.size(); i++) {
 				xlibName = resFile->getResourceDetail(XCMD, rsrcList[i]).name.c_str();
-				g_lingo->openXLib(xlibName, kXObj);
+				g_lingo->openXLib(xlibName, kXObj, xlibPath);
 			}
 
 			rsrcList = resFile->getResourceIDList(XFCN);
 			for (uint i = 0; i < rsrcList.size(); i++) {
 				xlibName = resFile->getResourceDetail(XFCN, rsrcList[i]).name.c_str();
-				g_lingo->openXLib(xlibName, kXObj);
+				g_lingo->openXLib(xlibName, kXObj, xlibPath);
 			}
 			delete resFile;
 			return;
@@ -1338,7 +1344,13 @@ void LB::b_openXlib(int nargs) {
 	}
 
 	xlibName = getFileName(d.asString());
-	g_lingo->openXLib(xlibName, kXObj);
+
+	// TODO: Figure out a nicer way of differentiating Xtras from XLibs on Mac
+	if (xlibName.hasSuffixIgnoreCase(".x16") || xlibName.hasSuffixIgnoreCase(".x32")) {
+		g_lingo->openXLib(xlibName, kXtraObj, xlibPath);
+	} else {
+		g_lingo->openXLib(xlibName, kXObj, xlibPath);
+	}
 }
 
 void LB::b_saveMovie(int nargs) {
@@ -1379,6 +1391,18 @@ void LB::b_xFactoryList(int nargs) {
 	g_lingo->push(d);
 }
 
+void LB::b_xtra(int nargs) {
+	Common::String name = g_lingo->pop().asString();
+	if (g_lingo->_globalvars.contains(name)) {
+		Datum var = g_lingo->_globalvars[name];
+		if (var.type == OBJECT && var.u.obj->getObjType() == kXtraObj) {
+			g_lingo->push(var);
+			return;
+		}
+	}
+	g_lingo->lingoError("Xtra not found: %s", name.c_str());
+}
+
 ///////////////////
 // Control
 ///////////////////
@@ -1401,8 +1425,7 @@ void LB::b_nothing(int nargs) {
 
 void LB::b_delay(int nargs) {
 	Datum d = g_lingo->pop();
-	g_director->getCurrentMovie()->getScore()->_nextFrameTime = g_system->getMillis() + (float)d.asInt() / 60 * 1000;
-	debugC(5, kDebugLoading, "b_delay(): delaying %d ticks, next frame time at %d", d.asInt(), g_director->getCurrentMovie()->getScore()->_nextFrameTime);
+	g_director->getCurrentMovie()->getScore()->setDelay(d.asInt());
 }
 
 void LB::b_do(int nargs) {
@@ -1890,6 +1913,10 @@ void LB::b_alert(int nargs) {
 void LB::b_clearGlobals(int nargs) {
 	for (auto &it : g_lingo->_globalvars) {
 		if (!it._value.ignoreGlobal) {
+			// For some reason, factory objects are not removed
+			// by this command.
+			if (it._value.type == OBJECT && it._value.u.obj->getObjType() & (kFactoryObj | kScriptObj))
+				continue;
 			g_lingo->_globalvars.erase(it._key);
 		}
 	}
@@ -1997,6 +2024,8 @@ void LB::b_duplicate(int nargs) {
 }
 
 void LB::b_editableText(int nargs) {
+	// editableText is deprecated in D4+ with the addition of "the editableText",
+	// but is still a valid function call.
 	Score *sc = g_director->getCurrentMovie()->getScore();
 	if (!sc) {
 		warning("b_editableText: no score");
@@ -2013,7 +2042,7 @@ void LB::b_editableText(int nargs) {
 		} else {
 			warning("b_editableText: sprite index out of bounds");
 		}
-	} else if (nargs == 0 && g_director->getVersion() < 400) {
+	} else if (nargs == 0) {
 		g_lingo->dropStack(nargs);
 
 		if (g_lingo->_currentChannelId == -1) {
@@ -2271,10 +2300,15 @@ void LB::b_installMenu(int nargs) {
 }
 
 void LB::b_label(int nargs) {
+	// label functions as marker when the input is an int
 	Datum d = g_lingo->pop();
-	uint16 label = g_lingo->func_label(d);
-
-	g_lingo->push(label);
+	int marker;
+	if (d.type == STRING) {
+		marker = g_lingo->func_label(d);
+	} else {
+		marker = g_lingo->func_marker(d.asInt());
+	}
+	g_lingo->push(marker);
 }
 
 void LB::b_marker(int nargs) {
@@ -2705,12 +2739,18 @@ void LB::b_spriteBox(int nargs) {
 	if (!channel)
 		return;
 
-	// This automatically sets the sctretch mode
+	// This automatically sets the stretch mode
 	channel->_sprite->_stretch = true;
 
 	g_director->getCurrentWindow()->addDirtyRect(channel->getBbox());
-	channel->setBbox(l, t, r, b);
-	channel->_sprite->_cast->setModified(true);
+	channel->setBbox(
+		l < r ? l : r,
+		t < b ? t : b,
+		r > l ? r : l,
+		b > t ? b : t
+	);
+	if (channel->_sprite->_cast)
+		channel->_sprite->_cast->setModified(true);
 	channel->_dirty = true;
 }
 
@@ -2812,7 +2852,7 @@ void LB::b_updateStage(int nargs) {
 	movie->getWindow()->render();
 
 	// play any puppet sounds that have been queued
-	score->playSoundChannel(score->getCurrentFrameNum(), true);
+	score->playSoundChannel(true);
 
 	if (score->_cursorDirty) {
 		score->renderCursor(movie->getWindow()->getMousePos());
@@ -3083,7 +3123,7 @@ void LB::b_sound(int nargs) {
 
 		TYPECHECK(firstArg, INT);
 		soundManager->registerFade(firstArg.u.i, true, ticks);
-		score->_activeFade = firstArg.u.i;
+		score->_activeFade = true;
 		return;
 	} else if (verb.u.s->equalsIgnoreCase("fadeOut")) {
 		if (nargs > 2) {
@@ -3095,7 +3135,7 @@ void LB::b_sound(int nargs) {
 
 		TYPECHECK2(firstArg, INT, FLOAT);
 		soundManager->registerFade(firstArg.asInt(), false, ticks);
-		score->_activeFade = firstArg.u.i;
+		score->_activeFade = true;
 		return;
 	} else if (verb.u.s->equalsIgnoreCase("playFile")) {
 		ARGNUMCHECK(3)
@@ -3185,6 +3225,38 @@ void LB::b_cast(int nargs) {
 	g_lingo->push(res);
 }
 
+void LB::b_member(int nargs) {
+	Movie *movie = g_director->getCurrentMovie();
+	CastMemberID res;
+	if (nargs == 1) {
+		Datum member = g_lingo->pop();
+		if (member.isNumeric()) {
+			res = movie->getCastMemberIDByMember(member.asInt());
+		} else {
+			res = movie->getCastMemberIDByName(member.asString());
+		}
+	} else if (nargs == 2) {
+		Datum library = g_lingo->pop();
+		Datum member = g_lingo->pop();
+		int libId = -1;
+		if (library.isNumeric()) {
+			libId = library.asInt();
+		} else {
+			libId = movie->getCastLibIDByName(library.asString());
+		}
+		if (member.isNumeric()) {
+			res = CastMemberID(member.asInt(), libId);
+		} else {
+			res = movie->getCastMemberIDByNameAndType(member.asString(), libId, kCastTypeAny);
+		}
+	}
+	if (!movie->getCastMember(res)) {
+		g_lingo->lingoError("No match found for cast member");
+		return;
+	}
+	g_lingo->push(res);
+}
+
 void LB::b_script(int nargs) {
 	Datum d = g_lingo->pop();
 	// FIXME: Check with later versions of director
@@ -3199,10 +3271,12 @@ void LB::b_script(int nargs) {
 		ScriptContext *script = nullptr;
 
 		if (cast->_type == kCastLingoScript) {
-			// script cast can be either a movie script or score script
+			// script cast can be either a movie script, score script, or parent script (D5+)
 			script = g_director->getCurrentMovie()->getScriptContext(kMovieScript, memberID);
 			if (!script)
 				script = g_director->getCurrentMovie()->getScriptContext(kScoreScript, memberID);
+			if (!script)
+				script = g_director->getCurrentMovie()->getScriptContext(kParentScript, memberID);
 		} else {
 			g_director->getCurrentMovie()->getScriptContext(kCastScript, memberID);
 		}
@@ -3212,7 +3286,7 @@ void LB::b_script(int nargs) {
 			return;
 		}
 	}
-
+	warning("b_script(): No script context found for '%s'", d.asString(true).c_str());
 	g_lingo->push(Datum());
 }
 

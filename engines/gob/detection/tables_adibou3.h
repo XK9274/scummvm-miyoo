@@ -17,9 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 /* Detection tables for Adibou 3 / Adiboo 3 series. */
+/* This Game uses the DEV7 Engine, more Information can be found here: https://wiki.scummvm.org/index.php?title=DEV7_Information */
 
 #ifndef GOB_DETECTION_TABLES_ADIBOU3_H
 #define GOB_DETECTION_TABLES_ADIBOU3_H
@@ -36,7 +43,6 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
 	kFeatures640x480,
 	0, 0, 0
 },
@@ -51,7 +57,6 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
 	kFeatures640x480,
 	0, 0, 0
 },
@@ -69,7 +74,6 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
 	kFeatures640x480,
 	0,0,0
 },
@@ -85,7 +89,6 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
 	kFeatures640x480,
 	0,0,0
 },
@@ -101,7 +104,6 @@
 		ADGF_UNSUPPORTED | ADGF_DEMO,
 		GUIO0()
 	},
-	kGameTypeNone,
 	kFeatures640x480,
 	0,0,0
 },
@@ -117,7 +119,23 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
+	kFeatures640x480,
+	0,0,0
+},
+
+// -- English: Adiboo 3 --
+
+{
+	{
+
+		"adibou3",
+		_s("Missing game code"), // Adiboo 3 3.00 (Engine: DEV7 version 1.2.0.0)
+		AD_ENTRY1s("b3_common.stk", "3f34b0172396321d0c5e37c53b4de005", 523852),
+		EN_ANY,
+		kPlatformWindows,
+		ADGF_UNSUPPORTED,
+		GUIO0()
+	},
 	kFeatures640x480,
 	0,0,0
 },

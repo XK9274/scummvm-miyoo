@@ -195,7 +195,6 @@ MODULE_OBJS += \
 	ultima4/gfx/image.o \
 	ultima4/gfx/imageloader.o \
 	ultima4/gfx/imageloader_fmtowns.o \
-	ultima4/gfx/imageloader_png.o \
 	ultima4/gfx/imageloader_u4.o \
 	ultima4/gfx/imagemgr.o \
 	ultima4/gfx/scale.o \
@@ -309,6 +308,8 @@ MODULE_OBJS += \
 	nuvie/gui/widgets/map_window.o \
 	nuvie/keybinding/keys.o \
 	nuvie/keybinding/key_actions.o \
+	nuvie/keybinding/key_help_dialog.o \
+	nuvie/menus/asset_viewer_dialog.o \
 	nuvie/menus/audio_dialog.o \
 	nuvie/menus/cheats_dialog.o \
 	nuvie/menus/gameplay_dialog.o \
@@ -337,7 +338,6 @@ MODULE_OBJS += \
 	nuvie/save/save_game.o \
 	nuvie/screen/dither.o \
 	nuvie/screen/game_palette.o \
-	nuvie/screen/scale.o \
 	nuvie/screen/screen.o \
 	nuvie/screen/surface.o \
 	nuvie/script/script.o \
@@ -416,8 +416,6 @@ MODULE_OBJS += \
 	ultima8/convert/u8/convert_shape_u8.o \
 	ultima8/convert/crusader/convert_shape_crusader.o \
 	ultima8/filesys/archive.o \
-	ultima8/filesys/archive_file.o \
-	ultima8/filesys/file_system.o \
 	ultima8/filesys/flex_file.o \
 	ultima8/filesys/raw_archive.o \
 	ultima8/filesys/savegame.o \

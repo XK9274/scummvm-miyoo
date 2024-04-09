@@ -32,7 +32,6 @@
 #include "common/substream.h"
 #include "common/textconsole.h"
 
-#include "graphics/palette.h"
 #include "image/jpeg.h"
 
 #ifdef USE_RGB_COLOR
@@ -294,7 +293,7 @@ void writeImage(const Common::String filename, Graphics::Surface &surface) {
 #endif
 
 	Common::DumpFile out;
-	if (!out.open(tname)) {
+	if (!out.open(Common::Path(tname))) {
 		warning("failed to write debug image to %s", tname.c_str());
 		return;
 	}

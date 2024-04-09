@@ -170,6 +170,7 @@ _tinygl=yes
 _readline=auto
 _freetype2=auto
 _libmikmod=auto
+_libopenmpt=auto
 _taskbar=auto
 _updates=no
 _libunity=auto
@@ -254,6 +255,7 @@ _sdlpath="$PATH"
 _freetypepath="$PATH"
 _libcurlpath="$PATH"
 _libmikmodpath="$PATH"
+_libopenmptpath="$PATH"
 _nasmpath="$PATH"
 NASMFLAGS=""
 NASM=""
@@ -270,10 +272,12 @@ _posix=no
 _has_posix_spawn=no
 _has_fseeko_offt_64=no
 _has_fseeko64=no
+_has_fopen64=no
 _endian=unknown
 _need_memalign=yes
 _have_x86=no
 _have_amd64=no
+_imgui=yes
 
 # Add (virtual) features
 add_feature 16bit "16bit color" "_16bit"
@@ -298,6 +302,7 @@ add_feature zlib "zlib" "_zlib"
 add_feature lua "lua" "_lua"
 add_feature fribidi "FriBidi" "_fribidi"
 add_feature test_cxx11 "Test C++11" "_test_cxx11"
+add_feature imgui "imgui" "_imgui"
 
 # Directories for installing ScummVM.
 # This list is closely based on what GNU autoconf does,
@@ -1025,6 +1030,9 @@ Optional Libraries:
   --with-mikmod-prefix=DIR    Prefix where libmikmod is installed (optional)
   --enable-mikmod             enable mikmod module for playing various sound formats like impulsetracker [autodetect]
 
+  --with-openmpt-prefix=DIR    Prefix where libopenmpt is installed (optional)
+  --enable-openmpt             enable openmpt module for playing various sound formats like impulsetracker [autodetect]
+
   --with-a52-prefix=DIR    Prefix where liba52 is installed (optional)
   --enable-a52             enable a52 codec for MPEG decoder [autodetect]
 
@@ -1220,6 +1228,8 @@ for ac_option in $@; do
 	--disable-mpeg2)              _mpeg2=no              ;;
 	--enable-mikmod)              _libmikmod=yes         ;;
 	--disable-mikmod)             _libmikmod=no          ;;
+	--enable-openmpt)             _libopenmpt=yes        ;;
+	--disable-openmpt)            _libopenmpt=no         ;;
 	--enable-a52)                 _a52=yes               ;;
 	--disable-a52)                _a52=no                ;;
 	--disable-jpeg)               _jpeg=no               ;;
@@ -1274,6 +1284,8 @@ for ac_option in $@; do
 	--disable-tts)                _tts=no                ;;
 	--enable-gtk)                 _gtk=yes               ;;
 	--disable-gtk)                _gtk=no                ;;
+	--disable-imgui)              _imgui=no              ;;
+	--enable-imgui)               _imgui=yes             ;;
 	--opengl-mode=*)
 		_opengl_mode=`echo $ac_option | cut -d '=' -f 2`
 		;;
@@ -1533,6 +1545,10 @@ for ac_option in $@; do
 	--with-mikmod-prefix=*)
 		arg=`echo $ac_option | cut -d '=' -f 2`
 		_libmikmodpath="$arg:$arg/bin"
+		;;
+	--with-openmpt-prefix=*)
+		arg=`echo $ac_option | cur -d '=' -f 2`
+		_libopenmptpath="$arg:$arg/bin"
 		;;
 	--with-nasm-prefix=*)
 		arg=`echo $ac_option | cut -d '=' -f 2`
@@ -2825,34 +2841,33 @@ case $_host_os in
 		append_var LIBS "-lcitro3d"
 		;;
 	amigaos*)
-		# Leave out resources by default to save binary size
-		_builtin_resources=no
 		# AmigaOS (PPC) target
 		_port_mk="backends/platform/sdl/amigaos/amigaos.mk"
 		add_line_to_config_mk 'AMIGAOS = 1'
+		# -mlongcall is needed to fix relocation errors,
+		# otherwise we crash with big engines (i.e. AGS)
 		append_var CXXFLAGS "-mlongcall"
-		# Dependencies might also be compiled with stack protection
-		append_var LDFLAGS "-fstack-protector"
 		# Enable full optimizations for non-debug builds
 		if test "$_debug_build" = no; then
 			_optimization_level=-O3
 		else
 			_optimization_level=-O0
-			append_var CXXFLAGS "-fno-omit-frame-pointer"
-			append_var CXXFLAGS "-fno-strict-aliasing"
 			define_in_config_if_yes "$_debug_build" 'DEBUG_BUILD'
 		fi
-		# When building dynamic, add everything possible as plugin
-		# except detection_features (see bug #13603)
+		# dynamic builds leave out resources to save binary size
+		# and detection features *must* be static
 		if test "$_dynamic_modules" = yes ; then
-			_detection_features_static=yes
+			_builtin_resources=no
 			_plugins_default=dynamic
+		else
+			_plugins_default=static
+			_static_build=yes
 		fi
-		# Use 'long' for ScummVM's 4 byte typedef, because AmigaOS
+		# use 'long' for ScummVM's 4 byte typedef, because AmigaOS
 		# already typedefs (u)int32 as (unsigned) long and suppress
 		# those noisy format warnings caused by the 'long' 4 byte
-		type_4_byte='long'
 		append_var CXXFLAGS "-Wno-format"
+		type_4_byte='long'
 		;;
 	android)
 		case $_host in
@@ -3159,11 +3174,12 @@ EOF
 		append_var LIBS "-lnds9"
 		;;
 	emscripten)
-		# mandatory emscripten flags
-		append_var LDFLAGS "-s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY -s FORCE_FILESYSTEM=1"
-
 		append_var DEFINES "-DEMSCRIPTEN"
 		add_line_to_config_mk 'EMSCRIPTEN = 1'
+		_port_mk="backends/platform/sdl/emscripten/emscripten.mk"
+		append_var LDFLAGS "-s FORCE_FILESYSTEM"
+		append_var LDFLAGS "-s INITIAL_MEMORY=128MB -s TOTAL_STACK=32MB -s ALLOW_MEMORY_GROWTH=1"
+		append_var LDFLAGS "-s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576"
 
 		if test "$_debug_build" = yes; then
 			_optimization_level=-O2
@@ -3174,32 +3190,50 @@ EOF
 		fi
 
 		# activate emscripten-ports
-		if test "$_freetype2" != no; then
-			append_var LDFLAGS "-s USE_FREETYPE=1 -s SUPPORT_LONGJMP=1" # freetype requires setjmp
-			# neither pkg-config nor freetype-config work, so we setup freetype manually
-			_freetypepath="$EMSCRIPTEN/cache/ports-builds/freetype/"
-			FREETYPE2_CFLAGS="-I$_freetypepath/include" # there were link errors / missing symbols without this
-			_freetype_found="true"
-		else
-			#use link time optimization to further reduce exe size (this can't be used with setjmp which freetype requires)
-			# TODO: Figure out why this is a conflict and/or if freetype can be built without setjmp
-			append_var CXXFLAGS "-flto"
-			append_var LDFLAGS "-flto"
-		fi
-		if test "$_jpeg" != no; then
-			append_var LDFLAGS "-s USE_LIBJPEG=1"
-		fi
-		if test "$_png" != no; then
-			append_var LDFLAGS "-s USE_LIBPNG=1"
-		fi
-		if test "$_sdl" != no; then
+		if test "$_sdl" != no; then # we enable SDL2 by default 
 			append_var LDFLAGS "-s USE_SDL=2 "
 		fi
-		if test "$_vorbis" != no; then
-			append_var LDFLAGS "-s USE_OGG=1" # vorbis needs to be linked against OGG (even if we use an external vorbis lib)
+
+		# We explicitly disable optional libraries if not enabled. "auto" would depend
+		# on whether the port has been used before (and is detected) which is unpredictable.
+		if test "$_freetype2" = yes; then
+			# neither pkg-config nor freetype-config work, so we setup freetype manually
+			append_var LDFLAGS "-s USE_FREETYPE=1"
+			_freetype_found="true"
+			_freetypepath="$EMSDK/upstream/emscripten/cache/sysroot/include/freetype2/"
+			FREETYPE2_CFLAGS="-I$_freetypepath"
+		else
+			_freetype2=no 
 		fi
-		if test "$_zlib" != no; then
+		if test "$_gif" = yes; then
+		 	append_var LDFLAGS "-s USE_GIFLIB=1"
+		else
+			_gif=no 
+		fi
+		if test "$_jpeg" = yes; then
+			append_var LDFLAGS "-s USE_LIBJPEG=1"
+		else
+			_jpeg=no 
+		fi
+		if test "$_ogg" = yes; then
+			append_var LDFLAGS "-s USE_OGG=1" 
+		else
+			_ogg=no 
+		fi
+		if test "$_png" = yes; then
+			append_var LDFLAGS "-s USE_LIBPNG=1"
+		else
+			_png=no 
+		fi
+		if test "$_vorbis" = yes; then
+			append_var LDFLAGS "-s USE_VORBIS=1" 
+		else
+			_vorbis=no 
+		fi
+		if test "$_zlib" = yes; then
 			append_var LDFLAGS "-s USE_ZLIB=1"
+		else
+			_zlib=no 
 		fi
 	;;
 	freebsd* | dragonfly*)
@@ -3359,7 +3393,7 @@ EOF
 		append_var CXXFLAGS "-I$PSPSDK/include"
 		# FIXME: Why is the following in CXXFLAGS and not in DEFINES? Change or document this.
 		append_var CXXFLAGS "-D_PSP_FW_VERSION=150"
-		append_var CXXFLAGS "-G0"
+		append_var CXXFLAGS "-mno-gpopt"
 		add_line_to_config_mk 'PSP = 1'
 		;;
 	riscos)
@@ -3435,7 +3469,9 @@ if test -n "$_host"; then
 			_backend="3ds"
 			_build_scalers=no
 			_vkeybd=yes
+			_seq_midi=no
 			_mt32emu=no
+			_timidity=no
 			# Should use Tremor instead of Vorbis
 			_vorbis=no
 			_port_mk="backends/platform/3ds/3ds.mk"
@@ -3540,6 +3576,7 @@ if test -n "$_host"; then
 			_sdlnet=no
 			_libcurl=no
 			_curl=no
+			_enet=no
 			_ar="emar cr"
 			_ranlib="emranlib"
 			;;
@@ -3723,7 +3760,7 @@ if test -n "$_host"; then
 				# --enable-release, --enable-optimizations
 				append_var CXXFLAGS "-fomit-frame-pointer"
 				append_var CXXFLAGS "-fno-exceptions"
-				append_var CXXFLAGS "-ffast-math"
+				append_var CXXFLAGS "-ffast-math -fno-unsafe-math-optimizations"
 			fi
 
 			# auto -> no
@@ -3731,8 +3768,6 @@ if test -n "$_host"; then
 				# --enable-release
 				append_var DEFINES  "-DNDEBUG"
 				#append_var DEFINES  "-DDISABLE_TEXT_CONSOLE"
-				append_var CXXFLAGS "-I$($_host_alias-gcc -print-sysroot)/opt/mintlib-dlmalloc/include"
-				append_var LDFLAGS  "-L$($_host_alias-gcc -print-sysroot)/opt/mintlib-dlmalloc/lib/m68020-60"
 			fi
 
 			_seq_midi=no
@@ -3860,8 +3895,8 @@ if test -n "$_host"; then
 			_sysroot=`$CXX --print-sysroot`
 			_sdlpath=$_sysroot/usr/bin
 			append_var DEFINES  "-DDINGUX -DOPENDINGUX -DREDUCE_MEMORY_USAGE -DUNCACHED_PLUGINS"
-			append_var CXXFLAGS "-ffast-math -fdata-sections -ffunction-sections -mplt"
-			append_var LDFLAGS  "-ffast-math -fdata-sections -ffunction-sections -mplt"
+			append_var CXXFLAGS "-fdata-sections -ffunction-sections -mplt"
+			append_var LDFLAGS  "-fdata-sections -ffunction-sections -mplt"
 			append_var LDFLAGS  "-O3 -Wl,--as-needed,--gc-sections"
 			if [ x"$_dynamic_modules" != xyes ]; then
 				append_var CXXFLAGS "-mno-shared"
@@ -3982,12 +4017,17 @@ if test -n "$_host"; then
 			# This might be related to a known crash on OpenGL de-init due
 			# to the OpenGL implementation on this platform.
 			_vkeybd=yes
+			_seq_midi=no
+			_timidity=no
 			_port_mk="backends/platform/sdl/switch/switch.mk"
 			;;
 		wii)
 			_backend="wii"
 			_build_scalers=no
 			_build_aspect=no
+			_tinygl=no
+			_nuked_opl=no
+			_mt32emu=no
 			_vkeybd=yes
 			_port_mk="backends/platform/wii/wii.mk"
 			add_line_to_config_mk 'GAMECUBE = 0'
@@ -4601,7 +4641,7 @@ case $_host_os in
 	amigaos* | dreamcast | ds | gamecube | kolibrios | mingw* | morphos | n64 | ps3 | psp2 | psp | riscos | wii)
 		_posix=no
 		;;
-	3ds | android | beos* | bsd* | cygwin* | darwin* | dragonfly* | freebsd* | gnu* | gph-linux | haiku* | hpux* | iphoneos | irix*| k*bsd*-gnu* | linux* | maemo | mint* | netbsd* | openbsd* | serenity* | solaris* | sunos* | switch | uclinux*)
+	3ds | android | beos* | bsd* | cygwin* | darwin* | dragonfly* | freebsd* | gnu* | gph-linux | haiku* | hpux* | iphoneos | irix*| k*bsd*-gnu* | linux* | maemo | mint* | netbsd* | openbsd* | redox* | serenity* | solaris* | sunos* | switch | uclinux*)
 		_posix=yes
 		;;
 	os2-emx*)
@@ -4708,6 +4748,18 @@ EOF
 				if test "$_has_fseeko64" = yes ; then
 					append_var DEFINES "-DHAS_FSEEKO64"
 					append_var CXXFLAGS "-D_LARGEFILE64_SOURCE"
+
+					# On some platforms, fopen64 is required in addition to fseeko64/ftello64
+					echo_n "Checking if fopen64 is supported... "
+					cat > $TMPC << EOF
+#include <stdio.h>
+int main() { FILE *f = fopen64("file", "rb"); return (f != NULL); }
+EOF
+					cc_check_no_clean && _has_fopen64=yes
+					echo $_has_fopen64
+					if test "$_has_fopen64" = yes ; then
+						append_var DEFINES "-DHAS_FOPEN64"
+					fi
 				fi
 			fi
 		fi
@@ -4768,7 +4820,6 @@ PLUGIN_LDFLAGS		+= -Wl,-T$(srcdir)/backends/plugins/3ds/plugin.ld -march=armv6k 
 		append_var CXXFLAGS "-fPIC"
 		append_var LIBS "-use-dynld"
 		append_var LIBS "-lauto"
-		append_var _strip "-x"
 _mak_plugins='
 PLUGIN_EXTRA_DEPS =
 PLUGIN_LDFLAGS  += -shared
@@ -4836,7 +4887,7 @@ PLUGIN_LDFLAGS		+= -Wl,-T$(srcdir)/backends/plugins/ds/plugin.ld -mthumb -mthumb
 		append_var LIBS ""
 _mak_plugins='
 PLUGIN_EXTRA_DEPS =
-PLUGIN_LDFLAGS  += $(LDFLAGS) -s SIDE_MODULE=1 -s ASYNCIFY_IMPORTS=["*"] -s EXPORT_ALL=1
+PLUGIN_LDFLAGS  += -s SIDE_MODULE=1 -s ASYNCIFY=1 -s ASYNCIFY_IMPORTS=["*"] -s EXPORT_ALL=1
 PRE_OBJS_FLAGS  := -s MAIN_MODULE=1 -s EXPORT_ALL=1
 POST_OBJS_FLAGS :=
 '
@@ -5134,6 +5185,10 @@ echo "$_tts"
 # Check for Vorbis
 #
 echocheck "Vorbis"
+VORBISFILE=-lvorbisfile
+if test "$_host_os" = kolibrios ; then
+    VORBISFILE=
+fi
 if test "$_vorbis" = auto ; then
 	_vorbis=no
 	cat > $TMPC << EOF
@@ -5142,14 +5197,14 @@ int main(void) { vorbis_packet_blocksize(0,0); return 0; }
 EOF
 	if test "$_ogg" = yes ; then
 		cc_check $OGG_CFLAGS $OGG_LIBS $VORBIS_CFLAGS $VORBIS_LIBS \
-			-lvorbisfile -lvorbis -logg && _vorbis=yes
+			$VORBISFILE -lvorbis -logg && _vorbis=yes
 	else
 		cc_check $VORBIS_CFLAGS $VORBIS_LIBS \
-			-lvorbisfile -lvorbis && _vorbis=yes
+			$VORBISFILE -lvorbis && _vorbis=yes
 	fi
 fi
 if test "$_vorbis" = yes ; then
-	append_var LIBS "$VORBIS_LIBS -lvorbisfile -lvorbis"
+	append_var LIBS "$VORBIS_LIBS $VORBISFILE -lvorbis"
 	append_var INCLUDES "$VORBIS_CFLAGS"
 fi
 define_in_config_if_yes "$_vorbis" 'USE_VORBIS'
@@ -5792,10 +5847,50 @@ echo "$_libcurl"
 define_in_config_if_yes "$_libcurl" "USE_LIBCURL"
 
 #
+# Check for libopenmpt to be present
+#
+echocheck "libopenmpt"
+
+if test "$_libopenmpt" != "no"; then
+	if test "$_pkg_config" = "yes" && $_pkgconfig --exists libopenmpt; then
+		append_var LIBOPENMPT_LIBS "`$_pkgconfig --libs libopenmpt`"
+		append_var LIBOPENMPT_CFLAGS "`$_pkgconfig --cflags libopenmpt`"
+	else
+		append_var LIBOPENMPT_LIBS "-lopenmpt"
+	fi
+
+	if test "$_libopenmpt" = "auto"; then
+		_libopenmpt=no
+		cat > $TMPC << EOF
+		#include <libopenmpt/libopenmpt.h>
+		#include <libopenmpt/libopenmpt_stream_callbacks_file.h>
+		int main(void) {
+			openmpt_module *mod = 0;
+			FILE *file = 0;
+
+			file = fopen("abc", "rb");
+			mod = openmpt_module_create2( openmpt_stream_get_file_callbacks2(), file, NULL, NULL, NULL, NULL, NULL, NULL, NULL );
+
+			fclose(file);
+			return 0;
+		}
+EOF
+		cc_check $LIBOPENMPT_CFLAGS $LIBOPENMPT_LIBS && _libopenmpt=yes
+	fi
+
+	if test "$_libopenmpt" = "yes"; then
+		append_var LIBS "$LIBOPENMPT_LIBS"
+		append_var INCLUDES "$LIBOPENMPT_CFLAGS"
+	fi
+fi
+
+define_in_config_if_yes "$_libopenmpt" "USE_OPENMPT"
+echo "$_libopenmpt"
+
+#
 # Check for libmikmod to be present
 #
-if test "$_libmikmod" != "no"; then
-
+if test "$_libmikmod" != no && test "$_libopenmpt" = no; then
 	# Look for the mikmod-config script
 	find_libmikmodconfig
 
@@ -5826,9 +5921,14 @@ EOF
 			append_var INCLUDES "$LIBMIKMOD_CFLAGS"
 		fi
 	fi
-	echo "$_libmikmod"
+else
+	echocheck "libmikmod"
+
+	# Skip mikmod detection if openmpt is detected
+	_libmikmod="no (OpenMPT/MikMod support is mutually exclusive)"
 fi
 
+echo "$_libmikmod"
 define_in_config_if_yes "$_libmikmod" "USE_MIKMOD"
 
 #
@@ -6257,6 +6357,7 @@ if test "$_opengl_mode" != none ; then
 		sdl)
 			# This case is for pure SDL backend. Many platforms overload it and create a new backend
 			# They still make use of SDL but it's handled below in the default case
+			_opengl_glad=yes
 			case $_sdlversion in
 				1.2.*)
 					# Stock SDL 1.2 only supports OpenGL contexts.
@@ -6273,8 +6374,8 @@ if test "$_opengl_mode" != none ; then
 							;;
 						emscripten)
 							_opengl_mode=gles2
-							_opengl_glad=no
-							append_var LDFLAGS "-s FULL_ES2=1 -s MAX_WEBGL_VERSION=1"
+							_opengl_glad=no # https://github.com/Dav1dde/glad-web/issues/12
+							append_var OPENGL_LIBS "-s FULL_ES2=1 -s MAX_WEBGL_VERSION=1"
 							;;
 						*)
 							# As SDL2 supports everything, let the user choose if he wants to
@@ -6283,7 +6384,6 @@ if test "$_opengl_mode" != none ; then
 					esac
 					;;
 			esac
-			_opengl_glad=yes
 			;;
 		switch)
 			_opengl_mode=gles2
@@ -6366,6 +6466,9 @@ EOF
 				;;
 			mingw*)
 				OPENGL_LIBS="-lopengl32"
+				;;
+			serenity*)
+				OPENGL_LIBS="-lgl"
 				;;
 			*)
 				OPENGL_LIBS="-lGL"
@@ -6664,6 +6767,19 @@ fi
 define_in_config_if_yes "$_discord" 'USE_DISCORD'
 echo "$_discord"
 
+
+#
+# Check for ImGui
+#
+echocheck "ImGui"
+
+if test "$_opengl" = yes ; then
+  define_in_config_if_yes "$_imgui" 'USE_IMGUI'
+  echo "$_imgui"
+else
+  echo "no (requires OpenGL)"
+fi
+
 #
 # Enable vkeybd / event recorder
 #
@@ -6854,6 +6970,9 @@ case $_host in
 		;;
 	ds)
 		;;
+	*-emscripten)
+		append_var DEFINES "-DPLUGIN_DIRECTORY=\\\"$datadir/plugins\\\""
+		;;
 	openpandora)
 		# Add ../plugins as a path so plugins can be found when running from a .PND.
 		append_var DEFINES "-DPLUGIN_DIRECTORY=\\\"../plugins\\\""
@@ -6962,6 +7081,15 @@ case $_host_cpu in
 		_ext_neon=no
 		;;
 esac
+
+if test "$have_gcc" = yes; then
+	# Need 4.9 for pragma target
+	if (test $_cxx_major -lt 4) || (test $_cxx_major -eq 4 && test $_cxx_minor -lt 9); then
+		_ext_sse2=no
+		_ext_avx2=no
+		_ext_neon=no
+	fi
+fi
 
 define_in_config_if_yes "$_ext_sse2" 'SCUMMVM_SSE2'
 echo_n "Enabling x86/amd64 SSE2... "
@@ -7100,10 +7228,8 @@ case $_host_os in
 		;;
 	amigaos*)
 		# In release mode use LTO to improve performance
-		# and dead code elimination to reduce binary size
 		if test "$_release_build" = yes; then
 			append_var CXXFLAGS "-flto"
-			append_var CXXFLAGS "-ffunction-sections -fdata-sections"
 			append_var PLUGIN_LDFLAGS "-flto=jobserver"
 		fi
 		;;
@@ -7152,14 +7278,21 @@ case $_host_os in
 	emscripten)
 		append_var LDFLAGS "--pre-js ./dists/emscripten/custom_shell-pre.js --post-js ./dists/emscripten/custom_shell-post.js --shell-file ./dists/emscripten/custom_shell.html"
 		# we remove some linker flags for libs which will be added by emscripten from emscripten-ports to avoid duplicate symbols
+		if test "${LDFLAGS#*-s USE_GIFLIB=1}" != "$LDFLAGS"; then
+			LIBS=`echo ${LIBS} | sed 's/-lgif//g'`
+		fi
 		if test "${LDFLAGS#*-s USE_LIBJPEG=1}" != "$LDFLAGS"; then
     		LIBS=`echo ${LIBS} | sed 's/-ljpeg//g'`
+		fi
+		if test "${LDFLAGS#*-s USE_OGG=1}" != "$LDFLAGS"; then
+			LIBS=`echo ${LIBS} | sed 's/-logg//g'`
 		fi
 		if test "${LDFLAGS#*-s USE_LIBPNG=1}" != "$LDFLAGS"; then
 			LIBS=`echo ${LIBS} | sed 's/-lpng -lz//g'`
 		fi
-		if test "${LDFLAGS#*-s USE_OGG=1}" != "$LDFLAGS"; then
-			LIBS=`echo ${LIBS} | sed 's/-logg//g'`
+		if test "${LDFLAGS#*-s USE_VORBIS=1}" != "$LDFLAGS"; then
+			LIBS=`echo ${LIBS} | sed 's/-lvorbisfile//g;'`
+			LIBS=`echo ${LIBS} | sed 's/-lvorbis//g'`
 		fi
 		if test "${LDFLAGS#*-s USE_ZLIB=1}" != "$LDFLAGS"; then
 			LIBS=`echo ${LIBS} | sed 's/-lz//g'`

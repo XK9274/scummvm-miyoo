@@ -489,7 +489,7 @@ Graphics::Surface *Renderer::convertImageFormatIfNecessary(Graphics::ManagedSurf
 	surface->copyFrom(msurface->rawSurface());
 	byte *palette = (byte *)malloc(sizeof(byte) * 16 * 3);
 	msurface->grabPalette(palette, 0, 16); // Maximum should be 16 colours
-	surface->convertToInPlace(_texturePixelFormat, palette, 0, 16);
+	surface->convertToInPlace(_texturePixelFormat, palette, 16);
 	free(palette);
 	return surface;
 }
@@ -979,12 +979,33 @@ void Renderer::renderPolygon(const Math::Vector3d &origin, const Math::Vector3d 
 }
 
 void Renderer::drawBackground(uint8 color) {
+	uint8 r1, g1, b1;
+	uint8 r2, g2, b2;
+
 	if (_colorRemaps && _colorRemaps->contains(color)) {
 		color = (*_colorRemaps)[color];
+		readFromPalette(color, r1, g1, b1);
+		clear(r1, g1, b1);
+		return;
 	}
-	uint8 r, g, b;
-	readFromPalette(color, r, g, b);
-	clear(r, g, b);
+
+	if (color == 0) {
+		clear(0, 0, 0);
+		return;
+	}
+
+	byte *stipple = nullptr;
+
+	getRGBAt(color, r1, g1, b1, r2, g2, b2, stipple);
+	clear(r1, g1, b1);
+}
+
+void Renderer::drawEclipse(byte color1, byte color2, float progress) {
+	Math::Vector3d sunPosition(-5000, 1200, 0);
+	float radius = 400.0;
+	drawCelestialBody(sunPosition, radius, color1);
+	Math::Vector3d moonPosition(-5000, 1200, 800 * progress);
+	drawCelestialBody(moonPosition, radius, color2);
 }
 
 Graphics::RendererType determinateRenderType() {

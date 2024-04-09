@@ -437,6 +437,12 @@ bool OpenGLSdlGraphicsManager::loadVideoMode(uint requestedWidth, uint requested
 
 void OpenGLSdlGraphicsManager::refreshScreen() {
 	// Swap OpenGL buffers
+#ifdef EMSCRIPTEN
+	if (_queuedScreenshot) {
+		SdlGraphicsManager::saveScreenshot();
+		_queuedScreenshot = false;
+	}
+#endif 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	SDL_GL_SwapWindow(_window->getSDLWindow());
 #else
@@ -449,7 +455,13 @@ void OpenGLSdlGraphicsManager::handleResizeImpl(const int width, const int heigh
 	SdlGraphicsManager::handleResizeImpl(width, height);
 }
 
-bool OpenGLSdlGraphicsManager::saveScreenshot(const Common::String &filename) const {
+#ifdef EMSCRIPTEN
+void OpenGLSdlGraphicsManager::saveScreenshot() {
+	_queuedScreenshot = true;
+}
+#endif
+
+bool OpenGLSdlGraphicsManager::saveScreenshot(const Common::Path &filename) const {
 	return OpenGLGraphicsManager::saveScreenshot(filename);
 }
 

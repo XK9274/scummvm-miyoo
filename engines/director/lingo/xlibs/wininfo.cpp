@@ -63,30 +63,24 @@ WinInfoXObject::WinInfoXObject(ObjectType ObjectType) : Object<WinInfoXObject>("
 	_objType = ObjectType;
 }
 
-void WinInfoXObj::open(int type) {
+void WinInfoXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		WinInfoXObject::initMethods(xlibMethods);
 		WinInfoXObject *xobj = new WinInfoXObject(kXObj);
 		g_lingo->exposeXObject(xlibName, xobj);
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
-void WinInfoXObj::close(int type) {
+void WinInfoXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		WinInfoXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
 void WinInfoXObj::m_new(int nargs) {
-	if (nargs != 0) {
-		warning("WinInfoXObj::m_new: expected 0 arguments");
-		g_lingo->dropStack(nargs);
-	}
+	g_lingo->printSTUBWithArglist("WinInfoXObj::m_new", nargs);
+	g_lingo->dropStack(nargs);
 	g_lingo->push(g_lingo->_state->me);
 }
 

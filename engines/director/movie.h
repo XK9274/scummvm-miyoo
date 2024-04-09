@@ -110,6 +110,9 @@ public:
 	CastMember *getCastMember(CastMemberID memberID);
 	CastMember *createOrReplaceCastMember(CastMemberID memberID, CastMember *cast);
 	bool eraseCastMember(CastMemberID memberID);
+	CastMemberID getCastMemberIDByMember(int memberID);
+	int getCastLibIDByName(const Common::String &name);
+	CastMemberID getCastMemberIDByName(const Common::String &name);
 	CastMemberID getCastMemberIDByNameAndType(const Common::String &name, int castLib, CastType type);
 	CastMemberInfo *getCastMemberInfo(CastMemberID memberID);
 	const Stxt *getStxt(CastMemberID memberID);
@@ -182,18 +185,20 @@ public:
 
 	bool _isBeepOn;
 
+	Common::String _script;
+
 private:
 	Window *_window;
 	DirectorEngine *_vm;
 	Lingo *_lingo;
 	Cast *_cast;
 	Common::HashMap<int, Cast *> _casts;
+	Common::HashMap<Common::String, int, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> _castNames;
 	Score *_score;
 
 	uint32 _flags;
 
 	Common::String _macName;
-	Common::String _script;
 
 	bool _mouseDownWasInButton;
 	Channel *_currentDraggedChannel;

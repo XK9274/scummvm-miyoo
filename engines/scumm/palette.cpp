@@ -25,7 +25,7 @@
 #include "common/util.h"
 
 #include "graphics/macega.h"
-#include "graphics/palette.h"
+#include "graphics/paletteman.h"
 
 #include "scumm/resource.h"
 #include "scumm/scumm.h"
@@ -33,7 +33,7 @@
 #include "scumm/scumm_v8.h"
 #include "scumm/util.h"
 #include "scumm/charset.h"
-#include "scumm/gfx_mac.h"
+#include "scumm/macgui/macgui.h"
 
 namespace Scumm {
 
@@ -243,7 +243,7 @@ void ScummEngine::resetPalette() {
 			else
 				setPaletteFromTable(tableEGAPalette, sizeof(tableEGAPalette) / 3);
 		}
-
+		setDirtyColors(0, 255);
 	} else {
 		if ((_game.platform == Common::kPlatformAmiga) && _game.version == 4) {
 			// if rendermode is set to EGA we use the full palette from the resources

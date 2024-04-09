@@ -154,6 +154,7 @@ struct Datum {	/* interpreter stack type */
 	Datum(const Common::String &val);
 	Datum(AbstractObject *val);
 	Datum(const CastMemberID &val);
+	Datum(const Common::Point &point);
 	Datum(const Common::Rect &rect);
 	void reset();
 
@@ -234,9 +235,12 @@ typedef Common::HashMap<Common::String, Symbol, Common::IgnoreCase_Hash, Common:
 typedef Common::HashMap<Common::String, Datum, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> DatumHash;
 typedef Common::HashMap<Common::String, Builtin *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> BuiltinHash;
 typedef Common::HashMap<Common::String, VarType, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> VarTypeHash;
-typedef void (*XLibFunc)(int);
-typedef Common::HashMap<Common::String, XLibFunc, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> XLibFuncHash;
+typedef void (*XLibOpenerFunc)(ObjectType, const Common::Path &);
+typedef void (*XLibCloserFunc)(ObjectType);
+typedef Common::HashMap<Common::String, XLibOpenerFunc, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> XLibOpenerFuncHash;
+typedef Common::HashMap<Common::String, XLibCloserFunc, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> XLibCloserFuncHash;
 typedef Common::HashMap<Common::String, ObjectType, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> OpenXLibsHash;
+typedef Common::HashMap<Common::String, AbstractObject *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> OpenXLibsStateHash;
 
 typedef Common::HashMap<Common::String, TheEntity *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> TheEntityHash;
 typedef Common::HashMap<Common::String, TheEntityField *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> TheEntityFieldHash;
@@ -291,10 +295,14 @@ struct LingoArchive {
 	Common::String formatFunctionList(const char *prefix);
 
 	void addCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName = nullptr, uint32 preprocFlags = kLPPNone);
+	void patchCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName = nullptr, uint32 preprocFlags = kLPPNone);
 	void removeCode(ScriptType type, uint16 id);
 	void replaceCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName = nullptr);
 	void addCodeV4(Common::SeekableReadStreamEndian &stream, uint16 lctxIndex, const Common::String &archName, uint16 version);
 	void addNamesV4(Common::SeekableReadStreamEndian &stream);
+
+	// lingo-patcher.cpp
+	void patchScriptHandler(ScriptType type, CastMemberID id);
 };
 
 struct LingoState {
@@ -356,7 +364,7 @@ public:
 	void cleanupXLibs();
 
 	Common::String normalizeXLibName(Common::String name);
-	void openXLib(Common::String name, ObjectType type);
+	void openXLib(Common::String name, ObjectType type, const Common::Path &path);
 	void closeXLib(Common::String name);
 	void closeOpenXLibs();
 	void reloadOpenXLibs();
@@ -484,10 +492,11 @@ public:
 	SymbolHash _builtinConsts;
 	SymbolHash _builtinListHandlers;
 	SymbolHash _methods;
-	XLibFuncHash _xlibOpeners;
-	XLibFuncHash _xlibClosers;
+	XLibOpenerFuncHash _xlibOpeners;
+	XLibCloserFuncHash _xlibClosers;
 
 	OpenXLibsHash _openXLibs;
+	OpenXLibsStateHash _openXLibsState;
 
 	Common::String _floatPrecisionFormat;
 

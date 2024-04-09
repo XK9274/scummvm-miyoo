@@ -69,9 +69,12 @@ protected:
 	};
 
 	struct ResponseStruct {
+		enum AddRule { kAddIfNotFound, kRemoveAndAddToEnd, kRemove };
+
 		ConversationFlags conditionFlags;
 		Common::String text;
 		Common::String soundName;
+		byte addRule = kAddIfNotFound;
 		SceneChangeDescription sceneChange;
 		FlagDescription flagDesc;
 
@@ -101,6 +104,11 @@ protected:
 	virtual void readCaptionText(Common::SeekableReadStream &stream);
 	virtual void readResponseText(Common::SeekableReadStream &stream, ResponseStruct &response);
 
+	// Used in subclasses
+	void readTerseData(Common::SeekableReadStream &stream);
+	void readTerseCaptionText(Common::SeekableReadStream &stream);
+	void readTerseResponseText(Common::SeekableReadStream &stream, ResponseStruct &response);
+
 	// Functions for handling the built-in dialogue responses found in the executable
 	void addConditionalDialogue();
 	void addGoodbye();
@@ -110,8 +118,8 @@ protected:
 	SoundDescription _sound;
 	SoundDescription _responseGenericSound;
 
-	byte _conditionalResponseCharacterID = 0;
-	byte _goodbyeResponseCharacterID = 0;
+	byte _conditionalResponseCharacterID;
+	byte _goodbyeResponseCharacterID;
 	byte _defaultNextScene = kDefaultNextSceneEnabled;
 	byte _popNextScene = kNoPopNextScene;
 	SceneChangeDescription _sceneChange;
@@ -120,8 +128,8 @@ protected:
 	Common::Array<FlagsStruct> _flagsStructs;
 	Common::Array<SceneBranchStruct> _sceneBranchStructs;
 
-	bool _hasDrawnTextbox = false;
-	int16 _pickedResponse = -1;
+	bool _hasDrawnTextbox;
+	int16 _pickedResponse;
 
 	const byte _noResponse;
 };
@@ -141,7 +149,7 @@ protected:
 	Common::String getRecordTypeName() const override;
 
 	Common::String _videoName;
-	Common::String _paletteName;
+	Common::Path _paletteName;
 	uint _videoFormat = kLargeVideoFormat;
 	uint16 _firstFrame = 0;
 	int16 _lastFrame = 0;
@@ -166,7 +174,7 @@ public:
 
 protected:
 	Common::String getRecordTypeName() const override { return "ConversationCel"; }
-	
+
 	struct Cel {
 		Graphics::ManagedSurface surf;
 		Common::Rect src;
@@ -184,9 +192,11 @@ protected:
 	static const byte kCelOverrideTreeRectsOn	= 2;
 
 	bool isVideoDonePlaying() override;
-	Cel &loadCel(const Common::String &name, const Common::String &treeName);
+	Cel &loadCel(const Common::Path &name, const Common::String &treeName);
 
-	Common::Array<Common::Array<Common::String>> _celNames;
+	void readXSheet(Common::SeekableReadStream &stream, const Common::String &xsheetName);
+
+	Common::Array<Common::Array<Common::Path>> _celNames;
 	Common::Array<Common::String> _treeNames;
 
 	uint16 _frameTime = 0;
@@ -205,24 +215,44 @@ protected:
 
 	Common::Array<RenderedCel> _celRObjects;
 
-	Common::HashMap<Common::String, Cel> _celCache;
+	Common::HashMap<Common::Path, Cel, Common::Path::IgnoreCase_Hash, Common::Path::IgnoreCase_EqualTo> _celCache;
 	Common::SharedPtr<ConversationCelLoader> _loaderPtr;
 };
 
+// A ConversationSound without embedded text; uses the CONVO chunk instead
 class ConversationSoundT : public ConversationSound {
 protected:
 	Common::String getRecordTypeName() const override { return "ConversationSoundT"; }
 
-	void readCaptionText(Common::SeekableReadStream &stream) override;
-	void readResponseText(Common::SeekableReadStream &stream, ResponseStruct &response) override;
+	void readCaptionText(Common::SeekableReadStream &stream) override { readTerseCaptionText(stream); }
+	void readResponseText(Common::SeekableReadStream &stream, ResponseStruct &response) override { readTerseResponseText(stream, response); }
 };
 
+// A ConversationCel without embedded text; uses the CONVO chunk instead
 class ConversationCelT : public ConversationCel {
 protected:
 	Common::String getRecordTypeName() const override { return "ConversationCelT"; }
 
-	void readCaptionText(Common::SeekableReadStream &stream) override;
-	void readResponseText(Common::SeekableReadStream &stream, ResponseStruct &response) override;
+	void readCaptionText(Common::SeekableReadStream &stream) override { readTerseCaptionText(stream); }
+	void readResponseText(Common::SeekableReadStream &stream, ResponseStruct &response) override { readTerseResponseText(stream, response); }
+};
+
+// A ConversationSound with a much smaller data footprint
+class ConversationSoundTerse : public ConversationSound {
+public:
+	void readData(Common::SeekableReadStream &stream) override;
+
+protected:
+	Common::String getRecordTypeName() const override { return "ConversationSoundTerse"; }
+};
+
+// A ConversationCel with a much smaller data footprint
+class ConversationCelTerse : public ConversationCel {
+public:
+	void readData(Common::SeekableReadStream &stream) override;
+
+protected:
+	Common::String getRecordTypeName() const override { return "ConversationCelTerse"; }
 };
 
 } // End of namespace Action

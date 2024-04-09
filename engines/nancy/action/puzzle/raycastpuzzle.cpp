@@ -898,10 +898,10 @@ bool RaycastDeferredLoader::loadInner() {
 	case kInitDrawSurface : {
 		auto *viewportData = GetEngineData(VIEW);
 		assert(viewportData);
-		
+
 		Common::Rect viewport = viewportData->bounds;
 		_owner.moveTo(viewport);
-		_owner._drawSurface.create(viewport.width(), viewport.height(), g_nancy->_graphicsManager->getInputPixelFormat());
+		_owner._drawSurface.create(viewport.width(), viewport.height(), g_nancy->_graphics->getInputPixelFormat());
 		_owner.setTransparent(true);
 
 		_loadState = kInitPlayerLocationRotation;
@@ -998,7 +998,7 @@ bool RaycastDeferredLoader::loadInner() {
 			if (_x >= _owner._mapFullWidth) {
 				_x = 0;
 			}
-			
+
 			for (; _x < _owner._mapFullWidth && !shouldBreak; ++_x) {
 				uint32 wallMapVal = _owner._wallMap[_y * _owner._mapFullHeight + _x];
 
@@ -1048,11 +1048,11 @@ bool RaycastDeferredLoader::loadInner() {
 		if (!shouldBreak) {
 			for (auto &a : _owner._specialWallTextures) {
 				for (auto &tex : a._value) {
-					tex.setTransparentColor(g_nancy->_graphicsManager->getTransColor());
+					tex.setTransparentColor(g_nancy->_graphics->getTransColor());
 				}
 			}
 
-			_owner.validateMap();			
+			_owner.validateMap();
 			_isDone = true;
 		}
 
@@ -1061,6 +1061,10 @@ bool RaycastDeferredLoader::loadInner() {
 	}
 
 	return _isDone;
+}
+
+RaycastPuzzle::~RaycastPuzzle() {
+	g_nancy->_input->setKeymapEnabled(Nancy::InputManager::_mazeKeymapID, false);
 }
 
 void RaycastPuzzle::init() {
@@ -1107,6 +1111,7 @@ void RaycastPuzzle::execute() {
 	switch (_state) {
 	case kBegin:
 		init();
+		g_nancy->_input->setKeymapEnabled(Nancy::InputManager::_mazeKeymapID, true);
 		break;
 	case kRun:
 		checkSwitch();
@@ -1126,6 +1131,11 @@ void RaycastPuzzle::execute() {
 	}
 }
 
+void RaycastPuzzle::onPause(bool pause) {
+	RenderActionRecord::onPause(pause);
+	g_nancy->_input->setKeymapEnabled(Nancy::InputManager::_mazeKeymapID, !pause);
+}
+
 void RaycastPuzzle::handleInput(NancyInput &input) {
 	if (_state != kRun) {
 		return;
@@ -1134,7 +1144,7 @@ void RaycastPuzzle::handleInput(NancyInput &input) {
 	if (input.input & NancyInput::kRaycastMap) {
 		_map.setVisible(!_map.isVisible());
 	}
-	
+
 	uint32 time = g_nancy->getTotalPlayTime();
 	uint32 deltaTime = time - _lastMovementTime;
 	_lastMovementTime = time;
@@ -1243,18 +1253,21 @@ void RaycastPuzzle::handleInput(NancyInput &input) {
 		int32 yCell = ((int32)newY) & 0x7F;
 
 		int collisionSize = 48;
+		int c = 0;
+
+#define ClampCell(x) (c = x, c >= 0 && c < (int)_wallMap.size() && xGrid > 0 && yGrid > 0 && xGrid < _mapFullWidth && yGrid < _mapFullHeight) ? _wallMap[c] : 1;
 
 		// Check neighboring cells
-		uint32 cellLeft = xGrid > 0 ? _wallMap[yGrid * _mapFullWidth + xGrid - 1] : 1;
-		uint32 cellTop = yGrid > 0 ? _wallMap[(yGrid - 1) * _mapFullWidth + xGrid] : 1;
-		uint32 cellRight = xGrid < _mapFullWidth ? _wallMap[yGrid * _mapFullWidth + xGrid + 1] : 1;
-		uint32 cellBottom = yGrid < _mapFullHeight ? _wallMap[(yGrid + 1) * _mapFullWidth + xGrid] : 1;
+		uint32 cellLeft 	= ClampCell(yGrid * _mapFullWidth + xGrid - 1);
+		uint32 cellTop 		= ClampCell((yGrid - 1) * _mapFullWidth + xGrid);
+		uint32 cellRight 	= ClampCell(yGrid * _mapFullWidth + xGrid + 1);
+		uint32 cellBottom 	= ClampCell((yGrid + 1) * _mapFullWidth + xGrid);
 
 		// Allow passage through doors
-		cellLeft = (cellLeft & kDoor) ? 0 : cellLeft;
-		cellTop = (cellTop & kDoor) ? 0 : cellTop;
-		cellRight = (cellRight & kDoor) ? 0 : cellRight;
-		cellBottom = (cellBottom & kDoor) ? 0 : cellBottom;
+		cellLeft	= (cellLeft & kDoor)	? 0 : cellLeft;
+		cellTop		= (cellTop & kDoor)		? 0 : cellTop;
+		cellRight	= (cellRight & kDoor)	? 0 : cellRight;
+		cellBottom	= (cellBottom & kDoor)	? 0 : cellBottom;
 
 		if (cellLeft && yCell < collisionSize) {
 			newY = (((int32)newY) & 0xFF80) + collisionSize;
@@ -1282,24 +1295,24 @@ void RaycastPuzzle::handleInput(NancyInput &input) {
 		cellRight = xGrid < _mapFullWidth ? _wallMap[yGrid * _mapFullWidth + xGrid + 1] : 1;
 		cellBottom = yGrid < _mapFullHeight ? _wallMap[(yGrid + 1) * _mapFullWidth + xGrid] : 1;
 
-		uint32 cellTopLeft = (xGrid > 0 && yGrid > 0) ? _wallMap[(yGrid - 1) * _mapFullWidth + xGrid - 1] : 1;
-		uint32 cellTopRight = (xGrid < _mapFullWidth && yGrid > 0) ? _wallMap[(yGrid - 1) * _mapFullWidth + xGrid + 1] : 1;
-		uint32 cellBottomLeft = (xGrid > 0 && yGrid < _mapFullHeight) ? _wallMap[(yGrid + 1) * _mapFullWidth + xGrid - 1] : 1;
-		uint32 cellBottomRight = (xGrid < _mapFullWidth && yGrid < _mapFullHeight) ? _wallMap[(yGrid + 1) * _mapFullWidth + xGrid + 1] : 1;
+		uint32 cellTopLeft 		= ClampCell((yGrid - 1) * _mapFullWidth + xGrid - 1);
+		uint32 cellTopRight 	= ClampCell((yGrid - 1) * _mapFullWidth + xGrid + 1);
+		uint32 cellBottomLeft 	= ClampCell((yGrid + 1) * _mapFullWidth + xGrid - 1);
+		uint32 cellBottomRight 	= ClampCell((yGrid + 1) * _mapFullWidth + xGrid + 1);
 
-		cellLeft = (cellLeft & kDoor) ? 0 : cellLeft;
-		cellTop = (cellTop & kDoor) ? 0 : cellTop;
-		cellRight = (cellRight & kDoor) ? 0 : cellRight;
-		cellBottom = (cellBottom & kDoor) ? 0 : cellBottom;
+		cellLeft 		= (cellLeft & kDoor) 		? 0 : cellLeft;
+		cellTop 		= (cellTop & kDoor) 		? 0 : cellTop;
+		cellRight 		= (cellRight & kDoor) 		? 0 : cellRight;
+		cellBottom 		= (cellBottom & kDoor) 		? 0 : cellBottom;
 
-		cellTopLeft = (cellTopLeft & kDoor) ? 0 : cellTopLeft;
-		cellTopRight = (cellTopRight & kDoor) ? 0 : cellTopRight;
-		cellBottomLeft = (cellBottomLeft & kDoor) ? 0 : cellBottomLeft;
-		cellBottomRight = (cellBottomRight & kDoor) ? 0 : cellBottomRight;
+		cellTopLeft 	= (cellTopLeft & kDoor) 	? 0 : cellTopLeft;
+		cellTopRight 	= (cellTopRight & kDoor) 	? 0 : cellTopRight;
+		cellBottomLeft 	= (cellBottomLeft & kDoor) 	? 0 : cellBottomLeft;
+		cellBottomRight	= (cellBottomRight & kDoor)	? 0 : cellBottomRight;
 
 		// Make sure the player doesn't clip diagonally into a wall
 		// Improvement: in the original engine the player just gets stuck when hitting a corner;
-		// instead, we move along smoothly 
+		// instead, we move along smoothly
 		if (cellTopLeft && !cellLeft && !cellTop && (yCell < collisionSize) && (xCell < collisionSize)) {
 			if (yCell > xCell) {
 				newX = (((int32)newX) & 0xFF80) + collisionSize;
@@ -1356,8 +1369,8 @@ void RaycastPuzzle::drawMap() {
 	auto *bootSummary = GetEngineData(BSUM);
 	assert(bootSummary);
 
-	_mapBaseSurface.create(_mapFullWidth, _mapFullHeight, g_nancy->_graphicsManager->getInputPixelFormat());
-	_map._drawSurface.create(_mapFullWidth, _mapFullHeight, g_nancy->_graphicsManager->getInputPixelFormat());
+	_mapBaseSurface.create(_mapFullWidth, _mapFullHeight, g_nancy->_graphics->getInputPixelFormat());
+	_map._drawSurface.create(_mapFullWidth, _mapFullHeight, g_nancy->_graphics->getInputPixelFormat());
 	Common::Rect mapPos(bootSummary->textboxScreenPosition);
 	mapPos.setWidth(_mapFullWidth * 2);
 	mapPos.setHeight(_mapFullHeight * 2);
@@ -1434,11 +1447,11 @@ void RaycastPuzzle::updateMap() {
 	}
 }
 
-void RaycastPuzzle::createTextureLightSourcing(Common::Array<Graphics::ManagedSurface> *array, const Common::String &textureName) {
-	Graphics::PixelFormat format = g_nancy->_graphicsManager->getInputPixelFormat();
+void RaycastPuzzle::createTextureLightSourcing(Common::Array<Graphics::ManagedSurface> *array, const Common::Path &textureName) {
+	Graphics::PixelFormat format = g_nancy->_graphics->getInputPixelFormat();
 	array->resize(8);
 
-	uint16 transColor = g_nancy->_graphicsManager->getTransColor();
+	uint16 transColor = g_nancy->_graphics->getTransColor();
 
 	g_nancy->_resource->loadImage(textureName, (*array)[0]);
 
@@ -1473,7 +1486,7 @@ void RaycastPuzzle::createTextureLightSourcing(Common::Array<Graphics::ManagedSu
 					((uint16 *)(*array)[i].getPixels())[offset] = format.RGBToColor(r, g, b);
 				}
 			}
-			
+
 		}
 	}
 }
@@ -1935,30 +1948,31 @@ void RaycastPuzzle::drawMaze() {
 		uint16 *ceilingDest = (uint16 *)_drawSurface.getBasePtr(viewBounds.left, ceilingY);
 
 		{
-			float floorSrcX, floorSrcY, ceilingSrcX, ceilingSrcY;
+			float floorViewAngle	= ((float)_fov / (float)(floorY - viewportCenterY))		* (float)_playerAltitude;
+			float ceilingViewAngle	= ((float)_fov / (float)(viewportCenterY - ceilingY))	* (float)((_wallHeight * 128) - _playerAltitude);
 
-			float floorViewAngle = ((float)_fov / (float)(floorY - viewportCenterY)) * (float)_playerAltitude;
-			float ceilingViewAngle = ((float)_fov / (float)(viewportCenterY - ceilingY)) * (float)((_wallHeight * 128) - _playerAltitude);
+			float floorLeftX    =	_cosTable[leftAngle]  *  (floorViewAngle   / _cosTable[_leftmostAngle])  + (float)_playerY;
+			float floorRightX   =	_cosTable[rightAngle] *  (floorViewAngle   / _cosTable[_rightmostAngle]) + (float)_playerY;
+			float floorLeftY    =	_sinTable[leftAngle]  * -(floorViewAngle   / _cosTable[_leftmostAngle])  + (float)_playerX;
+			float floorRightY   =	_sinTable[rightAngle] * -(floorViewAngle   / _cosTable[_rightmostAngle]) + (float)_playerX;
 
-			floorSrcX = _cosTable[leftAngle] * (floorViewAngle / _cosTable[_leftmostAngle]) + (float)_playerY;
-			floorSrcY = _sinTable[leftAngle] * -(floorViewAngle / _cosTable[_leftmostAngle]) + (float)_playerX;
-			ceilingSrcX = _cosTable[leftAngle] * (ceilingViewAngle / _cosTable[_leftmostAngle]) + (float)_playerY;
-			ceilingSrcY = _sinTable[leftAngle] * -(ceilingViewAngle / _cosTable[_leftmostAngle]) + (float)_playerX;
+			float ceilingLeftX  =	_cosTable[leftAngle]  *  (ceilingViewAngle / _cosTable[_leftmostAngle])  + (float)_playerY;
+			float ceilingRightX =	_cosTable[rightAngle] *  (ceilingViewAngle / _cosTable[_rightmostAngle]) + (float)_playerY;
+			float ceilingLeftY  =	_sinTable[leftAngle]  * -(ceilingViewAngle / _cosTable[_leftmostAngle])  + (float)_playerX;
+			float ceilingRightY =	_sinTable[rightAngle] * -(ceilingViewAngle / _cosTable[_rightmostAngle]) + (float)_playerX;
 
-			floorSrcFracX = (uint32)(floorSrcX * 65536.0);
-			floorSrcFracY = (uint32)(floorSrcY * 65536.0);
+			// Casting between negative float and uint is undefined behavior, hence the cast to signed int first
+			floorSrcFracX	= (uint32)((int32)(floorLeftX	* 65536.0));
+			floorSrcFracY	= (uint32)((int32)(floorLeftY	* 65536.0));
 
-			ceilingSrcFracX = (uint32)(ceilingSrcX * 65536.0);
-			ceilingSrcFracY = (uint32)(ceilingSrcY * 65536.0);
+			ceilingSrcFracX = (uint32)((int32)(ceilingLeftX * 65536.0));
+			ceilingSrcFracY = (uint32)((int32)(ceilingLeftY * 65536.0));
 
-			floorViewAngle /= _cosTable[_rightmostAngle];
-			ceilingViewAngle /= _cosTable[_rightmostAngle];
+			floorSrcIncrementX 		= (uint32)((int32)(((floorRightX	- floorLeftX)	/ (float)viewBounds.width()) * 65536.0));
+			floorSrcIncrementY 		= (uint32)((int32)(((floorRightY	- floorLeftY)	/ (float)viewBounds.width()) * 65536.0));
 
-			floorSrcIncrementX = (uint32)(((_cosTable[rightAngle] * floorViewAngle + (float)_playerY - floorSrcX) / (float)viewBounds.width()) * 65536.0);
-			floorSrcIncrementY = (uint32)(((_sinTable[rightAngle] * -(floorViewAngle) + (float)_playerX - floorSrcY) / (float)viewBounds.width()) * 65536.0);
-
-			ceilingSrcIncrementX = (uint32)(((_cosTable[rightAngle] * ceilingViewAngle + (float)_playerY - ceilingSrcX) / (float)viewBounds.width()) * 65536.0);
-			ceilingSrcIncrementY = (uint32)(((_sinTable[rightAngle] * -(ceilingViewAngle) + (float)_playerX - ceilingSrcY) / (float)viewBounds.width()) * 65536.0);
+			ceilingSrcIncrementX 	= (uint32)((int32)(((ceilingRightX	- ceilingLeftX) / (float)viewBounds.width()) * 65536.0));
+			ceilingSrcIncrementY 	= (uint32)((int32)(((ceilingRightY	- ceilingLeftY) / (float)viewBounds.width()) * 65536.0));
 		}
 
 		for (int x = viewBounds.left; x < viewBounds.right; ++x) {

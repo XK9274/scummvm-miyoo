@@ -46,7 +46,6 @@
 #include "scumm/dialogs.h"
 #include "scumm/file.h"
 #include "scumm/file_nes.h"
-#include "scumm/gfx_mac.h"
 #include "scumm/imuse/imuse.h"
 #include "scumm/imuse_digi/dimuse_engine.h"
 #include "scumm/smush/smush_player.h"
@@ -57,19 +56,19 @@
 #include "scumm/he/logic_he.h"
 #include "scumm/he/sound_he.h"
 #include "scumm/object.h"
+#include "scumm/macgui/macgui.h"
 #include "scumm/players/player_ad.h"
 #include "scumm/players/player_nes.h"
 #include "scumm/players/player_sid.h"
 #include "scumm/players/player_pce.h"
 #include "scumm/players/player_apple2.h"
+#include "scumm/players/player_mac_new.h"
 #include "scumm/players/player_v1.h"
 #include "scumm/players/player_v2.h"
 #include "scumm/players/player_v2cms.h"
 #include "scumm/players/player_v2a.h"
 #include "scumm/players/player_v3a.h"
-#include "scumm/players/player_v3m.h"
 #include "scumm/players/player_v4a.h"
-#include "scumm/players/player_v5m.h"
 #include "scumm/players/player_he.h"
 #include "scumm/resource.h"
 #include "scumm/he/resource_he.h"
@@ -340,6 +339,9 @@ ScummEngine::ScummEngine(OSystem *syst, const DetectorResult &dr)
 		break;
 	}
 
+	// Steam Win and Mac versions share the same DOS data files.
+	bool isSteamVersion = Common::String(_game.preferredTag).equalsIgnoreCase("steam");
+
 	if (_game.platform == Common::kPlatformFMTowns && _game.version == 3) {	// FM-TOWNS V3 games originally use 320x240, and we have an option to trim to 200
 		_screenWidth = 320;
 		if (ConfMan.getBool("trim_fmtowns_to_200_pixels"))
@@ -354,7 +356,7 @@ ScummEngine::ScummEngine(OSystem *syst, const DetectorResult &dr)
 	} else if (_game.platform == Common::kPlatformNES) {
 		_screenWidth = 256;
 		_screenHeight = 240;
-	} else if (_useMacScreenCorrectHeight && _game.platform == Common::kPlatformMacintosh && _game.version == 3) {
+	} else if (!isSteamVersion && _useMacScreenCorrectHeight && _game.platform == Common::kPlatformMacintosh && _game.version == 3) {
 		_screenWidth = 320;
 		_screenHeight = 240;
 		_screenDrawOffset = 20;
@@ -436,7 +438,6 @@ ScummEngine::~ScummEngine() {
 	for (int i = 0; i < 20; i++)
 		if (_2byteMultiFontPtr[i])
 			delete _2byteMultiFontPtr[i];
-	delete _macFontManager;
 	delete _charset;
 	delete _messageDialog;
 	delete _pauseDialog;
@@ -908,7 +909,7 @@ ScummEngine_v8::~ScummEngine_v8() {
 
 Common::Error ScummEngine::init() {
 
-	const Common::FSNode gameDataDir(ConfMan.get("path"));
+	const Common::FSNode gameDataDir(ConfMan.getPath("path"));
 
 	for (uint i = 0; ruScummPatcherTable[i].patcherName; i++) {
 		if (ruScummPatcherTable[i].gameid == _game.id && (_game.variant == nullptr || strcmp(_game.variant, ruScummPatcherTable[i].variant) == 0)) {
@@ -957,7 +958,7 @@ Common::Error ScummEngine::init() {
 
 #ifdef ENABLE_SCUMM_7_8
 #ifdef MACOSX
-	if (_game.version == 8 && !memcmp(gameDataDir.getPath().c_str(), "/Volumes/MONKEY3_", 17)) {
+	if (_game.version == 8 && !memcmp(gameDataDir.getPath().toString('/').c_str(), "/Volumes/MONKEY3_", 17)) {
 		// Special case for COMI on macOS. The mount points on macOS depend
 		// on the volume name. Hence if playing from CD, we'd get a problem.
 		// So if loading of a resource file fails, we fall back to the (fixed)
@@ -1104,7 +1105,7 @@ Common::Error ScummEngine::init() {
 			// Test which file name to use
 			_filenamePattern.genMethod = kGenDiskNum;
 			if (!_fileHandle->open(_containerFile))
-				error("Couldn't open container file '%s'", _containerFile.c_str());
+				error("Couldn't open container file '%s'", _containerFile.toString(Common::Path::kNativeSeparator).c_str());
 
 			if ((_filenamePattern.pattern = p1) && _fileHandle->openSubFile(generateFilename(0))) {
 				// Found regular version
@@ -1112,7 +1113,7 @@ Common::Error ScummEngine::init() {
 				// Found demo
 				_game.features |= GF_DEMO;
 			} else
-				error("Couldn't find known subfile inside container file '%s'", _containerFile.c_str());
+				error("Couldn't find known subfile inside container file '%s'", _containerFile.toString(Common::Path::kNativeSeparator).c_str());
 
 			_fileHandle->close();
 		} else {
@@ -1143,7 +1144,7 @@ Common::Error ScummEngine::init() {
 	// Load it earlier so _useCJKMode variable could be set
 	loadCJKFont();
 
-	Common::String macResourceFile;
+	Common::Path macResourceFile;
 
 	if (_game.platform == Common::kPlatformMacintosh) {
 		Common::MacResManager resource;
@@ -1169,7 +1170,7 @@ Common::Error ScummEngine::init() {
 					_macScreen = new Graphics::Surface();
 					_macScreen->create(640, _useMacScreenCorrectHeight ? 480 : 400, Graphics::PixelFormat::createFormatCLUT8());
 
-					_macGui = new MacIndy3Gui(this, macResourceFile);
+					_macGui = new MacGui(this, macResourceFile);
 					break;
 				}
 			}
@@ -1194,7 +1195,7 @@ Common::Error ScummEngine::init() {
 					_textSurfaceMultiplier = 2;
 					_macScreen = new Graphics::Surface();
 					_macScreen->create(640, _useMacScreenCorrectHeight ? 480 : 400, Graphics::PixelFormat::createFormatCLUT8());
-					_macGui = new MacLoomGui(this, macResourceFile);
+					_macGui = new MacGui(this, macResourceFile);
 					break;
 				}
 			}
@@ -1225,6 +1226,16 @@ Common::Error ScummEngine::init() {
 "instruments from. Music will be disabled."), _("OK"));
 				dialog.runModal();
 			}
+		}
+
+		if (!macResourceFile.empty()) {
+			if (!resource.open(macResourceFile))
+				return Common::Error(Common::kReadingFailed, Common::U32String::format(_("Could not open Macintosh resource file %s"), macResourceFile.toString().c_str()));
+
+			if (!resource.hasResFork())
+				return Common::Error(Common::kReadingFailed, Common::U32String::format(_("Could not find resource fork in Macintosh resource file %s"), macResourceFile.toString().c_str()));
+
+			resource.close();
 		}
 
 		if (!_macScreen && _renderMode == Common::kRenderMacintoshBW)
@@ -1340,7 +1351,7 @@ Common::Error ScummEngine::init() {
 	return Common::kNoError;
 }
 
-void ScummEngine::setupScumm(const Common::String &macResourceFile) {
+void ScummEngine::setupScumm(const Common::Path &macResourceFile) {
 	// TODO: This may be the wrong place for it
 	// Enhancements used to be all or nothing, but now there are different
 	// types of them.
@@ -1352,8 +1363,8 @@ void ScummEngine::setupScumm(const Common::String &macResourceFile) {
 		ConfMan.flushToDisk();
 	}
 
-	Common::String macInstrumentFile;
-	Common::String macFontFile;
+	Common::Path macInstrumentFile;
+	Common::Path macFontFile;
 
 	if (_game.platform == Common::kPlatformMacintosh) {
 		if (_game.id == GID_INDY3) {
@@ -1426,7 +1437,7 @@ void ScummEngine::setupScumm(const Common::String &macResourceFile) {
 		_sound = new Sound(this, _mixer, useReplacementAudioTracks);
 
 	// Setup the music engine
-	setupMusic(_game.midi, macInstrumentFile);
+	setupMusic(_game.midi);
 
 	// Load localization data, if present
 	loadLanguageBundle();
@@ -1531,7 +1542,7 @@ void ScummEngine::setupScumm(const Common::String &macResourceFile) {
 }
 
 #ifdef ENABLE_SCUMM_7_8
-void ScummEngine_v7::setupScumm(const Common::String &macResourceFile) {
+void ScummEngine_v7::setupScumm(const Common::Path &macResourceFile) {
 
 	// The object line toggle is always synchronized from the main game to
 	// our internal Game Options; at startup we do the opposite, since an user
@@ -1607,7 +1618,7 @@ void ScummEngine_v7::setupScumm(const Common::String &macResourceFile) {
 }
 #endif
 
-void ScummEngine::setupCharsetRenderer(const Common::String &macFontFile) {
+void ScummEngine::setupCharsetRenderer(const Common::Path &macFontFile) {
 	if (_game.version <= 2) {
 		if (_game.platform == Common::kPlatformNES)
 			_charset = new CharsetRendererNES(this);
@@ -1622,7 +1633,6 @@ void ScummEngine::setupCharsetRenderer(const Common::String &macFontFile) {
 		if (_game.platform == Common::kPlatformFMTowns)
 			_charset = new CharsetRendererTownsV3(this);
 		else if (_game.platform == Common::kPlatformMacintosh && !macFontFile.empty()) {
-			_macFontManager = new Graphics::MacFontManager(0, Common::Language::UNK_LANG);
 			_charset = new CharsetRendererMac(this, macFontFile);
 		} else
 			_charset = new CharsetRendererV3(this);
@@ -2001,7 +2011,7 @@ void ScummEngine_v100he::resetScumm() {
 }
 #endif
 
-void ScummEngine::setupMusic(int midi, const Common::String &macInstrumentFile) {
+void ScummEngine::setupMusic(int midi) {
 	MidiDriver::DeviceHandle dev = MidiDriver::detectDevice(midi);
 	_native_mt32 = ((MidiDriver::getMusicType(dev) == MT_MT32) || ConfMan.getBool("native_mt32"));
 
@@ -2040,21 +2050,23 @@ void ScummEngine::setupMusic(int midi, const Common::String &macInstrumentFile) 
 
 	if ((_game.id == GID_MONKEY_EGA || (_game.id == GID_LOOM && _game.version == 3))
 	   &&  (_game.platform == Common::kPlatformDOS) && _sound->_musicType == MDT_MIDI) {
-		Common::String fileName;
+		Common::Path fileName;
 		bool missingFile = false;
 		if (_game.id == GID_LOOM && !(_game.features & GF_DEMO)) {
 			Common::File f;
+			char buf[2] = { 0 };
 			for (char c = '2'; c <= '5'; c++) {
 				fileName = "8";
-				fileName += c;
-				fileName += ".LFL";
+				buf[0] = c;
+				fileName.appendInPlace(buf);
+				fileName.appendInPlace(".LFL");
 				if (!Common::File::exists(fileName)) {
 					missingFile = true;
 					break;
 				}
 			}
 		} else if (_game.id == GID_MONKEY_EGA) {
-			fileName = "DISK09.LEC";
+			fileName.set("DISK09.LEC");
 			if (!Common::File::exists(fileName)) {
 				missingFile = true;
 			}
@@ -2064,7 +2076,7 @@ void ScummEngine::setupMusic(int midi, const Common::String &macInstrumentFile) 
 			GUI::MessageDialog dialog(
 				Common::U32String::format(
 					_("Native MIDI support requires the Roland Upgrade from LucasArts,\n"
-					"but %s is missing. Using AdLib instead."), fileName.c_str()),
+					"but %s is missing. Using AdLib instead."), fileName.toString(Common::Path::kNativeSeparator).c_str()),
 				_("OK"));
 			dialog.runModal();
 			_sound->_musicType = MDT_ADLIB;
@@ -2152,12 +2164,13 @@ void ScummEngine::setupMusic(int midi, const Common::String &macInstrumentFile) 
 #endif
 	} else if (_game.platform == Common::kPlatformAmiga && _game.version <= 4) {
 		_musicEngine = new Player_V4A(this, _mixer);
-	} else if (_game.platform == Common::kPlatformMacintosh && _game.id == GID_LOOM) {
-		_musicEngine = new Player_V3M(this, _mixer, ConfMan.getBool("mac_v3_low_quality_music"));
-		((Player_V3M *)_musicEngine)->init(macInstrumentFile);
-	} else if (_game.platform == Common::kPlatformMacintosh && _game.id == GID_MONKEY) {
-		_musicEngine = new Player_V5M(this, _mixer);
-		((Player_V5M *)_musicEngine)->init(macInstrumentFile);
+	} else if (_game.platform == Common::kPlatformMacintosh && (_game.id == GID_INDY3 || _game.id == GID_LOOM || _game.id == GID_MONKEY)) {
+		_musicEngine = MacSound::createPlayer(this);
+		if (ConfMan.hasKey("mac_v3_low_quality_music") && ConfMan.getBool("mac_v3_low_quality_music"))
+			_musicEngine->setQuality(MacSound::kQualityLowest);
+		else if (ConfMan.hasKey("mac_snd_quality"))
+			_musicEngine->setQuality(ConfMan.getInt("mac_snd_quality"));
+		_sound->_musicType = MDT_MACINTOSH;
 	} else if (_game.id == GID_MANIAC && _game.version == 1) {
 		_musicEngine = new Player_V1(this, _mixer, MidiDriver::getMusicType(dev) != MT_PCSPK);
 	} else if (_game.version <= 2) {
@@ -2225,13 +2238,7 @@ void ScummEngine::setupMusic(int midi, const Common::String &macInstrumentFile) 
 			}
 		}
 
-		uint32 imsFlags =  newSystem ? IMuse::kFlagNewSystem : 0;
-		if (_native_mt32)
-			imsFlags |= IMuse::kFlagNativeMT32;
-		if (enable_gs)
-			imsFlags |= IMuse::kFlagRolandGS;
-
-		_imuse = IMuse::create(this, nativeMidiDriver, adlibMidiDriver, isMacM68kIMuse() ? MDT_MACINTOSH : _sound->_musicType, imsFlags);
+		_imuse = IMuse::create(this, nativeMidiDriver, adlibMidiDriver, isMacM68kIMuse() ? MDT_MACINTOSH : _sound->_musicType, _native_mt32);
 
 		if (_game.platform == Common::kPlatformFMTowns) {
 			_musicEngine = _townsPlayer = new Player_Towns_v2(this, _mixer, _imuse, true);
@@ -2321,10 +2328,7 @@ void ScummEngine::syncSoundSettings() {
 
 	if (_musicEngine) {
 		_musicEngine->setMusicVolume(soundVolumeMusic);
-	}
-
-	if (_townsPlayer) {
-		_townsPlayer->setSfxVolume(soundVolumeSfx);
+		_musicEngine->setSfxVolume(soundVolumeSfx);
 	}
 
 	if (ConfMan.getBool("speech_mute"))
@@ -2474,7 +2478,7 @@ Common::Error ScummEngine::go() {
 	return Common::kNoError;
 }
 
-void ScummEngine::waitForTimer(int quarterFrames) {
+void ScummEngine::waitForTimer(int quarterFrames, bool freezeMacGui) {
 	uint32 endTime, cur;
 	uint32 msecDelay = getIntegralTime(quarterFrames * (1000 / _timerFrequency));
 
@@ -2499,7 +2503,7 @@ void ScummEngine::waitForTimer(int quarterFrames) {
 		towns_updateGfx();
 #endif
 
-		if (_macGui)
+		if (_macGui && !freezeMacGui)
 			_macGui->updateWindowManager();
 
 		_system->updateScreen();
@@ -3199,7 +3203,7 @@ void ScummEngine_v3::scummLoop_handleSaveLoad() {
 	if (_completeScreenRedraw) {
 		clearCharsetMask();
 		_charset->_hasMask = false;
-		bool restoreFMTownsSounds = (_townsPlayer != nullptr);
+		bool restoreSounds = true;
 
 		if (_game.id == GID_LOOM) {
 			if (_currentRoom == 70) {
@@ -3266,7 +3270,7 @@ void ScummEngine_v3::scummLoop_handleSaveLoad() {
 						runScript(38, false, false, args);
 					}
 
-					restoreFMTownsSounds = false;
+					restoreSounds = false;
 
 				} else if (VAR(saveLoadVar) == 2) {
 					// This is our old hack. If verbs should be shown restore them.
@@ -3329,7 +3333,7 @@ void ScummEngine_v3::scummLoop_handleSaveLoad() {
 					beginCutscene(args);
 					startScene(saveLoadRoom, nullptr, 0);
 					endCutscene();
-					restoreFMTownsSounds = false;
+					restoreSounds = false;
 				}
 			}
 
@@ -3340,8 +3344,8 @@ void ScummEngine_v3::scummLoop_handleSaveLoad() {
 			redrawVerbs();
 		}
 
-		if (restoreFMTownsSounds)
-			_townsPlayer->restoreAfterLoad();
+		if (restoreSounds)
+			_musicEngine->restoreAfterLoad();
 	}
 }
 
@@ -3393,8 +3397,7 @@ void ScummEngine_v5::scummLoop_handleSaveLoad() {
 		clearCharsetMask();
 		_charset->_hasMask = false;
 
-		if (_townsPlayer)
-			_townsPlayer->restoreAfterLoad();
+		_musicEngine->restoreAfterLoad();
 
 		redrawVerbs();
 
@@ -3740,7 +3743,7 @@ void ScummEngine_v90he::runBootscript() {
 #endif
 
 bool ScummEngine::startManiac() {
-	Common::String currentPath = ConfMan.get("path");
+	Common::Path currentPath = ConfMan.getPath("path");
 	Common::String maniacTarget;
 
 	if (!ConfMan.hasKey("easter_egg")) {
@@ -3749,15 +3752,11 @@ bool ScummEngine::startManiac() {
 		Common::ConfigManager::DomainMap::iterator iter = ConfMan.beginGameDomains();
 		for (; iter != ConfMan.endGameDomains(); ++iter) {
 			Common::ConfigManager::Domain &dom = iter->_value;
-			Common::String path = dom.getVal("path");
+			Common::Path path = Common::Path::fromConfig(dom.getVal("path"));
 
-			if (path.hasPrefix(currentPath)) {
-				path.erase(0, currentPath.size());
-				// Do a case-insensitive non-path-mode match of the remainder.
-				// While strictly speaking it's too broad, this matchString
-				// ignores the presence or absence of trailing path separators
-				// in either currentPath or path.
-				if (path.matchString("*maniac*", true, nullptr)) {
+			if (path.isRelativeTo(currentPath)) {
+				path = path.relativeTo(currentPath);
+				if (path.baseName().equalsIgnoreCase("maniac")) {
 					maniacTarget = iter->_key;
 					break;
 				}
@@ -3775,7 +3774,7 @@ bool ScummEngine::startManiac() {
 
 		// Set up the chanined games to Maniac Mansion, and then back
 		// to the current game again with that save slot.
-		ChainedGamesMan.push(maniacTarget);
+		ChainedGamesMan.push(Common::move(maniacTarget));
 		ChainedGamesMan.push(ConfMan.getActiveDomainName(), 100);
 
 		// Force a return to the launcher. This will start the first

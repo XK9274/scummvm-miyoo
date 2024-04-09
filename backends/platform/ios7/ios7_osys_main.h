@@ -142,7 +142,7 @@ public:
 	void startSoundsystem();
 	void stopSoundsystem();
 
-	Common::String getDefaultConfigFileName() override;
+	Common::Path getDefaultConfigFileName() override;
 
 	void logMessage(LogMessageType::Type type, const char *message) override;
 	void fatalError() override;
@@ -157,8 +157,9 @@ public:
 
 	bool isConnectionLimited() override;
 	void virtualController(bool connect);
+	bool isiOSAppOnMac() const;
 
-	virtual Common::String getDefaultLogFileName() override { return Common::String("/scummvm.log"); }
+	virtual Common::Path getDefaultLogFileName() override { return Common::Path("/scummvm.log"); }
 
 	virtual GUI::OptionsContainerWidget* buildBackendOptionsWidget(GUI::GuiObject *boss, const Common::String &name, const Common::String &target) const override;
 	virtual void applyBackendSettings() override;
@@ -180,7 +181,7 @@ protected:
 	bool handleEvent_swipe(Common::Event &event, int direction, int touches);
 	bool handleEvent_tap(Common::Event &event, UIViewTapDescription type, int touches);
 	bool handleEvent_longPress(Common::Event &event, UIViewLongPressDescription type, int touches);
-	void handleEvent_keyPressed(Common::Event &event, int keyPressed);
+	void handleEvent_keyPressed(Common::Event &event, int keyPressed, int modifierFlags);
 	void handleEvent_orientationChanged(int orientation);
 	void handleEvent_touchModeChanged();
 	void handleEvent_applicationSuspended();

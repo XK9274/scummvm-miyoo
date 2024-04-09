@@ -177,6 +177,7 @@ void Movie::loadCastLibMapping(Common::SeekableReadStreamEndian &stream) {
 			cast = new Cast(this, libId, false, isExternal);
 			_casts.setVal(libId, cast);
 		}
+		_castNames[name] = libId;
 		cast->setArchive(castArchive);
 	}
 	return;
@@ -373,7 +374,7 @@ void Movie::loadSharedCastsFrom(Common::Path &filename) {
 
 		return;
 	}
-	sharedCast->setPathName(filename.toString(g_director->_dirSeparator));
+	sharedCast->setPathName(filename);
 
 	debug(0, "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 	debug(0, "@@@@   Loading shared cast '%s'", sharedCast->getFileName().c_str());
@@ -434,6 +435,40 @@ bool Movie::eraseCastMember(CastMemberID memberID) {
 	}
 
 	return false;
+}
+
+CastMemberID Movie::getCastMemberIDByMember(int memberID) {
+	CastMemberID result(-1, 0);
+	// Search all cast libraries for a match
+	for (auto &cast : _casts) {
+		CastMember *member = cast._value->getCastMember(memberID);
+		if (member) {
+			result = CastMemberID(member->getID(), cast._key);
+			break;
+		}
+	}
+	if (result.member == -1 && _sharedCast) {
+		CastMember *member = _sharedCast->getCastMember(memberID);
+		if (member)
+			result = CastMemberID(member->getID(), DEFAULT_CAST_LIB);
+	}
+	if (result.member == -1) {
+		warning("Movie::getCastMemberIDByMemberID: No match found for member ID %d", memberID);
+	}
+	return result;
+}
+
+int Movie::getCastLibIDByName(const Common::String &name) {
+	for (auto &it : _castNames) {
+		if (it._key.equalsIgnoreCase(name)) {
+			return it._value;
+		}
+	}
+	return -1;
+}
+
+CastMemberID Movie::getCastMemberIDByName(const Common::String &name) {
+	return getCastMemberIDByNameAndType(name, 0, kCastTypeAny);
 }
 
 CastMemberID Movie::getCastMemberIDByNameAndType(const Common::String &name, int castLib, CastType type) {

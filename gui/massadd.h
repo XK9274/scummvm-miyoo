@@ -51,12 +51,15 @@ private:
 	Common::Stack<Common::FSNode>  _scanStack;
 	DetectedGames _games;
 
+	void updateGameList();
+
 	/**
 	 * Map each path occuring in the config file to the target(s) using that path.
 	 * Used to detect whether a potential new target is already present in the
 	 * config manager.
 	 */
-	Common::HashMap<Common::String, Common::StringArray>	_pathToTargets;
+	Common::HashMap<Common::Path, Common::StringArray,
+		Common::Path::IgnoreCase_Hash, Common::Path::IgnoreCase_EqualTo> _pathToTargets;
 
 	int _dirsScanned;
 	int _oldGamesCount;

@@ -344,14 +344,15 @@ void GridItemTray::handleMouseMoved(int x, int y, int button) {
 // Load an image file by String name, provide additional render dimensions for SVG images.
 // TODO: Add BMP support, and add scaling of non-vector images.
 Graphics::ManagedSurface *loadSurfaceFromFile(const Common::String &name, int renderWidth = 0, int renderHeight = 0) {
+	Common::Path path(name);
 	Graphics::ManagedSurface *surf = nullptr;
 	if (name.hasSuffix(".png")) {
 #ifdef USE_PNG
 		const Graphics::Surface *srcSurface = nullptr;
 		Image::PNGDecoder decoder;
 		g_gui.lockIconsSet();
-		if (g_gui.getIconsSet().hasFile(name)) {
-			Common::SeekableReadStream *stream = g_gui.getIconsSet().createReadStreamForMember(name);
+		if (g_gui.getIconsSet().hasFile(path)) {
+			Common::SeekableReadStream *stream = g_gui.getIconsSet().createReadStreamForMember(path);
 			if (!decoder.loadStream(*stream)) {
 				g_gui.unlockIconsSet();
 				warning("Error decoding PNG");
@@ -374,8 +375,8 @@ Graphics::ManagedSurface *loadSurfaceFromFile(const Common::String &name, int re
 #endif
 	} else if (name.hasSuffix(".svg")) {
 		g_gui.lockIconsSet();
-		if (g_gui.getIconsSet().hasFile(name)) {
-			Common::SeekableReadStream *stream = g_gui.getIconsSet().createReadStreamForMember(name);
+		if (g_gui.getIconsSet().hasFile(path)) {
+			Common::SeekableReadStream *stream = g_gui.getIconsSet().createReadStreamForMember(path);
 			surf = new Graphics::SVGBitmap(stream, renderWidth, renderHeight);
 			delete stream;
 		} else {
@@ -859,6 +860,42 @@ void GridWidget::assignEntriesToItems() {
 	}
 }
 
+int GridWidget::getNextPos(int oldSel) {
+	int pos = 0;
+
+	// Find the next item in the grid
+	for (uint i = 0; i < _sortedEntryList.size(); i++) {
+		if (_sortedEntryList[i]->entryID == oldSel) {
+			return pos;
+		} else if (!_sortedEntryList[i]->isHeader) {
+			pos++;
+		}
+	}
+
+	return -1;
+}
+
+int GridWidget::getNewSel(int index) {
+	if (_sortedEntryList.size() == 0) {
+		return -1;
+	}
+
+	// Find the index-th item in the grid
+	for (uint i = 0; i < _sortedEntryList.size(); i++) {
+		if (index == 0 && _sortedEntryList[i]->isHeader == 0) {
+			return _sortedEntryList[i]->entryID;
+		} else if (_sortedEntryList[i]->isHeader == 0) {
+			index--;
+		}
+	}
+
+	if (index == 0) {
+		return _sortedEntryList[_sortedEntryList.size() - 1]->entryID;
+	} else {
+		return -1;
+	}
+}
+
 void GridWidget::handleMouseWheel(int x, int y, int direction) {
 	_scrollBar->handleMouseWheel(x, y, direction);
 	_scrollPos = _scrollBar->_currentPos;
@@ -911,8 +948,8 @@ void GridWidget::calcInnerHeight() {
 				}
 			}
 			x = _scrollWindowPaddingX;
-			_sortedEntryList[k]->x = x;;
-			_sortedEntryList[k]->y = y;;
+			_sortedEntryList[k]->x = x;
+			_sortedEntryList[k]->y = y;
 			x = _scrollWindowPaddingX + _gridXSpacing;
 			++row;
 			y += _sortedEntryList[k]->h + _gridYSpacing;

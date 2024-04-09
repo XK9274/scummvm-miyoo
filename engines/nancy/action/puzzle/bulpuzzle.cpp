@@ -37,8 +37,8 @@ namespace Action {
 
 void BulPuzzle::init() {
 	Common::Rect screenBounds = NancySceneState.getViewport().getBounds();
-	_drawSurface.create(screenBounds.width(), screenBounds.height(), g_nancy->_graphicsManager->getInputPixelFormat());
-	_drawSurface.clear(g_nancy->_graphicsManager->getTransColor());
+	_drawSurface.create(screenBounds.width(), screenBounds.height(), g_nancy->_graphics->getInputPixelFormat());
+	_drawSurface.clear(g_nancy->_graphics->getTransColor());
 	setTransparent(true);
 	setVisible(true);
 	moveTo(screenBounds);
@@ -89,7 +89,7 @@ void BulPuzzle::updateGraphics() {
 		} else {
 			_drawSurface.fillRect(_passButtonDest, _drawSurface.getTransparentColor());
 		}
-		
+
 		_changeLight = false;
 		_needsRedraw = true;
 	}
@@ -157,9 +157,9 @@ void BulPuzzle::updateGraphics() {
 			_needsRedraw = true;
 		}
 
-		if (g_nancy->_sound->isSoundPlaying(_rollSound)  ||
-			g_nancy->_sound->isSoundPlaying(_resetSound) ||
-			g_nancy->_sound->isSoundPlaying(_passSound)) {
+		if (g_nancy->_sound->isSoundPlaying(_rollSound) ||
+			g_nancy->_sound->isSoundPlaying(_passSound) ||
+			g_nancy->_sound->isSoundPlaying(_resetSound)) {
 				return;
 		}
 
@@ -218,9 +218,9 @@ void BulPuzzle::readData(Common::SeekableReadStream &stream) {
 
 	readRectArray(stream, _diceDestsPlayer, 4);
 	readRectArray(stream, _diceDestsEnemy, 4);
-	
+
 	readRectArray(stream, _cellDests, _numCells, 15);
-	
+
 	readRectArray(stream, _playerBarracksDests, 6);
 	readRectArray(stream, _playerJailDests, 6);
 	readRectArray(stream, _enemyBarracksDests, 6);
@@ -301,7 +301,7 @@ void BulPuzzle::execute() {
 		if (_state == kRun) {
 			break;
 		}
-		
+
 		// fall through
 	case kActionTrigger:
 		SoundDescription &sound = _playerWon ? _solveSound : _loseSound;
@@ -311,7 +311,6 @@ void BulPuzzle::execute() {
 			g_nancy->_sound->loadSound(sound);
 			g_nancy->_sound->playSound(sound);
 		}
-
 
 		if (_nextMoveTime == 0 && !g_nancy->_sound->isSoundPlaying(sound)) {
 			if (_playerWon) {
@@ -327,7 +326,7 @@ void BulPuzzle::execute() {
 
 void BulPuzzle::handleInput(NancyInput &input) {
 	if (NancySceneState.getViewport().convertViewportToScreen(_exitHotspot).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(g_nancy->_cursorManager->_puzzleExitCursor);
+		g_nancy->_cursor->setCursorType(g_nancy->_cursor->_puzzleExitCursor);
 
 		if (input.input & NancyInput::kLeftMouseButtonUp) {
 			_state = kActionTrigger;
@@ -344,7 +343,7 @@ void BulPuzzle::handleInput(NancyInput &input) {
 	bool canClick = _currentAction == kNone && !g_nancy->_sound->isSoundPlaying(_moveSound);
 
 	if (NancySceneState.getViewport().convertViewportToScreen(_rollButtonDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+		g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 		if (canClick && input.input & NancyInput::kLeftMouseButtonUp) {
 			_drawSurface.blitFrom(_image, _rollButtonSrc, _rollButtonDest);
@@ -359,7 +358,7 @@ void BulPuzzle::handleInput(NancyInput &input) {
 	}
 
 	if ((_turn % _numRolls) && NancySceneState.getViewport().convertViewportToScreen(_passButtonDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+		g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 		if (canClick && input.input & NancyInput::kLeftMouseButtonUp) {
 			_drawSurface.blitFrom(_image, _passButtonSrc, _passButtonDest);
@@ -374,7 +373,7 @@ void BulPuzzle::handleInput(NancyInput &input) {
 	}
 
 	if (NancySceneState.getViewport().convertViewportToScreen(_resetButtonDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+		g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 		if (canClick && input.input & NancyInput::kLeftMouseButtonUp) {
 			_drawSurface.blitFrom(_image, _resetButtonSrc, _resetButtonDest);
@@ -450,7 +449,7 @@ void BulPuzzle::reset(bool capture) {
 			_drawSurface.blitFrom(_image, _enemyJailSrc, _playerJailDests[i - _enemyPieces + 1]);
 		}
 	}
-	
+
 	// Draw disabled pass button
 	_drawSurface.blitFrom(_image, _passButtonDisabledSrc, _passButtonDest);
 

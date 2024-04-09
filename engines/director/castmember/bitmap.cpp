@@ -19,12 +19,14 @@
  *
  */
 
+#include "common/config-manager.h"
 #include "common/macresman.h"
 #include "graphics/surface.h"
 #include "graphics/macgui/macwidget.h"
 #include "image/bmp.h"
 #include "image/jpeg.h"
 #include "image/pict.h"
+#include "image/png.h"
 
 #include "director/director.h"
 #include "director/cast.h"
@@ -547,16 +549,29 @@ void BitmapCastMember::load() {
 					}
 
 					debugC(5, kDebugImages, "BitmapCastMember::load(): Bitmap: id: %d, w: %d, h: %d, flags1: %x, flags2: %x bytes: %x, bpp: %d clut: %s", imgId, surf->w, surf->h, _flags1, _flags2, _bytes, _bitsPerPixel, _clut.asString().c_str());
+
+					if (ConfMan.getBool("dump_scripts")) {
+
+						Common::String prepend = "stream";
+						Common::String filename = Common::String::format("./dumps/%s-%s-%d.png", encodePathForDump(prepend).c_str(), tag2str(tag), imgId);
+						Common::DumpFile bitmapFile;
+
+						bitmapFile.open(Common::Path(filename), true);
+						Image::writePNG(bitmapFile, *decoder->getSurface(), decoder->getPalette());
+
+						bitmapFile.close();
+					}
+
 					delete pic;
 					delete decoder;
 					_loaded = true;
 					return;
 				} else {
 					delete decoder;
-					warning("BUILDBOT: BitmapCastMember::load(): wrong format for external picture '%s'", location.toString().c_str());
+					warning("BUILDBOT: BitmapCastMember::load(): wrong format for external picture '%s'", location.toString(Common::Path::kNativeSeparator).c_str());
 				}
 			} else {
-				warning("BitmapCastMember::load(): cannot open external picture '%s'", location.toString().c_str());
+				warning("BitmapCastMember::load(): cannot open external picture '%s'", location.toString(Common::Path::kNativeSeparator).c_str());
 			}
 		}
 	} else {
@@ -606,6 +621,18 @@ void BitmapCastMember::load() {
 	}
 
 	setPicture(*img, true);
+
+	if (ConfMan.getBool("dump_scripts")) {
+
+		Common::String prepend = "stream";
+		Common::String filename = Common::String::format("./dumps/%s-%s-%d.png", encodePathForDump(prepend).c_str(), tag2str(tag), imgId);
+		Common::DumpFile bitmapFile;
+
+		bitmapFile.open(Common::Path(filename), true);
+		Image::writePNG(bitmapFile, *img->getSurface(), img->getPalette());
+
+		bitmapFile.close();
+	}
 
 	delete img;
 	delete pic;

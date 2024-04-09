@@ -59,6 +59,8 @@ LoadSaveMenu::~LoadSaveMenu() {
 
 	delete _exitButton;
 	delete _cancelButton;
+
+	g_nancy->_input->setVKEnabled(false);
 }
 
 void LoadSaveMenu::process() {
@@ -94,14 +96,18 @@ void LoadSaveMenu::process() {
 		stop();
 	}
 
-	g_nancy->_cursorManager->setCursorType(CursorManager::kNormalArrow);
+	g_nancy->_cursor->setCursorType(CursorManager::kNormalArrow);
 }
 
 void LoadSaveMenu::onStateEnter(const NancyState::NancyState prevState) {
+	if (_state == kEnterFilename) {
+		g_nancy->_input->setVKEnabled(true);
+	}
 	registerGraphics();
 }
 
 bool LoadSaveMenu::onStateExit(const NancyState::NancyState nextState) {
+	g_nancy->_input->setVKEnabled(false);
 	return _destroyOnExit;
 }
 
@@ -135,7 +141,7 @@ void LoadSaveMenu::registerGraphics() {
 	_blinkingCursorOverlay.registerGraphics();
 	_successOverlay.registerGraphics();
 
-	g_nancy->_graphicsManager->redrawAll();
+	g_nancy->_graphics->redrawAll();
 }
 
 void LoadSaveMenu::init() {
@@ -144,11 +150,11 @@ void LoadSaveMenu::init() {
 
 	_background.init(_loadSaveData->_imageName);
 
-	_baseFont = g_nancy->_graphicsManager->getFont(_loadSaveData->_mainFontID);
+	_baseFont = g_nancy->_graphics->getFont(_loadSaveData->_mainFontID);
 
 	if (_loadSaveData->_highlightFontID != -1) {
-		_highlightFont = g_nancy->_graphicsManager->getFont(_loadSaveData->_highlightFontID);
-		_disabledFont = g_nancy->_graphicsManager->getFont(_loadSaveData->_disabledFontID);
+		_highlightFont = g_nancy->_graphics->getFont(_loadSaveData->_highlightFontID);
+		_disabledFont = g_nancy->_graphics->getFont(_loadSaveData->_disabledFontID);
 	} else {
 		_highlightFont = _disabledFont = _baseFont;
 	}
@@ -161,8 +167,8 @@ void LoadSaveMenu::init() {
 		RenderObject *newTb = new RenderObject(5);
 		_textboxes[i] = newTb;
 		const Common::Rect &bounds = _loadSaveData->_textboxBounds[i];
-		newTb->_drawSurface.create(bounds.width(), bounds.height(), g_nancy->_graphicsManager->getScreenPixelFormat());
-		newTb->_drawSurface.clear(g_nancy->_graphicsManager->getTransColor());
+		newTb->_drawSurface.create(bounds.width(), bounds.height(), g_nancy->_graphics->getScreenPixelFormat());
+		newTb->_drawSurface.clear(g_nancy->_graphics->getTransColor());
 		newTb->moveTo(bounds);
 		newTb->setTransparent(true);
 		newTb->setVisible(true);
@@ -175,7 +181,11 @@ void LoadSaveMenu::init() {
 			_filenameStrings[i] = desc.getDescription();
 		} else {
 			// If no valid save, copy over the empty save string
-			_filenameStrings[i] = g_nancy->getStaticData().emptySaveText;
+			if (_loadSaveData->_emptySaveText.size()) {
+				_filenameStrings[i] = _loadSaveData->_emptySaveText;
+			} else {
+				_filenameStrings[i] = g_nancy->getStaticData().emptySaveText;
+			}
 		}
 	}
 
@@ -219,23 +229,23 @@ void LoadSaveMenu::init() {
 	_cancelButton = new UI::Button(3, _background._drawSurface,
 		_loadSaveData->_cancelButtonDownSrc, Common::Rect(),
 		_loadSaveData->_cancelButtonHighlightSrc, _loadSaveData->_cancelButtonDisabledSrc);
-	
+
 	// Load the blinking cursor graphic that appears while typing a filename
 	_blinkingCursorOverlay._drawSurface.create(_loadSaveData->_blinkingCursorSrc.width(),
 		_loadSaveData->_blinkingCursorSrc.height(),
-		g_nancy->_graphicsManager->getScreenPixelFormat());
+		g_nancy->_graphics->getScreenPixelFormat());
 	_blinkingCursorOverlay.setTransparent(true);
 	_blinkingCursorOverlay.setVisible(false);
 	_blinkingCursorOverlay._drawSurface.clear(_blinkingCursorOverlay._drawSurface.getTransparentColor());
 	_blinkingCursorOverlay._drawSurface.transBlitFrom(_highlightFont->getImageSurface(), _loadSaveData->_blinkingCursorSrc,
-		Common::Point(), g_nancy->_graphicsManager->getTransColor());
+		Common::Point(), g_nancy->_graphics->getTransColor());
 
 	// Load the "Your game has been saved" popup graphic
-	if (_loadSaveData->_gameSavedPopup.size()) {
+	if (!_loadSaveData->_gameSavedPopup.empty()) {
 		g_nancy->_resource->loadImage(_loadSaveData->_gameSavedPopup, _successOverlay._drawSurface);
 		Common::Rect destBounds = Common::Rect(0,0, _successOverlay._drawSurface.w, _successOverlay._drawSurface.h);
 		destBounds.moveTo(640 / 2 - destBounds.width() / 2,
-			480 / 2 - destBounds.height() / 2);		
+			480 / 2 - destBounds.height() / 2);
 		_successOverlay.moveTo(destBounds);
 		_successOverlay.setVisible(false);
 	}
@@ -272,7 +282,7 @@ void LoadSaveMenu::run() {
 		_exitButton->setDisabled(false);
 		_enteredString.clear();
 		_successOverlay.setVisible(false);
-		
+
 		_selectedSave = -1;
 		_enteringNewState = false;
 	}
@@ -295,7 +305,7 @@ void LoadSaveMenu::run() {
 				g_nancy->_sound->playSound("BUDE");
 				_enteringNewState = true;
 			}
-			
+
 			return;
 		}
 	}
@@ -315,7 +325,7 @@ void LoadSaveMenu::run() {
 				g_nancy->_sound->playSound("BUDE");
 				_enteringNewState = true;
 			}
-			
+
 			return;
 		}
 	}
@@ -399,6 +409,7 @@ void LoadSaveMenu::enterFilename() {
 		_blinkingCursorOverlay.setVisible(true);
 		_nextBlink = g_nancy->getTotalPlayTime() + _loadSaveData->_blinkingTimeDelay;
 		_enteringNewState = false;
+		g_nancy->_input->setVKEnabled(true);
 	}
 
 	// Perform cursor blinking
@@ -430,12 +441,13 @@ void LoadSaveMenu::enterFilename() {
 		_blinkingCursorOverlay.moveTo(Common::Point(tbPosition.left + textWidthInPixels,
 			tbPosition.bottom - _blinkingCursorOverlay._drawSurface.h + _loadSaveData->_fontYOffset));
 	}
-	
+
 	_cancelButton->handleInput(input);
 	if (_cancelButton->_isClicked) {
 		_state = kRun;
 		_enteringNewState = true;
 		g_nancy->_sound->playSound("BULS");
+		g_nancy->_input->setVKEnabled(false);
 		return;
 	}
 
@@ -444,6 +456,7 @@ void LoadSaveMenu::enterFilename() {
 		_state = kSave;
 		_enteringNewState = true;
 		g_nancy->_sound->playSound("BULS");
+		g_nancy->_input->setVKEnabled(false);
 		return;
 	}
 }
@@ -456,18 +469,18 @@ void LoadSaveMenu::save() {
 		// First, check if we are actually overwriting
 		SaveStateDescriptor desc = g_nancy->getMetaEngine()->querySaveMetaInfos(ConfMan.getActiveDomainName().c_str(), _selectedSave + 1);
 		if (desc.isValid()) {
-			if (!ConfMan.hasKey("sdlg_return", ConfMan.kTransientDomain)) {
+			if (!ConfMan.hasKey("sdlg_return", Common::ConfigManager::kTransientDomain)) {
 				// Request the dialog
-				ConfMan.setInt("sdlg_id", 1, ConfMan.kTransientDomain);
+				ConfMan.setInt("sdlg_id", 1, Common::ConfigManager::kTransientDomain);
 				_destroyOnExit = false;
 				g_nancy->setState(NancyState::kSaveDialog);
 				return;
 			} else {
 				// Dialog has returned
-				g_nancy->_graphicsManager->suppressNextDraw();
+				g_nancy->_graphics->suppressNextDraw();
 				_destroyOnExit = true;
-				uint ret = ConfMan.getInt("sdlg_return", ConfMan.kTransientDomain);
-				ConfMan.removeKey("sdlg_return", ConfMan.kTransientDomain);
+				uint ret = ConfMan.getInt("sdlg_return", Common::ConfigManager::kTransientDomain);
+				ConfMan.removeKey("sdlg_return", Common::ConfigManager::kTransientDomain);
 				switch (ret) {
 				case 1 :
 					// "No" keeps us in the LoadSave state but doesn't save
@@ -484,12 +497,46 @@ void LoadSaveMenu::save() {
 			}
 		}
 	}
-	
+
 	// Improvement: not providing a name doesn't result in the
 	// savefile being named "--- Empty ---" or "Nothing Saved Here".
 	// Instead, we use ScummVM's built-in save name generator
-	g_nancy->saveGameState(_selectedSave + 1, _enteredString.size() ? _enteredString :
-		_filenameStrings[_selectedSave].equals(g_nancy->getStaticData().emptySaveText) ? Common::String() : _filenameStrings[_selectedSave], false);
+
+	// This does not apply to nancy7, where a default name is provided in
+	// the LOAD chunk, and has a number appended to the end
+
+	Common::String finalDesc = _enteredString;
+	if (!finalDesc.size()) {
+		if (_loadSaveData->_defaultSaveNamePrefix.size()) {
+			if (_filenameStrings[_selectedSave].equals(_loadSaveData->_emptySaveText)) {
+				uint suffixNum = 1;
+				for (int i = 1; i < g_nancy->getMetaEngine()->getMaximumSaveSlot(); ++i) {
+					if (i == _selectedSave + 1) {
+						continue;
+					}
+
+					SaveStateDescriptor desc = g_nancy->getMetaEngine()->querySaveMetaInfos(ConfMan.getActiveDomainName().c_str(), i);
+					if (desc.getDescription().substr(0, _loadSaveData->_defaultSaveNamePrefix.size()).equals(Common::U32String(_loadSaveData->_defaultSaveNamePrefix))) {
+						if (desc.getDescription().substr(_loadSaveData->_defaultSaveNamePrefix.size(), 1).asUint64() == suffixNum) {
+							++suffixNum;
+						} else {
+							break;
+						}
+					}
+				}
+
+				finalDesc = _loadSaveData->_defaultSaveNamePrefix + ('0' + suffixNum);
+			} else {
+				finalDesc = _filenameStrings[_selectedSave];
+			}
+		} else {
+			if (!_filenameStrings[_selectedSave].equals(g_nancy->getStaticData().emptySaveText)) {
+				finalDesc = _filenameStrings[_selectedSave];
+			}
+		}
+	}
+
+	g_nancy->saveGameState(_selectedSave + 1, finalDesc, false);
 
 	// Feed the new name back into the list of saves
 	SaveStateDescriptor desc = g_nancy->getMetaEngine()->querySaveMetaInfos(ConfMan.getActiveDomainName().c_str(), _selectedSave + 1);
@@ -514,18 +561,18 @@ void LoadSaveMenu::load() {
 
 	if (sdlg && sdlg->dialogs.size() > 1 && Nancy::State::Scene::hasInstance() && !g_nancy->_hasJustSaved) {
 		// nancy6 added a "Do you want load without saving" dialog.
-		if (!ConfMan.hasKey("sdlg_return", ConfMan.kTransientDomain)) {
+		if (!ConfMan.hasKey("sdlg_return", Common::ConfigManager::kTransientDomain)) {
 			// Request the dialog
-			ConfMan.setInt("sdlg_id", 2, ConfMan.kTransientDomain);
+			ConfMan.setInt("sdlg_id", 2, Common::ConfigManager::kTransientDomain);
 			_destroyOnExit = false;
 			g_nancy->setState(NancyState::kSaveDialog);
 			return;
 		} else {
 			// Dialog has returned
 			_destroyOnExit = true;
-			g_nancy->_graphicsManager->suppressNextDraw();
-			uint ret = ConfMan.getInt("sdlg_return", ConfMan.kTransientDomain);
-			ConfMan.removeKey("sdlg_return", ConfMan.kTransientDomain);
+			g_nancy->_graphics->suppressNextDraw();
+			uint ret = ConfMan.getInt("sdlg_return", Common::ConfigManager::kTransientDomain);
+			ConfMan.removeKey("sdlg_return", Common::ConfigManager::kTransientDomain);
 			switch (ret) {
 			case 1 :
 				// "No" keeps us in the LoadSave state but doesn't load
@@ -577,7 +624,7 @@ void LoadSaveMenu::stop() {
 uint16 LoadSaveMenu::writeToTextbox(uint textboxID, const Common::String &text, const Font *font) {
 	assert(font);
 
-	_textboxes[textboxID]->_drawSurface.clear(g_nancy->_graphicsManager->getTransColor());
+	_textboxes[textboxID]->_drawSurface.clear(g_nancy->_graphics->getTransColor());
 	Common::Point destPoint(_loadSaveData->_fontXOffset, _loadSaveData->_fontYOffset + _textboxes[textboxID]->_drawSurface.h - font->getFontHeight());
 	font->drawString(&_textboxes[textboxID]->_drawSurface, text, destPoint.x, destPoint.y, _textboxes[textboxID]->_drawSurface.w, 0);
 	_textboxes[textboxID]->setVisible(true);

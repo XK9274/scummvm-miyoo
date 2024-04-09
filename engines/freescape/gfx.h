@@ -99,6 +99,9 @@ public:
 	virtual void drawFloor(uint8 color) = 0;
 	virtual void drawBackground(uint8 color);
 
+	void drawEclipse(uint8 color1, uint8 color2, float difference);
+	virtual void drawCelestialBody(Math::Vector3d position, float radius, uint8 color) {};
+
 	Common::Rect viewport() const;
 	virtual Common::Point nativeResolution() { return Common::Point(_screenW, _screenH); }
 

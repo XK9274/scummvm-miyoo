@@ -65,15 +65,15 @@ void World::startNewGame() {
 	if (_saveGame)
 		delete _saveGame;
 
-	if ((_startGameFileName = _engine->getStartGameFileName()) == "")
+	if ((_startGameFileName = _engine->getStartGameFileName()).empty())
 		error("WORLD: Could not load initial game configuration");
 
 	Common::File saveGameFile;
 	if (!saveGameFile.open(_startGameFileName))
 		error("WORLD: Could not load initial game configuration");
 
-	debugC(2, kMVDebugMain, "Loading save game state from %s", _startGameFileName.c_str());
-	Common::SeekableReadStream *saveGameRes = saveGameFile.readStream(saveGameFile.size());
+	debugC(2, kMVDebugMain, "Loading save game state from %s", _startGameFileName.toString().c_str());
+	Common::SeekableReadStream *saveGameRes = Common::MacResManager::openFileOrDataFork(_startGameFileName);
 
 	_saveGame = new SaveGame(_engine, saveGameRes);
 

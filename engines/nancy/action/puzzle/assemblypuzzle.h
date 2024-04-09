@@ -26,6 +26,9 @@
 #include "engines/nancy/misc/mousefollow.h"
 
 namespace Nancy {
+
+struct AssemblyPuzzleData;
+
 namespace Action {
 
 // Minigame where the player is provided with the broken pieces of something
@@ -60,7 +63,7 @@ protected:
 		int curRotation = 0;
 	};
 
-	Common::String _imageName;
+	Common::Path _imageName;
 
 	uint16 _height = 0;
 
@@ -70,7 +73,7 @@ protected:
 	Common::Array<Piece> _pieces;
 
 	SoundDescription _rotateSound;
-	SoundDescription _pickUpSound;	
+	SoundDescription _pickUpSound;
 	SoundDescription _placeDownSound;
 
 	bool _allowWrongPieceHotspot = false;
@@ -91,6 +94,8 @@ protected:
 	int _curRotation = 0;
 	uint _layersAssembled = 0;
 	bool _completed = false;
+
+	AssemblyPuzzleData *_puzzleState = nullptr;
 };
 
 } // End of namespace Action

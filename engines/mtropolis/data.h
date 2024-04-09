@@ -23,6 +23,8 @@
 #define MTROPOLIS_DATA_H
 
 #include "common/array.h"
+#include "common/data-io.h"
+#include "common/endian.h"
 #include "common/error.h"
 #include "common/hashmap.h"
 #include "common/hash-str.h"
@@ -37,6 +39,73 @@
 // This is separated from asset construction for a number of reasons, mainly that data parsing has
 // several quirky parses, and there are a lot of fields where, due to platform-specific byte
 // swaps, we know the size of the value but don't know what it means.
+
+namespace MTropolis {
+
+class PlugIn;
+
+namespace Data {
+
+enum DataFormat {
+	kDataFormatUnknown,
+
+	kDataFormatMacintosh,
+	kDataFormatWindows,
+};
+
+} // End of namespace Data
+
+} // End of namespace MTropolis
+
+namespace Common {
+
+template<>
+struct DataFormatTraits<MTropolis::Data::DataFormat> {
+	static inline bool isLittleEndian(MTropolis::Data::DataFormat dataFormat) {
+		return dataFormat != MTropolis::Data::kDataFormatMacintosh;
+	}
+};
+
+template<>
+struct DataIO<MTropolis::Data::DataFormat, Common::XPFloat> {
+	static const uint kMaxSize = 10;
+
+	static inline uint computeSize(MTropolis::Data::DataFormat dataFormat) {
+		if (dataFormat == MTropolis::Data::kDataFormatMacintosh)
+			return 10;
+		else if (dataFormat == MTropolis::Data::kDataFormatWindows)
+			return 8;
+		else
+			return 0;
+	}
+
+	static inline void encode(MTropolis::Data::DataFormat dataFormat, byte *data, const Common::XPFloat &value) {
+		if (dataFormat == MTropolis::Data::kDataFormatMacintosh) {
+			DataIO<MTropolis::Data::DataFormat, uint16>::encode(dataFormat, data + 0, value.signAndExponent);
+			DataIO<MTropolis::Data::DataFormat, uint64>::encode(dataFormat, data + 2, value.mantissa);
+		} else if (dataFormat == MTropolis::Data::kDataFormatWindows) {
+			uint64 doubleBits = 0;
+			bool overflowed = false;
+			value.toDoubleBitsSafe(doubleBits, overflowed);
+			DataIO<MTropolis::Data::DataFormat, uint64>::encode(dataFormat, data, doubleBits);
+		}
+	}
+
+	static inline void decode(MTropolis::Data::DataFormat dataFormat, const byte *data, Common::XPFloat &value) {
+		if (dataFormat == MTropolis::Data::kDataFormatMacintosh) {
+			DataIO<MTropolis::Data::DataFormat, uint16>::decode(dataFormat, data + 0, value.signAndExponent);
+			DataIO<MTropolis::Data::DataFormat, uint64>::decode(dataFormat, data + 2, value.mantissa);
+		} else if (dataFormat == MTropolis::Data::kDataFormatWindows) {
+			uint64 doubleBits = 0;
+			DataIO<MTropolis::Data::DataFormat, uint64>::decode(dataFormat, data, doubleBits);
+			value = value.fromDoubleBits(doubleBits);
+		}
+	}
+};
+
+} // End of namespace Common
+
+
 namespace MTropolis {
 
 class PlugIn;
@@ -46,18 +115,27 @@ namespace Data {
 struct PlugInModifier;
 struct PlugInModifierData;
 
+// Project format and data format are 2 separate things.
+//
+// A cross-platform project can be booted in either Mac or Win mode and contains
+// separate scene streams for Mac and Win.  Which one is loaded depends on what the
+// game platform is loaded as.
+//
+// The following table describes the behavior:
+//
+// Project type          | ProjectFormat | Catalog and asset data format | Scene data format |
+// ------------------------------------------------------------------------------------------|
+// Mac                   | Macintosh     | Macintosh                     | Macintosh         |
+// Win                   | Windows       | Windows                       | Windows           |
+// Cross-Platform as Mac | Neutral       | Windows                       | Macintosh         |
+// Cross-Platform as Win | Neutral       | Windows                       | Windows           |
+
 enum ProjectFormat {
 	kProjectFormatUnknown,
 
 	kProjectFormatMacintosh,
 	kProjectFormatWindows,
 	kProjectFormatNeutral,
-};
-
-enum ProjectEngineVersion {
-	kProjectEngineVersionUnknown,
-	kProjectEngineVersion1,
-	kProjectEngineVersion2,
 };
 
 enum DataReadErrorCode {
@@ -179,9 +257,10 @@ namespace StructuralFlags {
 	};
 } // End of namespace StructuralFlags
 
+
 class DataReader {
 public:
-	DataReader(int64 globalPosition, Common::SeekableReadStreamEndian &stream, ProjectFormat projectFormat, ProjectEngineVersion projectEngineVersion);
+	DataReader(int64 globalPosition, Common::SeekableReadStream &stream, DataFormat dataFormat);
 
 	bool readU8(uint8 &value);
 	bool readU16(uint16 &value);
@@ -194,6 +273,9 @@ public:
 	bool readF32(float &value);
 	bool readF64(double &value);
 	bool readPlatformFloat(Common::XPFloat &value);
+
+	template<class... T>
+	bool readMultiple(T &...values);
 
 	bool read(void *dest, size_t size);
 
@@ -214,23 +296,31 @@ public:
 	int64 tell() const;
 	inline int64 tellGlobal() const { return _globalPosition + tell(); }
 
-	ProjectFormat getProjectFormat() const;
-	ProjectEngineVersion getProjectEngineVersion() const;
-	bool isBigEndian() const;
-	bool isV2Project() const;
+	DataFormat getDataFormat() const;
 
 	void setPermitDamagedStrings(bool permit);
 
 private:
 	bool checkErrorAndReset();
 
-	Common::SeekableReadStreamEndian &_stream;
-	ProjectFormat _projectFormat;
-	ProjectEngineVersion _projectEngineVersion;
+	Common::SeekableReadStream &_stream;
+	DataFormat _dataFormat;
 	int64 _globalPosition;
 
 	bool _permitDamagedStrings;
 };
+
+template<class... T>
+bool DataReader::readMultiple(T &...values) {
+	byte buffer[Common::DataMultipleIO<DataFormat, T...>::kMaxSize];
+	const uint actualSize = Common::DataMultipleIO<DataFormat, T...>::computeSize(_dataFormat);
+
+	if (!read(buffer, actualSize))
+		return false;
+
+	Common::DataMultipleIO<DataFormat, T...>::decode(_dataFormat, buffer, values...);
+	return true;
+}
 
 struct Rect {
 	Rect();
@@ -848,8 +938,10 @@ public:
 
 		char streamType[25];
 		uint16 segmentIndexPlusOne;
-		uint32 size;
-		uint32 pos;
+		uint32 winSize;
+		uint32 winPos;
+		uint32 macSize;
+		uint32 macPos;
 	};
 
 	struct SegmentDesc {
@@ -950,9 +1042,7 @@ struct MiniscriptProgram {
 	Common::Array<LocalRef> localRefs;
 	Common::Array<Attribute> attributes;
 
-	ProjectFormat projectFormat;
-	ProjectEngineVersion projectEngineVersion;
-	bool isBigEndian;
+	DataFormat dataFormat;
 
 	bool load(DataReader &reader);
 };
@@ -972,7 +1062,7 @@ struct TypicalModifierHeader {
 
 	Common::String name;
 
-	bool load(DataReader &reader);
+	bool load(DataReader &reader, bool isV2);
 };
 
 struct MiniscriptModifier : public DataObject {
@@ -1104,7 +1194,8 @@ struct AliasModifier : public DataObject {
 	uint16 aliasIndexPlusOne;
 	uint32 unknown1;
 	uint32 unknown2;
-	uint16 lengthOfName;
+	uint32 unknown3;
+	uint32 lengthOfName;
 	uint32 guid;
 	Point editorLayoutPosition;
 
@@ -1842,6 +1933,7 @@ struct MovieAsset : public DataObject {
 	struct MacPart {
 		uint8 unknown5_1[66];
 		uint8 unknown6[12];
+		uint8 unknown8[4];
 	};
 
 	struct WinPart {

@@ -39,7 +39,7 @@ static void syncCifInfo(Common::Serializer &ser, CifInfo &info, bool tree) {
 	readRect(ser, info.src, kGameTypeNancy2);
 	readRect(ser, info.dest, kGameTypeNancy2);
 	ser.setVersion(ver);
-	
+
 	ser.syncAsUint16LE(info.width);
 	ser.syncAsUint16LE(info.pitch);
 	ser.syncAsUint16LE(info.height);
@@ -67,10 +67,10 @@ static void syncCiftreeInfo(Common::Serializer &ser, CifInfo &info) {
 	uint nameSize = g_nancy->getGameType() <= kGameTypeNancy2 ? 9 : 33;
 	byte name[34];
 	if (ser.isSaving()) {
-		memcpy(name, info.name.c_str(), nameSize);
+		memcpy(name, info.name.toString('/').c_str(), nameSize);
 		name[nameSize] = 0;
 	}
-	
+
 	ser.syncBytes(name, nameSize);
 	name[nameSize] = 0;
 	info.name = (char *)name;
@@ -89,7 +89,7 @@ enum {
 	kHashMapSize = 1024
 };
 
-CifFile::CifFile(Common::SeekableReadStream *stream, const Common::String &name) {
+CifFile::CifFile(Common::SeekableReadStream *stream, const Common::Path &name) {
 	assert(stream);
 	_stream = stream;
 
@@ -124,14 +124,14 @@ Common::SeekableReadStream *CifFile::createReadStream() const {
 			success = false;
 		}
 	}
-	
+
 	if (!success) {
-		warning("Failed to read data for CifFile '%s'", _info.name.c_str());
+		warning("Failed to read data for CifFile '%s'", _info.name.toString().c_str());
 		delete[] buf;
 		_stream->clearErr();
 		return nullptr;
 	}
-	
+
 	return new Common::MemoryReadStream(buf, _info.size, DisposeAfterUse::YES);
 }
 
@@ -140,15 +140,15 @@ Common::SeekableReadStream *CifFile::createReadStreamRaw() const {
 	byte *buf = new byte[size];
 
 	if (!_stream->seek(_info.dataOffset) || _stream->read(buf, size) < size) {
-		warning("Failed to read data for CifFile '%s'", _info.name.c_str());
+		warning("Failed to read data for CifFile '%s'", _info.name.toString().c_str());
 	}
-	
+
 	return new Common::MemoryReadStream(buf, size, DisposeAfterUse::YES);
 }
 
 bool CifFile::sync(Common::Serializer &ser) {
 	if (!ser.matchBytes("CIF FILE WayneSikes", 20)) {
-		warning("Invalid id string found in CifFile '%s'", _info.name.c_str());
+		warning("Invalid id string found in CifFile '%s'", _info.name.toString().c_str());
 		return false;
 	}
 
@@ -163,7 +163,7 @@ bool CifFile::sync(Common::Serializer &ser) {
 	ser.syncAsUint16LE(ver);
 
 	if (ver != 0 && ver != 1) {
-		warning("Unsupported version %d found in CifFile '%s'", ver, _info.name.c_str());
+		warning("Unsupported version %d found in CifFile '%s'", ver, _info.name.toString().c_str());
 		return false;
 	}
 
@@ -177,7 +177,7 @@ bool CifFile::sync(Common::Serializer &ser) {
 	return true;
 }
 
-CifTree::CifTree(Common::SeekableReadStream *stream, const Common::String &name) :
+CifTree::CifTree(Common::SeekableReadStream *stream, const Common::Path &name) :
 		_stream(stream),
 		_name(name) {}
 
@@ -185,12 +185,12 @@ CifTree::~CifTree() {
 	delete _stream;
 }
 
-const CifInfo &CifTree::getCifInfo(const Common::String &name) const {
+const CifInfo &CifTree::getCifInfo(const Common::Path &name) const {
 	return _fileMap[name];
 }
 
 bool CifTree::hasFile(const Common::Path &path) const {
-	return _fileMap.contains(path.toString());
+	return _fileMap.contains(path);
 }
 
 int CifTree::listMembers(Common::ArchiveMemberList &list) const {
@@ -214,7 +214,7 @@ Common::SeekableReadStream *CifTree::createReadStreamForMember(const Common::Pat
 		return nullptr;
 	}
 
-	const CifInfo &info = _fileMap[path.toString()];
+	const CifInfo &info = _fileMap[path];
 	byte *buf = new byte[info.size];
 
 	bool success = true;
@@ -234,14 +234,14 @@ Common::SeekableReadStream *CifTree::createReadStreamForMember(const Common::Pat
 			success = false;
 		}
 	}
-	
+
 	if (!success) {
-		warning("Failed to read data for '%s' from CifTree '%s'", info.name.c_str(), _name.c_str());
+		warning("Failed to read data for '%s' from CifTree '%s'", info.name.toString().c_str(), _name.toString().c_str());
 		delete[] buf;
 		_stream->clearErr();
 		return nullptr;
 	}
-	
+
 	return new Common::MemoryReadStream(buf, info.size, DisposeAfterUse::YES);
 }
 
@@ -250,25 +250,28 @@ Common::SeekableReadStream *CifTree::createReadStreamRaw(const Common::Path &pat
 		return nullptr;
 	}
 
-	const CifInfo &info = _fileMap[path.toString()];
+	const CifInfo &info = _fileMap[path];
 	uint32 size = (info.comp == CifInfo::kResCompression ? info.compressedSize : info.size);
 	byte *buf = new byte[size];
 
 	if (!_stream->seek(info.dataOffset) || _stream->read(buf, size) < size) {
-		warning("Failed to read data for '%s' from CifTree '%s'", info.name.c_str(), _name.c_str());
+		warning("Failed to read data for '%s' from CifTree '%s'", info.name.toString().c_str(), _name.toString().c_str());
 	}
-	
+
 	return new Common::MemoryReadStream(buf, size, DisposeAfterUse::YES);
 }
 
 CifTree *CifTree::makeCifTreeArchive(const Common::String &name, const Common::String &ext) {
-	auto *stream = SearchMan.createReadStreamForMember(name + '.' + ext);
+	Common::Path path(name);
+	path.appendInPlace('.' + ext);
+
+	auto *stream = SearchMan.createReadStreamForMember(path);
 
 	if (!stream) {
 		return nullptr;
 	}
 
-	CifTree *ret = new CifTree(stream, name + '.' + ext);
+	CifTree *ret = new CifTree(stream, path);
 	Common::Serializer ser(stream, nullptr);
 
 	if (!ret->sync(ser)) {
@@ -281,7 +284,7 @@ CifTree *CifTree::makeCifTreeArchive(const Common::String &name, const Common::S
 
 bool CifTree::sync(Common::Serializer &ser) {
 	if (!ser.matchBytes("CIF TREE WayneSikes", 20)) {
-		warning("Invalid id string found in CifTree '%s'", _name.c_str());
+		warning("Invalid id string found in CifTree '%s'", _name.toString().c_str());
 		return false;
 	}
 
@@ -296,14 +299,14 @@ bool CifTree::sync(Common::Serializer &ser) {
 	ser.syncAsUint16LE(ver);
 
 	if (ver != 0 && ver != 1) {
-		warning("Unsupported version %d found in CifTree '%s'", ver, _name.c_str());
+		warning("Unsupported version %d found in CifTree '%s'", ver, _name.toString().c_str());
 		return false;
 	}
 
 	if (g_nancy->getGameType() >= kGameTypeNancy6) {
 		++ver; // nancy6 made changes to the CifTree structure, but didn't bump the file version
 	}
-	
+
 	ser.setVersion(ver);
 
 	uint16 infoBlockCount = _writeFileMap.size();
@@ -322,7 +325,7 @@ bool CifTree::sync(Common::Serializer &ser) {
 			}
 		} else {
 			syncCiftreeInfo(ser, _writeFileMap[i]);
-		}		
+		}
 	}
 
 	return true;
@@ -336,12 +339,12 @@ bool PatchTree::hasFile(const Common::Path &path) const {
 		for (auto &assoc : _associations) {
 			auto &confManProps = assoc.first;
 			auto &filenames = assoc.second;
-			for (const Common::String &s : filenames) {
-				if (s == path.toString()) {
+			for (const Common::Path &s : filenames) {
+				if (s == path) {
 					bool satisfied = true;
 
 					for (uint i = 0; i < confManProps.size(); ++i) {
-						// Check all 
+						// Check all
 						if (ConfMan.get(confManProps[i].first, ConfMan.getActiveDomainName()) != confManProps[i].second) {
 							satisfied = false;
 							break;

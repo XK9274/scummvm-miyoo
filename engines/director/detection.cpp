@@ -33,7 +33,7 @@
 #include "director/detection_tables.h"
 #include "director/detection_paths.h"
 
-static struct CustomTarget {
+static const struct CustomTarget {
 	const char *name;
 	const char *platform;
 	const char *version;
@@ -289,9 +289,10 @@ ADDetectedGame DirectorMetaEngineDetection::fallbackDetect(const FileMap &allFil
 		ADDetectedGame game(&desc->desc);
 
 		FileProperties tmp;
-		if (getFileProperties(allFiles, kMD5Tail, file->getName(), tmp)) {
+		Common::Path filename(file->getPathInArchive());
+		if (getFileProperties(allFiles, kMD5Tail, filename, tmp)) {
 			game.hasUnknownFiles = true;
-			game.matchedFiles[file->getName()] = tmp;
+			game.matchedFiles[filename] = tmp;
 		}
 
 		return game;

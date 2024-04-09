@@ -87,7 +87,7 @@ class InstallShieldCabinet : public Archive {
 public:
 	InstallShieldCabinet();
 
-	bool open(const String *baseName, const FSNode *node);
+	bool open(const Path *baseName, Common::Archive *archive, const FSNode *node);
 	void close();
 
 	// Archive API implementation
@@ -123,35 +123,37 @@ private:
 	};
 
 	int _version;
-	typedef HashMap<String, FileEntry, IgnoreCase_Hash, IgnoreCase_EqualTo> FileMap;
+	typedef HashMap<Path, FileEntry, Path::IgnoreCase_Hash, Path::IgnoreCase_EqualTo> FileMap;
 	FileMap _map;
-	String _baseName;
+	Path _baseName;
 	Common::Array<VolumeHeader> _volumeHeaders;
-	bool _useSearchMan;
+	Common::Archive *_archive;
 
 	static bool readVolumeHeader(SeekableReadStream *volumeStream, VolumeHeader &inVolumeHeader);
 
-	String getHeaderName() const;
-	String getVolumeName(uint volume) const;
+	Path getHeaderName() const;
+	Path getVolumeName(uint volume) const;
 };
 
-InstallShieldCabinet::InstallShieldCabinet() : _version(0), _useSearchMan(false) {
+InstallShieldCabinet::InstallShieldCabinet() : _version(0), _archive(nullptr) {
 }
 
-bool InstallShieldCabinet::open(const String *baseName, const FSNode *node) {
+bool InstallShieldCabinet::open(const Path *baseName, Common::Archive *archive, const FSNode *node) {
 	// Store the base name so we can generate file names
 	if (baseName) {
 		_baseName = *baseName;
-		_useSearchMan = true;
+		_archive = archive;
 	} else if (node) {
 		_baseName = node->getPath();
-		_useSearchMan = false;
+		_archive = nullptr;
 	} else {
 		return false;
 	}
 
-	if (_baseName.hasSuffix(".cab") || _baseName.hasSuffix(".hdr")) {
-		_baseName.erase(_baseName.size() - 5, String::npos);
+	String strippedName = _baseName.baseName();
+	if (strippedName.hasSuffix(".cab") || strippedName.hasSuffix(".hdr")) {
+		strippedName.erase(strippedName.size() - 5, String::npos);
+		_baseName = _baseName.getParent().appendComponent(strippedName);
 	}
 
 	uint fileIndex = 0;
@@ -160,8 +162,8 @@ bool InstallShieldCabinet::open(const String *baseName, const FSNode *node) {
 	// First, open all the .cab files and read their headers
 	uint volume = 1;
 	for (;;) {
-		if (_useSearchMan) {
-			file.reset(SearchMan.createReadStreamForMember(getVolumeName(volume++)));
+		if (_archive) {
+			file.reset(_archive->createReadStreamForMember(getVolumeName(volume++)));
 			if (!file.get()) {
 				break;
 			}
@@ -177,11 +179,11 @@ bool InstallShieldCabinet::open(const String *baseName, const FSNode *node) {
 	}
 
 	// Try to open a header (.hdr) file to get the file list
-	if (_useSearchMan) {
-		file.reset(SearchMan.createReadStreamForMember(getHeaderName()));
+	if (_archive) {
+		file.reset(_archive->createReadStreamForMember(getHeaderName()));
 		if (!file) {
 			// No header file is present, file list is in first .cab file
-			file.reset(SearchMan.createReadStreamForMember(getVolumeName(1)));
+			file.reset(_archive->createReadStreamForMember(getVolumeName(1)));
 		}
 	} else {
 		file.reset(new Common::File());
@@ -250,7 +252,7 @@ bool InstallShieldCabinet::open(const String *baseName, const FSNode *node) {
 
 			// Then let's get the string
 			file->seek(headerHeader.cabDescriptorOffset + fileTableOffset + nameOffset);
-			String fileName = file->readString();
+			Path fileName(file->readString(), '\\');
 
 			// Entries can appear in multiple volumes (sometimes erroneously).
 			// We keep the one with the lowest volume ID
@@ -303,10 +305,10 @@ bool InstallShieldCabinet::open(const String *baseName, const FSNode *node) {
 
 			// Then let's get the string
 			file->seek(headerHeader.cabDescriptorOffset + fileTableOffset + nameOffset);
-			String fileName = file->readString();
+			Path fileName(file->readString(), '\\');
 
 			if (entry.volume == 0) {
-				warning("Couldn't find the volume for file %s", fileName.c_str());
+				warning("Couldn't find the volume for file %s", fileName.toString('\\').c_str());
 				close();
 				return false;
 			}
@@ -331,8 +333,7 @@ void InstallShieldCabinet::close() {
 }
 
 bool InstallShieldCabinet::hasFile(const Path &path) const {
-	String name = path.toString();
-	return _map.contains(name);
+	return _map.contains(path);
 }
 
 int InstallShieldCabinet::listMembers(ArchiveMemberList &list) const {
@@ -347,20 +348,19 @@ const ArchiveMemberPtr InstallShieldCabinet::getMember(const Path &path) const {
 }
 
 SeekableReadStream *InstallShieldCabinet::createReadStreamForMember(const Path &path) const {
-	String name = path.toString();
-	if (!_map.contains(name))
+	if (!_map.contains(path))
 		return nullptr;
 
-	const FileEntry &entry = _map[name];
+	const FileEntry &entry = _map[path];
 
 	if (entry.flags & kObfuscated) {
-		warning("Cannot extract obfuscated file %s", name.c_str());
+		warning("Cannot extract obfuscated file %s", path.toString().c_str());
 		return nullptr;
 	}
 
 	ScopedPtr<SeekableReadStream> stream;
-	if (_useSearchMan) {
-		stream.reset(SearchMan.createReadStreamForMember(getVolumeName((entry.volume))));
+	if (_archive) {
+		stream.reset(_archive->createReadStreamForMember(getVolumeName((entry.volume))));
 	} else {
 		stream.reset(new Common::File());
 		if (!((Common::File *)stream.get())->open(Common::FSNode(getVolumeName((entry.volume))))) {
@@ -369,7 +369,7 @@ SeekableReadStream *InstallShieldCabinet::createReadStreamForMember(const Path &
 	}
 
 	if (!stream) {
-		warning("Failed to open volume for file '%s'", name.c_str());
+		warning("Failed to open volume for file '%s'", path.toString().c_str());
 		return nullptr;
 	}
 
@@ -387,8 +387,8 @@ SeekableReadStream *InstallShieldCabinet::createReadStreamForMember(const Path &
 
 		// Then, iterate through the next volumes until we've read all the data for the file
 		while (bytesRead < entry.compressedSize) {
-			if (_useSearchMan) {
-				stream.reset(SearchMan.createReadStreamForMember(getVolumeName((++volume))));
+			if (_archive) {
+				stream.reset(_archive->createReadStreamForMember(getVolumeName((++volume))));
 			} else {
 				if (!((Common::File *)stream.get())->open(Common::FSNode(getVolumeName((++volume))))) {
 					stream.reset(nullptr);
@@ -396,7 +396,7 @@ SeekableReadStream *InstallShieldCabinet::createReadStreamForMember(const Path &
 			}
 			
 			if (!stream.get()) {
-				warning("Failed to read split file %s", name.c_str());
+				warning("Failed to read split file %s", path.toString().c_str());
 				free(src);
 				return nullptr;
 			}
@@ -428,7 +428,7 @@ SeekableReadStream *InstallShieldCabinet::createReadStreamForMember(const Path &
 	// Entries with size 0 are valid, and do not need to be inflated
 	if (entry.compressedSize != 0) {
 		if (!inflateZlibInstallShield(dst, entry.uncompressedSize, src, entry.compressedSize)) {
-			warning("failed to inflate CAB file '%s'", name.c_str());
+			warning("failed to inflate CAB file '%s'", path.toString().c_str());
 			free(dst);
 			free(src);
 			return nullptr;
@@ -499,19 +499,23 @@ bool InstallShieldCabinet::readVolumeHeader(SeekableReadStream *volumeStream, In
 	return true;
 }
 
-String InstallShieldCabinet::getHeaderName() const {
-	return _baseName + "1.hdr";
+Path InstallShieldCabinet::getHeaderName() const {
+	return _baseName.append("1.hdr");
 }
 
-String InstallShieldCabinet::getVolumeName(uint volume) const {
-	return String::format("%s%d.cab", _baseName.c_str(), volume);
+Path InstallShieldCabinet::getVolumeName(uint volume) const {
+	return _baseName.append(String::format("%d.cab", volume));
 }
 
 } // End of anonymous namespace
 
-Archive *makeInstallShieldArchive(const String &baseName) {
+Archive *makeInstallShieldArchive(const Path &baseName) {
+	return makeInstallShieldArchive(baseName, SearchMan);
+}
+
+Archive *makeInstallShieldArchive(const Common::Path &baseName, Common::Archive &archive) {
 	InstallShieldCabinet *cab = new InstallShieldCabinet();
-	if (!cab->open(&baseName, nullptr)) {
+	if (!cab->open(&baseName, &archive, nullptr)) {
 		delete cab;
 		return nullptr;
 	}
@@ -521,7 +525,7 @@ Archive *makeInstallShieldArchive(const String &baseName) {
 
 Archive *makeInstallShieldArchive(const FSNode &baseName) {
 	InstallShieldCabinet *cab = new InstallShieldCabinet();
-	if (!cab->open(nullptr, &baseName)) {
+	if (!cab->open(nullptr, nullptr, &baseName)) {
 		delete cab;
 		return nullptr;
 	}
