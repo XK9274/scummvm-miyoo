@@ -65,7 +65,7 @@ void readRectArray(Common::SeekableReadStream &stream, Common::Array<Common::Rec
 		totalNum = num;
 	}
 
-	stream.skip((totalNum - num) * 16);
+	stream.skip(totalNum > num ? (totalNum - num) * 16 : 0);
 }
 
 void readRectArray(Common::Serializer &stream, Common::Array<Common::Rect> &inArray, uint num, uint totalNum, Common::Serializer::Version minVersion, Common::Serializer::Version maxVersion) {
@@ -91,7 +91,7 @@ void readRectArray(Common::Serializer &stream, Common::Array<Common::Rect> &inAr
 			totalNum = num;
 		}
 
-		stream.skip((totalNum - num) * 16);
+		stream.skip(totalNum > num ? (totalNum - num) * 16 : 0);
 	}
 }
 
@@ -136,7 +136,7 @@ void readRectArray16(Common::SeekableReadStream &stream, Common::Array<Common::R
 		totalNum = num;
 	}
 
-	stream.skip((totalNum - num) * 8);
+	stream.skip(totalNum > num ? (totalNum - num) * 8 : 0);
 }
 
 void readRectArray16(Common::Serializer &stream, Common::Array<Common::Rect> &inArray, uint num, uint totalNum, Common::Serializer::Version minVersion, Common::Serializer::Version maxVersion) {
@@ -162,7 +162,7 @@ void readRectArray16(Common::Serializer &stream, Common::Array<Common::Rect> &in
 			totalNum = num;
 		}
 
-		stream.skip((totalNum - num) * 8);
+		stream.skip(totalNum > num ? (totalNum - num) * 8 : 0);
 	}
 }
 
@@ -226,6 +226,23 @@ void readFilenameArray(Common::Serializer &stream, Common::Array<Common::String>
 			}
 
 			str = buf;
+		}
+	}
+}
+
+void readFilenameArray(Common::SeekableReadStream &stream, Common::Array<Common::Path> &inArray, uint num) {
+	inArray.resize(num);
+	for (Common::Path &str : inArray) {
+		readFilename(stream, str);
+	}
+}
+
+void readFilenameArray(Common::Serializer &stream, Common::Array<Common::Path> &inArray, uint num, Common::Serializer::Version minVersion, Common::Serializer::Version maxVersion) {
+	Common::Serializer::Version version = stream.getVersion();
+	if (version >= minVersion && version <= maxVersion) {
+		inArray.resize(num);
+		for (Common::Path &str : inArray) {
+			readFilename(stream, str, minVersion, maxVersion);
 		}
 	}
 }

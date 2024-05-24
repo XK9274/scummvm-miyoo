@@ -17,6 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 #include "gob/save/saveload.h"
@@ -51,7 +57,7 @@ SaveLoad_Adibou1::SaveLoad_Adibou1(GobEngine *vm, const char *targetName) :
 	_saveFiles[index++].handler = _bouHandler = new GameFileHandler(vm, targetName, "bouinf");
 	_saveFiles[index++].handler = _drawingHandler = new SpriteHandler(vm, targetName, "drawing");
 	_saveFiles[index++].handler = _constructionHandler = new GameFileHandler(vm, targetName, "construction");
-	_saveFiles[index++].handler = _menuHandler = new TempSpriteHandler(vm);;
+	_saveFiles[index++].handler = _menuHandler = new TempSpriteHandler(vm);
 	for (int i = 0; i < kAdibou1NbrOfDrawings; i++) {
 		_saveFiles[index++].handler = _drawingWithThumbnailHandler[i] = new DrawingWithThumbnailHandler(vm,
 																									   targetName,
@@ -87,7 +93,7 @@ int32 SaveLoad_Adibou1::SpriteHandler::getSize() {
 	Common::String fileName = _file.build();
 
 	if (fileName.empty())
-		return -1;;
+		return -1;
 
 	SaveReader reader(1, 0, fileName);
 	SaveHeader header;
@@ -156,7 +162,7 @@ SaveLoad_Adibou1::DrawingWithThumbnailHandler::~DrawingWithThumbnailHandler() {
 
 int32 SaveLoad_Adibou1::DrawingWithThumbnailHandler::getSize() {
 	if (!_reader)
-		return -1;;
+		return -1;
 
 	if (!_reader->load())
 		return -1;

@@ -49,7 +49,7 @@ static MethodProto xlibMethods[] = {
     { nullptr, nullptr, 0, 0, 0 }
 };
 
-void Misc::open(int type) {
+void Misc::open(ObjectType type, const Common::Path &path) {
     if (type == kXObj) {
         MiscObject::initMethods(xlibMethods);
         MiscObject *xobj = new MiscObject(kXObj);
@@ -57,7 +57,7 @@ void Misc::open(int type) {
     }
 }
 
-void Misc::close(int type) {
+void Misc::close(ObjectType type) {
     if (type == kXObj) {
         MiscObject::cleanupMethods();
         g_lingo->_globalvars[xlibName] = Datum();
@@ -81,7 +81,7 @@ void Misc::m_getProfileString(int nargs) {
     }
 
     Common::INIFile config;
-    config.loadFromFile(filePath.toString());
+    config.loadFromFile(filePath);
 
     Common::String value;
     if (config.getKey(entry, section, value)) {

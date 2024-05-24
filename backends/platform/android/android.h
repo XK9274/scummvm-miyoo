@@ -165,8 +165,10 @@ private:
 
 	TouchControls _touchControls;
 
-	Common::String _defaultConfigFileName;
-	Common::String _defaultLogFileName;
+	bool _engineRunning;
+
+	Common::Path _defaultConfigFileName;
+	Common::Path _defaultLogFileName;
 	Common::String _systemPropertiesSummaryStr;
 	Common::String _systemSDKdetectedStr;
 
@@ -197,10 +199,19 @@ public:
 		SCREEN_ORIENTATION_PORTRAIT = 1
 	};
 
+	enum {
+		SHOW_ON_SCREEN_NONE = 0,
+		SHOW_ON_SCREEN_MENU = 1,
+		SHOW_ON_SCREEN_INPUT_MODE = 2,
+		SHOW_ON_SCREEN_ALL = 0xffffffff,
+	};
+
 	OSystem_Android(int audio_sample_rate, int audio_buffer_size);
 	virtual ~OSystem_Android();
 
 	void initBackend() override;
+	void engineInit() override;
+	void engineDone() override;
 
 	bool hasFeature(OSystem::Feature f) override;
 	void setFeatureState(OSystem::Feature f, bool enable) override;
@@ -217,13 +228,15 @@ public:
 
 	void applyOrientationSettings();
 
+	void updateOnScreenControls();
+
 	bool pollEvent(Common::Event &event) override;
 	Common::HardwareInputSet *getHardwareInputSet() override;
 	Common::KeymapArray getGlobalKeymaps() override;
 	Common::KeymapperDefaultBindings *getKeymapperDefaultBindings() override;
 
-	Common::String getDefaultConfigFileName() override;
-	Common::String getDefaultLogFileName() override;
+	Common::Path getDefaultConfigFileName() override;
+	Common::Path getDefaultLogFileName() override;
 
 	void registerDefaultSettings(const Common::String &target) const override;
 	GUI::OptionsContainerWidget *buildBackendOptionsWidget(GUI::GuiObject *boss, const Common::String &name, const Common::String &target) const override;

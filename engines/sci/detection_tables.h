@@ -423,6 +423,19 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformDOS, ADGF_DEMO, GUIO_STD16_UNDITHER	},
 
+	// Conquests of Camelot - Russian fan translation by https://github.com/deadman2000/RuSCI
+	// Executable scanning reports "0.000.685", Floppy label reports "1.001, 0.000.685", VERSION file reports "1.001.000"
+	// SCI interpreter version 0.000.685
+	{"camelot", "", {
+		{"resource.map", 0, "95eca3991906dfd7ed26d193df07596f", 7278},
+		{"resource.001", 0, "8e1a3a8c588007404b532b8dfacc1460", 596774},
+		{"resource.002", 0, "8e1a3a8c588007404b532b8dfacc1460", 722250},
+		{"resource.003", 0, "8e1a3a8c588007404b532b8dfacc1460", 723712},
+		{"resource.004", 0, "8e1a3a8c588007404b532b8dfacc1460", 729143},
+		{"Translate.RU", 0, "3f730611f55257821b964f96eafea0ba", 171}, // Text file for detecting translation
+		AD_LISTEND},
+		Common::RU_RUS, Common::kPlatformDOS, 0, GUIO_STD16_UNDITHER	},
+
 	// Conquests of Camelot - English DOS (from jvprat)
 	// Executable scanning reports "0.000.685", Floppy label reports "1.001, 0.000.685", VERSION file reports "1.001.000"
 	// SCI interpreter version 0.000.685
@@ -2610,6 +2623,24 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"PATCHES/font.008", 0, "8abefd3b44827ff26e2ad298f9e76a2b", 3029},
 		AD_LISTEND},
 		Common::HE_ISR, Common::kPlatformDOS, 0, GUIO_STD16_UNDITHER },
+		
+	// Laura Bow - Russian fan translation by https://github.com/deadman2000/RuSCI
+	// SCI interpreter version 0.000.631
+	{"laurabow", "", {
+		{"resource.map", 0, "b1905f6aa68ff65a057b080b1eae954c", 12030},
+		{"resource.001", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 108032},
+		{"resource.002", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 354680},
+		{"resource.003", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 361815},
+		{"resource.004", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 339714},
+		{"resource.005", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 327465},
+		{"resource.006", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 328390},
+		{"resource.007", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 317687},
+		{"resource.008", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 352345},
+		{"resource.009", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 257355},
+		{"resource.010", 0, "e45c888d9c7c04aec0a20e9f820b79ff", 356093},
+		{"Translate.RU", 0, "3f730611f55257821b964f96eafea0ba", 171}, // Text file for detecting translation
+		AD_LISTEND},
+		Common::RU_RUS, Common::kPlatformDOS, 0, GUIO_STD16_UNDITHER	},
 
 	// Laura Bow - English DOS (from FRG)
 	// SCI interpreter version 0.000.631
@@ -4263,6 +4294,17 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.006", 0, "77f02def3094af804fd2371db25b7100", 354991},
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformDOS, 0, GUIO_STD16_UNDITHER	},
+
+	// Police Quest 2 - fan translate by https://github.com/deadman2000/RuSCI
+	// Executable scanning reports "0.000.490"
+	{"pq2", "", {
+		{"resource.map", 0, "28a6f471c7900c2c92da40eecb615d9d", 4584},
+		{"resource.001", 0, "77f02def3094af804fd2371db25b7100", 509525},
+		{"resource.002", 0, "77f02def3094af804fd2371db25b7100", 546000},
+		{"resource.003", 0, "77f02def3094af804fd2371db25b7100", 591851},
+		{"Translate.RU", 0, "3f730611f55257821b964f96eafea0ba", 171}, // Text file for detecting translation
+		AD_LISTEND},
+		Common::RU_RUS, Common::kPlatformDOS, 0, GUIO_STD16_UNDITHER	},
 
 	// Police Quest 2 - English DOS (from the Police Quest Collection)
 	// Executable scanning reports "0.000.490"
@@ -6026,6 +6068,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 
 	// Space Quest 6 - English DOS/Win3.11 CD (from the Space Quest Collection)
 	// Executable scanning reports "2.100.002", VERSION file reports "1.0"
+	// This is a different interpreter than in version 1.11, though both say "May 24 1995"
 	{"sq6", "", {
 		{"resource.map", 0, "6dddfa3a8f3a3a513ec9dfdfae955005", 10528},
 		{"resource.000", 0, "c4259ab7355aead07773397b1052827d", 41150806},
@@ -6033,7 +6076,8 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		Common::EN_ANY, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_SQ6 },
 
 	// Space Quest 6 - English DOS/Win3.11 CD ver 1.11 (from FRG)
-	// SCI interpreter version 2.100.002 (just a guess)
+	// Executable scanning reports "2.100.002", VERSION file reports "1.11"
+	// This is a different interpreter than in version 1.0, though both say "May 24 1995"
 	{"sq6", "", {
 		{"resource.map", 0, "e0615d6e4e10e37ae42e6a2a95aaf145", 10528},
 		{"resource.000", 0, "c4259ab7355aead07773397b1052827d", 41150806},
@@ -6324,6 +6368,8 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 	FANMADE("Betrayed Alliance 1.1", "bb776e42e93f8b98006d6481fb73a588", 4080, "ad7bcfa11f914f23ddbe32723700391e", 2391020),
 	FANMADE("Betrayed Alliance 1.2", "ade9f8124dae2e6aced8b5bfc0f54411", 4200, "4599d184348e8dfa99a1804f41966177", 2498493), // original version
 	FANMADE("Betrayed Alliance 1.2", "30431334d821d23e584d6f4c0a3d5b61", 4206, "42e3a857f589eef8a8567b86b71f7fb9", 2503541), // "stealth updated" version
+	FANMADE("Betrayed Alliance 1.3.1", "c6e60d28086cfa5655af3701c8e2d181", 4878, "c9329736f06cc9ab17f370c93d1fd2fd", 3326253),
+	FANMADE("Betrayed Alliance Book 2 Demo 1.0", "b5b21ca4d1ad3c576e9776bf96845656", 4524, "57150380af9bf05b07851177e01c5066", 3309884),
 	FANMADE("Bluntman and Chronic (Politically Correct Version)", "c3ef9fa6c7c5fb840078bf28d87c7f8b", 1362, "441636a9f6f86710844868fded868ee7", 596688),
 	FANMADE("Cascade Quest", "c94efc10d18c040b6e22a1dc6d3adfe1", 3468, "8ada33dfa945f81531e5508240b573de", 1432195),
 	FANMADE("Circus Quest", "35871f6b4e1df56af4113c0203a0b223", 630, "7d6f97d7935d8733f488d4cb74315e5b", 279627),
@@ -6361,10 +6407,8 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 	FANMADE("SCI Programming April 2010 Competition Template", "36e5c4011dd7c92e1ae4c6fede7d698d", 456, "20c87fbb7f73e2a3eb2c5dfab4d76b5a", 142221),
 	FANMADE("SCI Studio Template 3.0", "ca0dc8d586e0a8670b7621cde090b532", 354, "58a48ee692a86c0575e6bd0b00a92b9a", 113097),
 	FANMADE("SCI Quest", "9067e1f1e54436d2dbfce855524bc84a", 552, "ffa7d355cd9223f245289108a696bcd2", 149634),
-#if 0
-	// Disabled, this crashes into: [VM] kFGets[2b]: signature mismatch in method TitleScreen::init (room 3052, script 800, localCall ffffffff)!
-	FANMADE("SCI Tetris", "a268f84a293e6f8bbb55f6a41541c6cb", 384, "4da38a05d9752e787770e560a8f54fe6", 138974),
-#endif
+	FANMADE("SCI Tetris 1.0", "a268f84a293e6f8bbb55f6a41541c6cb", 384, "4da38a05d9752e787770e560a8f54fe6", 138974),
+	FANMADE("SCI Tetris 1.1", "d1bd53d329541e4b26ec2f0b1eb68eb8", 318, "b219747b7e8b0537f783d621c6191b37", 102714),
 	FANMADE11("SCI VGA Demo Update-Remake", "8913c0855eac223de6a86b3fc1af67c1", 439, "31d4283d8a9d52833df0d1e91dd702ec", 299311),
 	FANMADE("SCI-Man", "3ab85bd39a86c11f85781764f9db09bb", 468, "bb8f9992f504a242bf0860e3588e150b", 131810),
 	FANMADE("Scene Builder", "981de9fc7ecfc26631a5aec5c4e09bfe", 1842, "8faf71a4f7d89618d1346c1d60cd3074", 820847),

@@ -434,7 +434,7 @@ struct ObjectReference {
 	inline ObjectReference() {
 	}
 
-	inline explicit ObjectReference(const Common::WeakPtr<RuntimeObject> objectPtr) : object(objectPtr) {
+	inline explicit ObjectReference(const Common::WeakPtr<RuntimeObject> &objectPtr) : object(objectPtr) {
 	}
 
 	inline bool operator==(const ObjectReference &other) const {
@@ -905,6 +905,12 @@ private:
 		void construct(T &&value);
 
 		template<class T, T(ValueUnion::*TMember)>
+		void assign(const T &value);
+
+		template<class T, T(ValueUnion::*TMember)>
+		void assign(T &&value);
+
+		template<class T, T(ValueUnion::*TMember)>
 		void destruct();
 	};
 
@@ -1249,17 +1255,17 @@ private:
 	Common::HashMap<uint32, Common::SharedPtr<CursorGraphic> > _cursorGraphics;
 };
 
+// The project platform is the platform that the project is running on (not the format of the project)
 enum ProjectPlatform {
 	kProjectPlatformUnknown,
 
 	kProjectPlatformWindows,
 	kProjectPlatformMacintosh,
-	KProjectPlatformCrossPlatform,
 };
 
 class ProjectDescription {
 public:
-	explicit ProjectDescription(ProjectPlatform platform);
+	ProjectDescription(ProjectPlatform platform, RuntimeVersion runtimeVersion, bool autoDetectVersion, Common::Archive *rootArchive, const Common::Path &projectRootDir);
 	~ProjectDescription();
 
 	void addSegment(int volumeID, const char *filePath);
@@ -1279,9 +1285,14 @@ public:
 	const Common::Language &getLanguage() const;
 
 	ProjectPlatform getPlatform() const;
+	RuntimeVersion getRuntimeVersion() const;
+	bool isRuntimeVersionAuto() const;
+
+	Common::Archive *getRootArchive() const;
+	const Common::Path &getProjectRootDir() const;
 
 	const SubtitleTables &getSubtitles() const;
-	void getSubtitles(const SubtitleTables &subs);
+	void setSubtitles(const SubtitleTables &subs);
 
 private:
 	Common::Array<SegmentDescription> _segments;
@@ -1291,6 +1302,11 @@ private:
 	Common::Language _language;
 	SubtitleTables _subtitles;
 	ProjectPlatform _platform;
+	RuntimeVersion _runtimeVersion;
+	bool _isRuntimeVersionAuto;
+
+	Common::Archive *_rootArchive;
+	Common::Path _projectRootDir;
 };
 
 struct VolumeState {
@@ -2003,6 +2019,8 @@ public:
 	const Common::Array<Common::SharedPtr<Modifier> > &getModifiers() const override;
 	void appendModifier(const Common::SharedPtr<Modifier> &modifier) override;
 
+	void clear();
+
 private:
 	Common::Array<Common::SharedPtr<Modifier> > _modifiers;
 };
@@ -2469,6 +2487,7 @@ private:
 
 		SegmentDescription desc;
 		Common::SharedPtr<Common::SeekableReadStream> rcStream;
+
 		Common::SeekableReadStream *weakStream;
 		Common::SharedPtr<SegmentUnloadSignaller> unloadSignaller;
 	};
@@ -2519,13 +2538,13 @@ private:
 
 	void assignAssets(const Common::Array<Common::SharedPtr<Asset> > &assets, const Hacks &hacks);
 
+	void initAdditionalSegments(const Common::String &projectName);
+
 	Common::Array<Segment> _segments;
 	Common::Array<StreamDesc> _streams;
 	Common::Array<LabelTree> _labelTree;
 	Common::Array<LabelSuperGroup> _labelSuperGroups;
 	Data::ProjectFormat _projectFormat;
-	Data::ProjectEngineVersion _projectEngineVersion;
-	bool _isBigEndian;
 
 	Common::Array<AssetDesc *> _assetsByID;
 	Common::Array<AssetDesc> _realAssets;
@@ -2554,6 +2573,12 @@ private:
 
 	MTropolisVersions::MTropolisVersion _guessedVersion;
 	ProjectPlatform _platform;
+
+	Common::Archive *_rootArchive;
+	Common::Path _projectRootDir;
+
+	RuntimeVersion _runtimeVersion;
+	bool _isRuntimeVersionAutoDetect;
 };
 
 class Section : public Structural {

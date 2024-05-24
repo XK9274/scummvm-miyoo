@@ -32,8 +32,8 @@ namespace Graphics {
 #define D(...)  debug(__VA_ARGS__)
 #define DN(...)  debugN(__VA_ARGS__)
 #else
-#define D(...)  ;
-#define DN(...)  ;
+#define D(...)  ((void)0)
+#define DN(...) ((void)0)
 #endif
 
 MacTextCanvas::~MacTextCanvas() {
@@ -60,7 +60,7 @@ void MacTextCanvas::chopChunk(const Common::U32String &str, int *curLinePtr, int
 	// Check if there is nothing to add, then remove the last chunk
 	// This happens when the previous run is finished only with
 	// empty formatting, or when we were adding text for the first time
-	if (chunk->text.empty() && str.empty()) {
+	if (chunk->text.empty() && str.empty() && (_text[curLine].chunks.size() > 1)) {
 		D(9, "** chopChunk, replaced formatting, line %d", curLine);
 
 		_text[curLine].chunks.pop_back();
@@ -75,14 +75,15 @@ void MacTextCanvas::chopChunk(const Common::U32String &str, int *curLinePtr, int
 	}
 
 	Common::Array<Common::U32String> text;
+	Common::Array<bool> lineContinuations;
 
 	int w = getLineWidth(curLine, true);
 	D(9, "** chopChunk before wrap \"%s\"", Common::toPrintable(str.encode()).c_str());
 
-	chunk->getFont()->wordWrapText(str, maxWidth, text, w);
+	chunk->getFont()->wordWrapText(str, maxWidth, text, lineContinuations, w);
 
 	if (text.size() == 0) {
-		warning("chopChunk: too narrow width, >%d", maxWidth);
+		D(5, "chopChunk: too narrow width, >%d", maxWidth);
 		chunk->text += str;
 		getLineCharWidth(curLine, true);
 
@@ -92,7 +93,9 @@ void MacTextCanvas::chopChunk(const Common::U32String &str, int *curLinePtr, int
 	for (int i = 0; i < (int)text.size(); i++) {
 		D(9, "** chopChunk result %d \"%s\"", i, toPrintable(text[i].encode()).c_str());
 	}
+
 	chunk->text += text[0];
+	_text[curLine].wordContinuation = lineContinuations[0];
 
 	// Recalc dims
 	getLineWidth(curLine, true);
@@ -114,6 +117,7 @@ void MacTextCanvas::chopChunk(const Common::U32String &str, int *curLinePtr, int
 		_text[curLine].chunks.push_back(newchunk);
 		_text[curLine].indent = indent;
 		_text[curLine].firstLineIndent = 0;
+		_text[curLine].wordContinuation = lineContinuations[i];
 
 		D(9, "** chopChunk, added line (firstIndent: %d): \"%s\"", _text[curLine].firstLineIndent, toPrintable(text[i].encode()).c_str());
 	}
@@ -168,14 +172,14 @@ Common::String preprocessImageExt(const char *ptr) {
 				ptr++;
 
 			if (*ptr != '=') {
-				warning("MacTextCanvas: Malformatted image extention: '=' expected at '%s'", ptr);
+				warning("MacTextCanvas: Malformatted image extension: '=' expected at '%s'", ptr);
 				return "";
 			}
 		} else if (Common::isDigit(*ptr)) {
 			int num = 0;
 
 			if (state == kStateNone) {
-				warning("MacTextCanvas: Malformatted image extention: unexpected digit at '%s'", ptr);
+				warning("MacTextCanvas: Malformatted image extension: unexpected digit at '%s'", ptr);
 				return "";
 			}
 
@@ -199,11 +203,11 @@ Common::String preprocessImageExt(const char *ptr) {
 				while (*ptr && *ptr != ' ' && *ptr != '\t')
 					ptr++;
 			} else {
-				warning("MacTextCanvas: Malformatted image extention: %% or e[m] or p[x] expected at '%s'", ptr);
+				warning("MacTextCanvas: Malformatted image extension: %% or e[m] or p[x] expected at '%s'", ptr);
 				return "";
 			}
 		} else {
-			warning("MacTextCanvas: Malformatted image extention: w[idth] or h[eight] expected at '%s'", ptr);
+			warning("MacTextCanvas: Malformatted image extension: w[idth] or h[eight] expected at '%s'", ptr);
 			return "";
 		}
 
@@ -238,6 +242,9 @@ const Common::U32String::value_type *MacTextCanvas::splitString(const Common::U3
 	int firstLineIndent = 0;
 	bool inTable = false;
 
+
+	bool lineBreakOnLineEnd = false;
+
 	while (*s) {
 		firstLineIndent = 0;
 
@@ -252,8 +259,13 @@ const Common::U32String::value_type *MacTextCanvas::splitString(const Common::U3
 			while (*s && *s != '\001') {
 				if (*s == '\r') {
 					s++;
-					if (*s == '\n')	// Skip whole '\r\n'
+
+					if (*s == '\n') { // Skip whole '\r\n'
 						s++;
+
+						if (!*s)
+							lineBreakOnLineEnd = true;
+					}
 
 					endOfLine = true;
 
@@ -265,6 +277,10 @@ const Common::U32String::value_type *MacTextCanvas::splitString(const Common::U3
 					s++;
 
 					endOfLine = true;
+
+					if (!*s)
+						lineBreakOnLineEnd = true;
+
 					break;
 				}
 
@@ -429,7 +445,7 @@ const Common::U32String::value_type *MacTextCanvas::splitString(const Common::U3
 
 					D(9, "** splitString[i]: %d%% fname: '%s'  alt: '%s'  title: '%s'  ext: '%s'",
 						_text[curLine].picpercent,
-						_text[curLine].picfname.c_str(), _text[curLine].picalt.encode().c_str(),
+						_text[curLine].picfname.toString().c_str(), _text[curLine].picalt.encode().c_str(),
 						_text[curLine].pictitle.encode().c_str(), _text[curLine].picext.encode().c_str());
 					break;
 					}
@@ -561,11 +577,12 @@ const Common::U32String::value_type *MacTextCanvas::splitString(const Common::U3
 			curTextLine->chunks.push_back(_defaultFormatting);
 		}
 
-		if (*s) {
+		if (*s || lineBreakOnLineEnd) {
 			// Add new line
 			D(9, "** splitString: new line");
 
 			curLine++;
+
 			_text.insert_at(curLine, MacTextLine());
 			_text[curLine].chunks.push_back(chunk);
 
@@ -633,13 +650,11 @@ void MacTextCanvas::render(int from, int to, int shadow) {
 
 	for (int i = myFrom; i != myTo; i += delta) {
 		if (!_text[i].picfname.empty()) {
-			const Surface *image = _macText->getImageSurface(_text[i].picfname);
-
-			int xOffset = (_text[i].width - _text[i].charwidth) / 2;
-			Common::Rect bbox(xOffset, _text[i].y, xOffset + _text[i].charwidth, _text[i].y + _text[i].height);
+			const Surface *image = _imageArchive.getImageSurface(_text[i].picfname, _text[i].charwidth, _text[i].height);
 
 			if (image) {
-				surface->blitFrom(image, Common::Rect(0, 0, image->w, image->h), bbox);
+				int xOffset = (_text[i].width - _text[i].charwidth) / 2;
+				surface->blitFrom(image, Common::Point(xOffset, _text[i].y));
 
 				D(9, "MacTextCanvas::render: Image %d x %d bbox: %d, %d, %d, %d", image->w, image->h, bbox.left, bbox.top,
 						bbox.right, bbox.bottom);
@@ -842,7 +857,7 @@ int MacTextCanvas::getLineWidth(int lineNum, bool enforce, int col) {
 		return line->width;
 
 	if (!line->picfname.empty()) {
-		const Surface *image = _macText->getImageSurface(line->picfname);
+		const Surface *image = _imageArchive.getImageSurface(line->picfname);
 
 		if (image) {
 			line->width = _maxWidth;
@@ -1109,7 +1124,7 @@ void MacTextCanvas::reshuffleParagraph(int *row, int *col, MacFontRun &defaultFo
 	bool paragraphEnd = _text[end].paragraphEnd;
 
 #if DEBUG
-	D(9, "MacTextCanvas::reshuffleParagraph: ppos: %d", ppos);
+	D(9, "MacTextCanvas::reshuffleParagraph: ppos: %d, start: %d, end: %d", ppos, start, end);
 	debugPrint("MacTextCanvas::reshuffleParagraph(1)");
 #endif
 
@@ -1168,7 +1183,13 @@ void MacTextCanvas::reshuffleParagraph(int *row, int *col, MacFontRun &defaultFo
 
 #if DEBUG
 	debugPrint("MacTextCanvas::reshuffleParagraph(3)");
+	D(9, "Chunks: ");
+	for (auto &ch : _text[curLine].chunks)
+		ch.debugPrint();
+
+	D(9, "");
 #endif
+
 
 	// Restore the paragraph marker
 	_text[curLine].paragraphEnd = paragraphEnd;

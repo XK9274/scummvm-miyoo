@@ -54,18 +54,21 @@ void AudioPlayer::setDefaultSoundGroup() {
 		setSoundGroup("rex009.dsr");
 		break;
 	case GType_Dragonsphere:
-	case GType_Forest:
 		setSoundGroup("drag009.dsr");
 		break;
 	case GType_Phantom:
 		setSoundGroup("phan009.dsr");
+		break;
+	case GType_Forest:
+		// TODO: Forest doesn't contain DSR files
+		warning("TODO: setSoundGroup for Forest");
 		break;
 	default:
 		error("setDefaultSoundGroup: Unknown game");
 	}
 }
 
-void AudioPlayer::setSoundGroup(const Common::String &filename) {
+void AudioPlayer::setSoundGroup(const Common::Path &filename) {
 	if (_filename != filename) {
 		_dsrEntries.clear();
 

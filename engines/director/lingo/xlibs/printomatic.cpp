@@ -77,8 +77,8 @@ V      mStrokedOval [, left, top, right, bottom | , centerH, centerV, radius ]
 V      mFilledOval [, left, top, right, bottom | , centerH, centerV, radius ]
 XIIII  mLine, startH, startV, endH, endV
 V      mPicture, pict | pictFile | pictResID, left, top [ , right, bottom ]
-V      mStagePicture, left, top , right, bottom [,clipLeft ,clipTop ...] 
-V      m1BitStagePicture, left, top , right, bottom [,clipLeft ,clipTop ...] 
+V      mStagePicture, left, top , right, bottom [,clipLeft ,clipTop ...]
+V      m1BitStagePicture, left, top , right, bottom [,clipLeft ,clipTop ...]
 V      mEPSFile, fileName, left, top , right, bottom
 --
 --  PRINTING
@@ -141,7 +141,7 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-void PrintOMaticXObj::open(int type) {
+void PrintOMaticXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		PrintOMaticXObject::initMethods(xlibMethods);
 		PrintOMaticXObject *xobj = new PrintOMaticXObject(kXObj);
@@ -149,7 +149,7 @@ void PrintOMaticXObj::open(int type) {
 	}
 }
 
-void PrintOMaticXObj::close(int type) {
+void PrintOMaticXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		PrintOMaticXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
@@ -157,7 +157,7 @@ void PrintOMaticXObj::close(int type) {
 }
 
 
-PrintOMaticXObject::PrintOMaticXObject(ObjectType ObjectType) :Object<PrintOMaticXObject>("PrintOMaticXObj") {
+PrintOMaticXObject::PrintOMaticXObject(ObjectType ObjectType) :Object<PrintOMaticXObject>("PrintOMatic") {
 	_objType = ObjectType;
 }
 

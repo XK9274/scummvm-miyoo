@@ -48,7 +48,7 @@ Sprite::Sprite(Frame *frame) {
 	_spriteType = kInactiveSprite;
 	_inkData = 0;
 	_ink = kInkTypeCopy;
-	_trails = 0;
+	_trails = false;
 
 	_matte = nullptr;
 	_cast = nullptr;
@@ -67,7 +67,7 @@ Sprite::Sprite(Frame *frame) {
 	_blend = 0;
 
 	_volume = 0;
-	_stretch = 0;
+	_stretch = false;
 }
 
 Sprite& Sprite::operator=(const Sprite &sprite) {
@@ -111,7 +111,7 @@ Sprite& Sprite::operator=(const Sprite &sprite) {
 	_foreColor = sprite._foreColor;
 
 	_blend = sprite._blend;
-	
+
 	_volume = sprite._volume;
 	_stretch = sprite._stretch;
 
@@ -407,11 +407,70 @@ bool Sprite::getAutoPuppet(AutoPuppetProperty property) {
 	return (_autoPuppet & (1 << property)) != 0;
 }
 
+void Sprite::setWidth(int w) {
+	_width = MAX<int>(w, 0);
+
+	// Based on Director in a Nutshell, page 15
+	setAutoPuppet(kAPWidth, true);
+}
+
+void Sprite::setHeight(int h) {
+	_height = MAX<int>(h, 0);
+
+	// Based on Director in a Nutshell, page 15
+	setAutoPuppet(kAPHeight, true);
+}
+
+Common::Rect Sprite::getBbox(bool unstretched) {
+	Common::Rect result(_width, _height);
+	// If this is a cast member, use the cast member's getBbox function
+	// so we start with a rect containing the correct registration offset.
+	if (_cast)
+		result = _cast->getBbox(_width, _height);
+
+	// The origin of the rect should be at the registration offset,
+	// e.g. for bitmap sprites this defaults to the centre.
+	// Now we move the rect to the correct spot.
+	Common::Point startPos = _startPoint;
+	result.translate(startPos.x, startPos.y);
+	return result;
+
+}
+
+void Sprite::setBbox(int l, int t, int r, int b) {
+	_width = r - l;
+	_height = b - t;
+
+	Common::Rect source(_width, _height);
+	if (_cast) {
+		source = _cast->getBbox(_width, _height);
+	}
+	_startPoint.x = (int16)(l - source.left);
+	_startPoint.y = (int16)(t - source.top);
+
+	if (_width <= 0 || _height <= 0)
+		_width = _height = 0;
+
+	// Based on Director in a Nutshell, page 15
+	setAutoPuppet(kAPBbox, true);
+}
+
+Common::Point Sprite::getPosition() {
+	return _startPoint;
+}
+
+void Sprite::setPosition(int x, int y) {
+	_startPoint = Common::Point(x, y);
+
+	// Based on Director in a Nutshell, page 15
+	setAutoPuppet(kAPLoc, true);
+}
+
 bool Sprite::checkSpriteType() {
 	// check whether the sprite type match the cast type
 	// if it doesn't match, then we treat it as transparent
 	// this happens in warlock-mac data/stambul/c up
-	if (_spriteType == kBitmapSprite && _cast->_type != kCastBitmap) {
+	if (_spriteType == kBitmapSprite && !(_cast->_type == kCastBitmap || _cast->_type == kCastFilmLoop)) {
 		if (debugChannelSet(4, kDebugImages))
 			warning("Sprite::checkSpriteType: Didn't render sprite due to the sprite type mismatch with cast type");
 		return false;
@@ -419,7 +478,7 @@ bool Sprite::checkSpriteType() {
 	return true;
 }
 
-void Sprite::setCast(CastMemberID memberID) {
+void Sprite::setCast(CastMemberID memberID, bool replaceDims) {
 	/**
 	 * There are two things we need to take into account here:
 	 *   1. The cast member's type
@@ -455,30 +514,18 @@ void Sprite::setCast(CastMemberID memberID) {
 			}
 		}
 
-		// TODO: Respect sprite width/height settings. Need to determine how to read
-		// them properly.
-		Common::Rect dims = _cast->getInitialRect();
-		// strange logic here, need to be fixed
-		switch (_cast->_type) {
-		case kCastBitmap:
-			// for the stretched sprites, we need the original size to get the correct bbox offset.
-			// there are two stretch situation here.
-			// 1. stretch happened when creating the widget, there is no lingo participated. we will use the original sprite size to create widget. check copyStretchImg
-			// 2. stretch set by lingo. this time we need to store the original dims because we will create the original sprite and stretch it when bliting. check inkBlitStretchSurface
-			{
-				if (!(_inkData & 0x80) || _stretch) {
-					_width = dims.width();
-					_height = dims.height();
-				}
+		if (replaceDims) {
+			Common::Rect dims = _cast->getInitialRect();
+			switch (_cast->_type) {
+			case kCastShape:
+			case kCastText: 	// fall-through
+				break;
+			case kCastBitmap:
+			default:
+				_width = dims.width();
+				_height = dims.height();
+				break;
 			}
-			break;
-		case kCastShape:
-		case kCastText: 	// fall-through
-			break;
-		default:
-			_width = dims.width();
-			_height = dims.height();
-			break;
 		}
 
 	} else {

@@ -73,6 +73,8 @@ public:
 
 	virtual void useColor(uint8 r, uint8 g, uint8 b) override;
 	virtual void polygonOffset(bool enabled) override;
+	virtual void depthTesting(bool enabled) override;
+
 	virtual void setStippleData(byte *data) override;
 	virtual void useStipple(bool enabled) override;
 
@@ -83,6 +85,7 @@ public:
 	virtual void renderSensorShoot(byte color, const Math::Vector3d sensor, const Math::Vector3d player, const Common::Rect viewPort) override;
 	virtual void renderPlayerShootBall(byte color, const Common::Point position, int frame, const Common::Rect viewPort) override;
 	virtual void renderPlayerShootRay(byte color, const Common::Point position, const Common::Rect viewPort) override;
+	void drawCelestialBody(Math::Vector3d position, float radius, uint8 color) override;
 
 	virtual void renderCrossair(const Common::Point crossairPosition) override;
 

@@ -67,7 +67,6 @@ class SeekableWriteStream;
 }
 namespace Graphics {
 class FontSJIS;
-class MacFontManager;
 }
 
 /**
@@ -522,7 +521,7 @@ class ScummEngine : public Engine, public Common::Serializable {
 	friend class CharsetRendererClassic;
 	friend class CharsetRendererTownsClassic;
 	friend class ResourceManager;
-	friend class MacGui;
+	friend class MacGuiImpl;
 	friend class MacIndy3Gui;
 	friend class MacLoomGui;
 
@@ -559,6 +558,7 @@ public:
 	bool _enableCOMISong = false;
 	bool _isAmigaPALSystem = false;
 	bool _quitFromScriptCmd = false;
+	bool _isHE995 = false;
 
 	Common::Keymap *_insaneKeymap;
 
@@ -589,27 +589,28 @@ public:
 	void syncSoundSettings() override;
 
 	Common::Error loadGameState(int slot) override;
-	bool canLoadGameStateCurrently() override;
+	bool canLoadGameStateCurrently(Common::U32String *msg = nullptr) override;
 	Common::Error saveGameState(int slot, const Common::String &desc, bool isAutosave = false) override;
-	bool canSaveGameStateCurrently() override;
+	bool canSaveGameStateCurrently(Common::U32String *msg = nullptr) override;
 
 	void pauseEngineIntern(bool pause) override;
 
 protected:
-	virtual void setupScumm(const Common::String &macResourceFile);
+	virtual void setupScumm(const Common::Path &macResourceFile);
 	virtual void resetScumm();
 
 	virtual void setupScummVars();
 	virtual void resetScummVars();
 	void setVideoModeVarToCurrentConfig();
+	void setSoundCardVarToCurrentConfig();
 
-	void setupCharsetRenderer(const Common::String &macFontFile);
+	void setupCharsetRenderer(const Common::Path &macFontFile);
 	void setupCostumeRenderer();
 
 	virtual void loadLanguageBundle();
 	void loadCJKFont();
 	void loadKorFont();
-	void setupMusic(int midi, const Common::String &macInstrumentFile);
+	void setupMusic(int midi);
 	void setTalkSpeed(int talkspeed);
 	int getTalkSpeed();
 
@@ -632,7 +633,7 @@ public:
 protected:
 	virtual void parseEvent(Common::Event event);
 
-	void waitForTimer(int quarterFrames);
+	void waitForTimer(int quarterFrames, bool freezeMacGui = false);
 	uint32 _lastWaitTime;
 
 	void setTimerAndShakeFrequency();
@@ -884,7 +885,7 @@ public:
 
 	FilenamePattern _filenamePattern;
 
-	virtual Common::String generateFilename(const int room) const;
+	virtual Common::Path generateFilename(const int room) const;
 
 protected:
 	Common::KeyState _keyPressed;
@@ -974,6 +975,7 @@ protected:
 	const byte *_scriptOrgPointer = nullptr;
 	const byte * const *_lastCodePtr = nullptr;
 	byte _opcode = 0;
+	bool _debug = false;
 	byte _currentScript = 0xFF; // Let debug() work on init stage
 	int _scummStackPos = 0;
 	int _vmStack[256];
@@ -1058,10 +1060,10 @@ protected:
 	uint32 _fileOffset = 0;
 public:
 	/** The name of the (macintosh/rescumm style) container file, if any. */
-	Common::String _containerFile;
-	Common::String _macCursorFile;
+	Common::Path _containerFile;
+	Common::Path _macCursorFile;
 
-	bool openFile(BaseScummFile &file, const Common::String &filename, bool resourceFile = false);
+	bool openFile(BaseScummFile &file, const Common::Path &filename, bool resourceFile = false);
 
 	/** Is this game a Mac m68k v5 game with iMuse? */
 	bool isMacM68kIMuse() const;
@@ -1077,8 +1079,8 @@ protected:
 	void closeRoom();
 	void deleteRoomOffsets();
 	virtual void readRoomsOffsets();
-	void askForDisk(const char *filename, int disknum);	// TODO: Use Common::String
-	bool openResourceFile(const Common::String &filename, byte encByte);	// TODO: Use Common::String
+	void askForDisk(const Common::Path &filename, int disknum);
+	bool openResourceFile(const Common::Path &filename, byte encByte);
 
 	void loadPtrToResource(ResType type, ResId idx, const byte *ptr);
 	virtual int readResTypeList(ResType type);
@@ -1276,6 +1278,7 @@ public:
 
 	int _screenStartStrip = 0, _screenEndStrip = 0;
 	int _screenTop = 0;
+	bool _forceBannerVirtScreen = false;
 
 	// For Mac versions of 320x200 games:
 	// these versions rendered at 640x480 without any aspect ratio correction;
@@ -1506,6 +1509,7 @@ protected:
 	int _shadowPaletteSize = 0;
 	byte _currentPalette[3 * 256];
 	byte _darkenPalette[3 * 256];
+	int _paletteChangedCounter = 1;
 
 	int _palDirtyMin = 0, _palDirtyMax = 0;
 
@@ -1520,6 +1524,7 @@ protected:
 	int _saveSound = 0;
 	bool _native_mt32 = false;
 	bool _copyProtection = false;
+	bool _shadowPalRemap = false;
 
 	// Indy4 Amiga specific
 	uint16 _amigaFirstUsedColor = 0;
@@ -1585,7 +1590,6 @@ public:
 	Graphics::Surface _textSurface;
 	int _textSurfaceMultiplier = 0;
 
-	Graphics::MacFontManager *_macFontManager = nullptr;
 	Graphics::Surface *_macScreen = nullptr;
 	MacGui *_macGui = nullptr;
 
@@ -1613,10 +1617,11 @@ protected:
 
 	virtual bool handleNextCharsetCode(Actor *a, int *c);
 	virtual void drawSentence() {}
-	virtual void CHARSET_1();
+	virtual void displayDialog();
 	bool newLine();
 	void drawString(int a, const byte *msg);
 	virtual void fakeBidiString(byte *ltext, bool ignoreVerb, int ltextSize) const;
+	void wrapSegaCDText();
 	void debugMessage(const byte *msg);
 	virtual void showMessageDialog(const byte *msg);
 
@@ -1819,7 +1824,7 @@ public:
 	byte VAR_ACTIVE_OBJECT2 = 0xFF;
 
 	// HE specific variables
-	byte VAR_REDRAW_ALL_ACTORS = 0xFF;		// Used in setActorRedrawFlags()
+	byte VAR_ALWAYS_REDRAW_ACTORS = 0xFF;		// Used in setActorRedrawFlags()
 	byte VAR_SKIP_RESET_TALK_ACTOR = 0xFF;	// Used in setActorCostume()
 
 	byte VAR_SOUND_CHANNEL = 0xFF;				// Used in o_startSound()
@@ -1843,6 +1848,8 @@ public:
 	byte VAR_ERROR_FLAG = 0xFF; // HE70-90
 	byte VAR_OPERATION_FAILURE = 0xFF; // HE99+
 
+	byte VAR_COLOR_BLACK = 0xFF;
+
 	// Exists both in V7 and in V72HE:
 	byte VAR_NUM_GLOBAL_OBJS = 0xFF;
 
@@ -1860,6 +1867,8 @@ public:
 
 protected:
 	void towns_drawStripToScreen(VirtScreen *vs, int dstX, int dstY, int srcX, int srcY, int w, int h);
+	void towns_fillTopLayerRect(int x1, int y1, int x2, int y2, int col);
+	void towns_swapVirtScreenArea(VirtScreen *vs, int x, int y, int w, int h);
 	void towns_clearStrip(int strip);
 #ifdef USE_RGB_COLOR
 	void towns_setPaletteFromPtr(const byte *ptr, int numcolor = -1);
@@ -1886,6 +1895,7 @@ protected:
 	int _refreshArrayPos = 0;
 	bool _refreshNeedCatchUp = false;
 	bool _enableSmoothScrolling = false;
+	bool _forceFMTownsHiResMode = false;
 	uint32 _scrollTimer = 0;
 	uint32 _scrollDestOffset = 0;
 	uint16 _scrollFeedStrips[3];
@@ -1904,6 +1914,8 @@ protected:
 	void scrollRight() { redrawBGStrip(0, 1); }
 	void towns_updateGfx() {}
 	void towns_waitForScroll(int waitForDirection, int threshold = 0) {}
+	void towns_fillTopLayerRect(int x1, int y1, int x2, int y2, int col) {}
+	void towns_swapVirtScreenArea(VirtScreen *vs, int x, int y, int w, int h) {}
 #endif // DISABLE_TOWNS_DUAL_LAYER_MODE
 };
 

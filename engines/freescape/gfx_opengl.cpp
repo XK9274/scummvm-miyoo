@@ -31,6 +31,8 @@
 #include "freescape/gfx_opengl.h"
 #include "freescape/gfx_opengl_texture.h"
 
+#ifdef USE_OPENGL_GAME
+
 namespace Freescape {
 
 Renderer *CreateGfxOpenGL(int screenW, int screenH, Common::RenderMode renderMode) {
@@ -154,17 +156,53 @@ void OpenGLRenderer::drawTexturedRect2D(const Common::Rect &screenRect, const Co
 	glFlush();
 }
 
+void OpenGLRenderer::drawSkybox(Texture *texture, Math::Vector3d camera) {
+	OpenGLTexture *glTexture = static_cast<OpenGLTexture *>(texture);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+
+	glBindTexture(GL_TEXTURE_2D, glTexture->_id);
+	glVertexPointer(3, GL_FLOAT, 0, _skyVertices);
+	glNormalPointer(GL_FLOAT, 0, _skyNormals);
+	glTexCoordPointer(2, GL_FLOAT, 0, _skyUvs);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+
+	glPolygonMode(GL_BACK, GL_FILL);
+
+	glPushMatrix();
+	{
+		glTranslatef(camera.x(), camera.y(), camera.z());
+		glDrawArrays(GL_QUADS, 0, 16);
+	}
+	glPopMatrix();
+
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glFlush();
+}
+
 void OpenGLRenderer::updateProjectionMatrix(float fov, float nearClipPlane, float farClipPlane) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-
-	float aspectRatio = _screenW / (float)_screenH;
+	// Determining xmaxValue and ymaxValue still needs some work for matching the 3D view in freescape games
+	/*float aspectRatio = _screenW / (float)_screenH;
 
 	float xmaxValue = nearClipPlane * tan(Common::deg2rad(fov) / 2);
 	float ymaxValue = xmaxValue / aspectRatio;
 	// debug("max values: %f %f", xmaxValue, ymaxValue);
 
-	glFrustum(xmaxValue, -xmaxValue, -ymaxValue, ymaxValue, nearClipPlane, farClipPlane);
+	glFrustum(xmaxValue, -xmaxValue, -ymaxValue, ymaxValue, nearClipPlane, farClipPlane);*/
+	glFrustum(1.5, -1.5, -0.625, 0.625, nearClipPlane, farClipPlane);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -278,6 +316,78 @@ void OpenGLRenderer::renderPlayerShootRay(byte color, const Common::Point positi
 	glDepthMask(GL_TRUE);
 }
 
+void OpenGLRenderer::drawCelestialBody(Math::Vector3d position, float radius, byte color) {
+	uint8 r1, g1, b1, r2, g2, b2;
+	byte *stipple = nullptr;
+	getRGBAt(color, 0, r1, g1, b1, r2, g2, b2, stipple);
+
+	int triangleAmount = 20;
+	float twicePi = (float)(2.0 * M_PI);
+
+	// Quick billboard effect inspired from this code:
+	// http://www.lighthouse3d.com/opengl/billboarding/index.php?billCheat
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	GLfloat m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	for(int i = 1; i < 4; i++)
+		for(int j = 0; j < 4; j++ ) {
+			if (i == 2)
+				continue;
+			if (i == j)
+				m[i*4 + j] = 1.0;
+			else
+				m[i*4 + j] = 0.0;
+		}
+
+	glLoadMatrixf(m);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+	setStippleData(stipple);
+	useColor(r1, g1, b1);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	copyToVertexArray(0, position);
+	float adj = 1.25; // Perspective correction
+
+	for(int i = 0; i <= triangleAmount; i++) {
+		copyToVertexArray(i + 1,
+			Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
+						position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
+		);
+	}
+
+	glVertexPointer(3, GL_FLOAT, 0, _verts);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, triangleAmount + 2);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	if (r1 != r2 || g1 != g2 || b1 != b2) {
+		useStipple(true);
+		useColor(r2, g2, b2);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		copyToVertexArray(0, position);
+
+		for(int i = 0; i <= triangleAmount; i++) {
+			copyToVertexArray(i + 1,
+				Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
+							position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
+			);
+		}
+
+		glVertexPointer(3, GL_FLOAT, 0, _verts);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, triangleAmount + 2);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		useStipple(false);
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glPopMatrix();
+}
+
 void OpenGLRenderer::renderPlayerShootBall(byte color, const Common::Point position, int frame, const Common::Rect viewArea) {
 	uint8 r, g, b;
 
@@ -310,10 +420,9 @@ void OpenGLRenderer::renderPlayerShootBall(byte color, const Common::Point posit
 	copyToVertexArray(0, Math::Vector3d(ball_position.x, ball_position.y, 0));
 
 	for(int i = 0; i <= triangleAmount; i++) {
-		copyToVertexArray(i + 1,
-			Math::Vector3d(ball_position.x + (radius * cos(i *  twicePi / triangleAmount)),
-						ball_position.y + (radius * sin(i * twicePi / triangleAmount)), 0)
-		);
+		float x = ball_position.x + (radius * cos(i *  twicePi / triangleAmount));
+		float y = ball_position.y + (radius * sin(i * twicePi / triangleAmount));
+		copyToVertexArray(i + 1, Math::Vector3d(x, y, 0));
 	}
 
 	glVertexPointer(3, GL_FLOAT, 0, _verts);
@@ -361,6 +470,14 @@ void OpenGLRenderer::renderFace(const Common::Array<Math::Vector3d> &vertices) {
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
+void OpenGLRenderer::depthTesting(bool enabled) {
+	if (enabled) {
+		glEnable(GL_DEPTH_TEST);
+	} else {
+		glDisable(GL_DEPTH_TEST);
+	}
+}
+
 void OpenGLRenderer::polygonOffset(bool enabled) {
 	if (enabled) {
 		glEnable(GL_POLYGON_OFFSET_FILL);
@@ -373,7 +490,7 @@ void OpenGLRenderer::polygonOffset(bool enabled) {
 
 void OpenGLRenderer::setStippleData(byte *data) {
 	if (!data)
-		return;
+		data = _defaultStippleArray;
 
 	_variableStippleArray = data;
 	//for (int i = 0; i < 128; i++)
@@ -416,7 +533,7 @@ void OpenGLRenderer::clear(uint8 r, uint8 g, uint8 b, bool ignoreViewport) {
 void OpenGLRenderer::drawFloor(uint8 color) {
 	uint8 r1, g1, b1, r2, g2, b2;
 	byte *stipple;
-	assert(getRGBAt(color, r1, g1, b1, r2, g2, b2, stipple)); // TODO: move check inside this function
+	assert(getRGBAt(color, 0, r1, g1, b1, r2, g2, b2, stipple)); // TODO: move check inside this function
 	glColor3ub(r1, g1, b1);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -441,3 +558,5 @@ Graphics::Surface *OpenGLRenderer::getScreenshot() {
 }
 
 } // End of namespace Freescape
+
+#endif

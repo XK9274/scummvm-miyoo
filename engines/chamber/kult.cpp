@@ -19,10 +19,6 @@
  *
  */
 
-#define FORBIDDEN_SYMBOL_EXCEPTION_setjmp
-
-#include <setjmp.h>
-
 #include "common/error.h"
 #include "common/system.h"
 #include "engines/util.h"
@@ -167,6 +163,8 @@ process:
 			updateUndrawCursor(target);
 			refreshSpritesData();
 			runCommand();
+			if (g_vm->_shouldRestart)
+				return;
 			blitSpritesToBackBuffer();
 			processInput();
 			drawSpots(target);
@@ -175,7 +173,9 @@ process:
 
 			updateUndrawCursor(target);
 			refreshSpritesData();
-			runCommandKeepSp();
+			uint16 restart = runCommandKeepSp();
+			if (restart == RUNCOMMAND_RESTART && g_vm->_shouldRestart)
+				return;
 			script_byte_vars.used_commands++;
 			if (script_byte_vars.dead_flag) {
 				if (--script_byte_vars.tries_left == 0)
@@ -194,17 +194,38 @@ void exitGame(void) {
 	uninitTimer();
 }
 
-jmp_buf restart_jmp;
-
 #ifdef DEBUG_ENDING
 extern theEnd(void);
 #endif
 
-Common::Error ChamberEngine::run() {
+Common::Error ChamberEngine::init() {
 	byte c;
 
 	// Initialize graphics using following:
-	initGraphics(320, 200);
+	if (_videoMode == Common::RenderMode::kRenderCGA) {
+		// 320x200x2
+		_screenW = 320;
+		_screenH = 200;
+		_screenBits = 2;
+		_screenPPB = 8 / _screenBits;
+		_screenBPL = _screenW / _screenPPB;
+		_line_offset = 0x2000;
+		_fontHeight = 6;
+		_fontWidth = 4;
+		initGraphics(_screenW, _screenH);
+	} else if (_videoMode == Common::RenderMode::kRenderHercG) {
+		// 720x348x1
+		_screenW = 720;
+		_screenH = 348;
+		_screenBits = 1;
+		_screenPPB = 8 / _screenBits;
+		_screenBPL = _screenW / _screenPPB;
+		_line_offset = 0x2000;
+		_line_offset2 = 0x2000;
+		_fontHeight = 6;
+		_fontWidth = 4;
+		initGraphics(_screenW, _screenH);
+	}
 	initSound();
 
 	/*TODO: DetectCPU*/
@@ -230,11 +251,20 @@ Common::Error ChamberEngine::run() {
 			exitGame();
 	}
 
-	/* Select intense cyan-mageta palette */
-	cga_ColorSelect(0x30);
+	if (_videoMode == Common::RenderMode::kRenderCGA) {
+		/* Select intense cyan-mageta palette */
+		cga_ColorSelect(0x30);
+		cga_BackBufferToRealFull();
+	} else if (_videoMode == Common::RenderMode::kRenderHercG) {
+		/* Select intense cyan-mageta palette */
+		cga_ColorSelect(0x30);
+		cga_BackBufferToRealFull();
+	}
 
-	/* Show the title screen */
-	cga_BackBufferToRealFull();
+	/* Wait for a keypress */
+	clearKeyboard();
+	readKeyboardChar();
+
 
 	if (g_vm->getLanguage() == Common::EN_USA) {
 		if (ifgm_loaded) {
@@ -309,10 +339,10 @@ Common::Error ChamberEngine::run() {
 		}
 	}
 
-	/*restart game from here*/
-//restart:;
-	setjmp(restart_jmp);
+	return Common::kNoError;
+}
 
+Common::Error ChamberEngine::execute() {
 	randomize();
 
 	/* Set start zone */
@@ -354,6 +384,8 @@ Common::Error ChamberEngine::run() {
 
 	/* Main game loop */
 	gameLoop(frontbuffer);
+	if (g_vm->_shouldRestart)
+		run();
 
 	/*TODO: the following code is never executed since gameLoop is infinite (or the whole game is restarted) */
 
@@ -361,6 +393,17 @@ Common::Error ChamberEngine::run() {
 	uninitInput();
 
 	exitGame();
+
+	return Common::kNoError;
+}
+Common::Error ChamberEngine::run() {
+	if (!g_vm->_shouldRestart)
+		init();
+
+	do {
+		g_vm->_shouldRestart = false;
+		execute();
+	} while (g_vm->_shouldRestart);
 
 	return Common::kNoError;
 }

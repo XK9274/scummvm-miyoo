@@ -121,6 +121,8 @@ project.xcworkspace
 /dists/engine-data/testbed-audiocd-files/testbed.out
 /dists/engine-data/playground3d
 
+/dists/scummvm_rc_*.rh
+
 
 /doc/*.aux
 /doc/*.dvi
@@ -175,7 +177,7 @@ project.xcworkspace
 
 /snapshots
 
-#ignore thumbnails created by windows
+#Ignore thumbnails created by Windows
 Thumbs.db
 #Ignore files build by Visual Studio
 *.obj

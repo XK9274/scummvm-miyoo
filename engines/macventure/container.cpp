@@ -27,18 +27,20 @@
  * Used with explicit permission from the author
  */
 
+#include "common/macresman.h"
+
 #include "macventure/container.h"
 
 namespace MacVenture {
 
-Container::Container(Common::String filename) {
+Container::Container(const Common::Path &filename) {
 	_filename = filename;
 
 	if (!_file.open(_filename)) {
-		error("CONTAINER: Could not open %s", _filename.c_str());
+		error("CONTAINER: Could not open %s", _filename.toString().c_str());
 	}
 
-	_res = _file.readStream(_file.size());
+	_res = Common::MacResManager::openFileOrDataFork(_filename);
 	_header = _res->readUint32BE();
 	_simplified = false;
 

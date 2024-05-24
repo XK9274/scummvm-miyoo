@@ -4,7 +4,6 @@ MODULE_OBJS := \
 	metaengine.o \
 	mm.o \
 	shared/utils/bitmap_font.o \
-	shared/utils/engine_data.o \
 	shared/utils/strings.o \
 	shared/utils/strings_data.o \
 	shared/utils/xeen_font.o \
@@ -13,6 +12,7 @@ MODULE_OBJS := \
 	shared/xeen/sound.o \
 	shared/xeen/sound_driver.o \
 	shared/xeen/sound_driver_adlib.o \
+	shared/xeen/sound_driver_mt32.o \
 	shared/xeen/sprites.o \
 	shared/xeen/xsurface.o
 

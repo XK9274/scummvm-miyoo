@@ -28,10 +28,6 @@
 #include "backends/plugins/sdl/sdl-provider.h"
 #include "base/main.h"
 
-static void cleanup() {
-	g_system->destroy();
-}
-
 int main(int argc, char *argv[]) {
 
 	// Update support (AmiUpdate):
@@ -61,14 +57,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Set a stack cookie to avoid crashes from a too low stack.
-	static const char *stack_cookie __attribute__((used)) = "$STACK: 2048000";
+	static const char *stack_cookie __attribute__((used)) = "$STACK: 4096000";
 
 	// Create our OSystem instance.
 	g_system = new OSystem_AmigaOS();
 	assert(g_system);
-
-	// Register cleanup function to avoid unfreed signals
-	atexit(cleanup);
 
 	// Pre-initialize the backend.
 	g_system->init();
@@ -81,8 +74,7 @@ int main(int argc, char *argv[]) {
 	int res = scummvm_main(argc, argv);
 
 	// Free OSystem.
-	// This is now handled by cleanup() via atexit()
-	//g_system->destroy();
+	g_system->destroy();
 
 	return res;
 }

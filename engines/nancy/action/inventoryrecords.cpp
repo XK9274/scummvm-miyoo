@@ -46,12 +46,20 @@ void AddInventoryNoHS::execute() {
 			// Currently holding another item
 			if (_forceCursor) {
 				NancySceneState.addItemToInventory(NancySceneState.getHeldItem());
-				NancySceneState.setHeldItem(_itemID);
+				if (NancySceneState.hasItem(_itemID) == g_nancy->_true) {
+					NancySceneState.removeItemFromInventory(_itemID, true);
+				} else {
+					NancySceneState.setHeldItem(_itemID);
+				}
 			} else {
 				NancySceneState.addItemToInventory(_itemID);
 			}
 		} else {
-			NancySceneState.setHeldItem(_itemID);
+			if (NancySceneState.hasItem(_itemID) == g_nancy->_true) {
+				NancySceneState.removeItemFromInventory(_itemID, true);
+			} else {
+				NancySceneState.setHeldItem(_itemID);
+			}
 		}
 	} else {
 		if (NancySceneState.hasItem(_itemID) == g_nancy->_false) {
@@ -188,6 +196,35 @@ void PopInvViewPriorScene::readData(Common::SeekableReadStream &stream) {
 
 void PopInvViewPriorScene::execute() {
 	NancySceneState.popScene(true);
+	_isDone = true;
+}
+
+void GoInvViewScene::readData(Common::SeekableReadStream &stream) {
+	_itemID = stream.readUint16LE();
+	_addToInventory = stream.readUint16LE();
+}
+
+void GoInvViewScene::execute() {
+	auto *inv = GetEngineData(INV);
+	assert(inv);
+
+	const INV::ItemDescription &item = inv->itemDescriptions[_itemID];
+	byte disabled = NancySceneState.getItemDisabledState(_itemID);
+
+	if (!disabled && item.keepItem == kInvItemNewSceneView) {
+		if (_addToInventory || NancySceneState.hasItem(_itemID)) {
+			NancySceneState.pushScene(_itemID);
+		} else {
+			// Do not add the item to the inventory, only go to its scene
+			NancySceneState.pushScene();
+		}
+
+		SceneChangeDescription sceneChange;
+		sceneChange.sceneID = item.sceneID;
+		sceneChange.continueSceneSound = item.sceneSoundFlag;
+		NancySceneState.changeScene(sceneChange);
+	}
+
 	_isDone = true;
 }
 

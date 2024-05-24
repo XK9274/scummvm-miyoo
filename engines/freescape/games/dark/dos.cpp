@@ -104,6 +104,8 @@ void DarkEngine::loadAssetsDOSDemo() {
 
 		if (!file.isOpen())
 			error("Failed to open DSIDEE.EXE");
+
+		loadSpeakerFxDOS(&file, 0x4837 + 0x200, 0x46e8 + 0x200);
 		loadMessagesFixedSize(&file, 0x4525, 16, 27);
 		loadMessagesFixedSize(&file, 0x993f - 2, 308, 5);
 		loadFonts(&file, 0xa598);
@@ -111,57 +113,6 @@ void DarkEngine::loadAssetsDOSDemo() {
 		load8bitBinary(&file, 0xa700, 16);
 		_border = load8bitBinImage(&file, 0x210);
 		_border->setPalette((byte *)&kEGADefaultPalette, 0, 16);
-
-		for (auto &it : _areaMap) {
-			addWalls(it._value);
-			addECDs(it._value);
-			addSkanner(it._value);
-		}
-	} else if (_renderMode == Common::kRenderCGA) {
-		file.open("DSIDEC.EXE");
-
-		if (!file.isOpen())
-			error("Failed to open DSIDEC.EXE");
-		loadFonts(&file, 0xa598);
-		load8bitBinary(&file, 0x8a70, 4); // TODO
-	} else
-		error("Invalid or unsupported render mode %s for Dark Side", Common::getRenderModeDescription(_renderMode));
-
-	_indicators.push_back(loadBundledImage("dark_fallen_indicator"));
-	_indicators.push_back(loadBundledImage("dark_crouch_indicator"));
-	_indicators.push_back(loadBundledImage("dark_walk_indicator"));
-	_indicators.push_back(loadBundledImage("dark_jet_indicator"));
-
-	for (auto &it : _indicators)
-		it->convertToInPlace(_gfx->_texturePixelFormat);
-}
-
-void DarkEngine::loadAssetsDOSFullGame() {
-	Common::File file;
-	if (_renderMode == Common::kRenderEGA) {
-		file.open("SCN1E.DAT");
-		if (file.isOpen()) {
-			_title = load8bitBinImage(&file, 0x0);
-			_title->setPalette((byte *)&kEGADefaultPalette, 0, 16);
-		}
-		file.close();
-		file.open("DSIDEE.EXE");
-
-		if (!file.isOpen())
-			error("Failed to open DSIDEE.EXE");
-
-		loadFonts(&file, 0xa113);
-		loadMessagesFixedSize(&file, 0x4525, 16, 27);
-		loadGlobalObjects(&file, 0x3d04, 23);
-		load8bitBinary(&file, 0xa280, 16);
-		_border = load8bitBinImage(&file, 0x210);
-		_border->setPalette((byte *)&kEGADefaultPalette, 0, 16);
-
-		for (auto &it : _areaMap) {
-			addWalls(it._value);
-			addECDs(it._value);
-			addSkanner(it._value);
-		}
 
 		_indicators.push_back(loadBundledImage("dark_fallen_indicator"));
 		_indicators.push_back(loadBundledImage("dark_crouch_indicator"));
@@ -183,6 +134,63 @@ void DarkEngine::loadAssetsDOSFullGame() {
 		if (!file.isOpen())
 			error("Failed to open DSIDEC.EXE");
 
+		loadSpeakerFxDOS(&file, 0x3077 + 0x200, 0x2f28 + 0x200);
+		loadFonts(&file, 0x8907);
+		loadMessagesFixedSize(&file, 0x2d65, 16, 27);
+		loadMessagesFixedSize(&file, 0x7c3a, 308, 5);
+		loadGlobalObjects(&file, 0x2554, 23);
+		load8bitBinary(&file, 0x8a70, 4);
+		_border = load8bitBinImage(&file, 0x210);
+		_border->setPalette((byte *)&kDarkCGAPalettePinkBlue, 0, 4);
+
+		swapPalette(1);
+	} else
+		error("Invalid or unsupported render mode %s for Dark Side", Common::getRenderModeDescription(_renderMode));
+}
+
+void DarkEngine::loadAssetsDOSFullGame() {
+	Common::File file;
+	if (_renderMode == Common::kRenderEGA) {
+		file.open("SCN1E.DAT");
+		if (file.isOpen()) {
+			_title = load8bitBinImage(&file, 0x0);
+			_title->setPalette((byte *)&kEGADefaultPalette, 0, 16);
+		}
+		file.close();
+		file.open("DSIDEE.EXE");
+
+		if (!file.isOpen())
+			error("Failed to open DSIDEE.EXE");
+
+		loadSpeakerFxDOS(&file, 0x4837 + 0x200, 0x46e8 + 0x200);
+		loadFonts(&file, 0xa113);
+		loadMessagesFixedSize(&file, 0x4525, 16, 27);
+		loadGlobalObjects(&file, 0x3d04, 23);
+		load8bitBinary(&file, 0xa280, 16);
+		_border = load8bitBinImage(&file, 0x210);
+		_border->setPalette((byte *)&kEGADefaultPalette, 0, 16);
+
+		_indicators.push_back(loadBundledImage("dark_fallen_indicator"));
+		_indicators.push_back(loadBundledImage("dark_crouch_indicator"));
+		_indicators.push_back(loadBundledImage("dark_walk_indicator"));
+		_indicators.push_back(loadBundledImage("dark_jet_indicator"));
+
+		for (auto &it : _indicators)
+			it->convertToInPlace(_gfx->_texturePixelFormat);
+
+	} else if (_renderMode == Common::kRenderCGA) {
+		file.open("SCN1C.DAT");
+		if (file.isOpen()) {
+			_title = load8bitBinImage(&file, 0x0);
+			_title->setPalette((byte *)&kDarkCGAPalettePinkBlue, 0, 4);
+		}
+		file.close();
+		file.open("DSIDEC.EXE");
+
+		if (!file.isOpen())
+			error("Failed to open DSIDEC.EXE");
+
+		loadSpeakerFxDOS(&file, 0x3077 + 0x200, 0x2f28 + 0x200);
 		loadFonts(&file, 0x8496);
 		loadMessagesFixedSize(&file, 0x2d65, 16, 27);
 		loadGlobalObjects(&file, 0x2554, 23);
@@ -190,11 +198,6 @@ void DarkEngine::loadAssetsDOSFullGame() {
 		_border = load8bitBinImage(&file, 0x210);
 		_border->setPalette((byte *)&kDarkCGAPalettePinkBlue, 0, 4);
 
-		for (auto &it : _areaMap) {
-			addWalls(it._value);
-			addECDs(it._value);
-			addSkanner(it._value);
-		}
 		swapPalette(1);
 	} else
 		error("Invalid or unsupported render mode %s for Dark Side", Common::getRenderModeDescription(_renderMode));

@@ -23,7 +23,7 @@
 
 namespace Efh {
 
-int16 EfhEngine::displayBoxWithText(Common::String str, int16 menuType, int16 displayOption, bool displayTeamWindowFl) {
+int16 EfhEngine::displayBoxWithText(const Common::String &str, int16 menuType, int16 displayOption, bool displayTeamWindowFl) {
 	debugC(3, kDebugEngine, "displayBoxWithText %s %d %d %s", str.c_str(), menuType, displayOption, displayTeamWindowFl ? "True" : "False");
 
 	int16 retVal = 0xFF;
@@ -122,7 +122,7 @@ bool EfhEngine::handleDeathMenu() {
 			displayFctFullScreen();
 	}
 
-	for (bool found = false; !found;) {
+	for (bool found = false; !found && !shouldQuitGame();) {
 		Common::KeyCode input = waitForKey();
 		switch (input) {
 		case Common::KEYCODE_l:
@@ -481,7 +481,7 @@ void EfhEngine::displayWindowAndStatusMenu(int16 charId, int16 windowId, int16 m
 	}
 }
 
-int16 EfhEngine::displayStringInSmallWindowWithBorder(Common::String str, bool delayFl, int16 charId, int16 windowId, int16 menuId, int16 curMenuLine) {
+int16 EfhEngine::displayStringInSmallWindowWithBorder(const Common::String &str, bool delayFl, int16 charId, int16 windowId, int16 menuId, int16 curMenuLine) {
 	debugC(3, kDebugEngine, "displayStringInSmallWindowWithBorder %s %s %d %d %d %d", str.c_str(), delayFl ? "True" : "False", charId, windowId, menuId, curMenuLine);
 
 	int16 retVal = 0;
@@ -661,7 +661,7 @@ int16 EfhEngine::handleStatusMenu(int16 gameMode, int16 charId) {
 
 			prepareStatusMenu(windowId, menuId, curMenuLine, charId, true);
 
-		} while (!selectionDoneFl); // Loop until a menu entry is confirmed by the user by pressing the enter key
+		} while (!selectionDoneFl && !shouldQuitGame()); // Loop until a menu entry is confirmed by the user by pressing the enter key
 
 		bool validationFl = true;
 
@@ -767,7 +767,7 @@ int16 EfhEngine::handleStatusMenu(int16 gameMode, int16 charId) {
 						}
 						givenFl = false;
 					}
-				} while (!givenFl && !var2 && destCharId != 0x1B);
+				} while (!givenFl && !var2 && destCharId != 0x1B && !shouldQuitGame());
 
 				if (givenFl) {
 					removeObject(charId, objectId);

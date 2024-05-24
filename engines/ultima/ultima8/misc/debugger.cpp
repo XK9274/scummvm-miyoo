@@ -20,13 +20,13 @@
  */
 
 #include "common/config-manager.h"
+#include "common/file.h"
 #include "common/tokenizer.h"
 #include "image/png.h"
 #include "image/bmp.h"
 #include "ultima/ultima8/ultima8.h"
 #include "ultima/ultima8/audio/audio_process.h"
 #include "ultima/ultima8/audio/music_process.h"
-#include "ultima/ultima8/filesys/file_system.h"
 #include "ultima/ultima8/games/game_data.h"
 #include "ultima/ultima8/graphics/inverter_process.h"
 #include "ultima/ultima8/graphics/main_shape_archive.h"
@@ -52,14 +52,10 @@
 #include "ultima/ultima8/world/item_factory.h"
 #include "ultima/ultima8/world/actors/quick_avatar_mover_process.h"
 #include "ultima/ultima8/world/actors/avatar_mover_process.h"
+#include "ultima/ultima8/world/actors/pathfinder.h"
 #include "ultima/ultima8/world/target_reticle_process.h"
 #include "ultima/ultima8/world/item_selection_process.h"
 #include "ultima/ultima8/world/actors/main_actor.h"
-
-#ifdef DEBUG
-#include "ultima/ultima8/world/actors/pathfinder.h"
-#endif
-
 
 namespace Ultima {
 namespace Ultima8 {
@@ -207,7 +203,7 @@ Debugger::Debugger() : GUI::Debugger() {
 	registerCmd("ShapeViewerGump::U8ShapeViewer", WRAP_METHOD(Debugger, cmdU8ShapeViewer));
 	registerCmd("RenderSurface::benchmark", WRAP_METHOD(Debugger, cmdBenchmarkRenderSurface));
 
-#ifdef DEBUG
+#ifdef DEBUG_PATHFINDER
 	registerCmd("Pathfinder::visualDebug", WRAP_METHOD(Debugger, cmdVisualDebugPathfinder));
 #endif
 }
@@ -748,8 +744,8 @@ void Debugger::dumpCurrentMap() {
 	CurrentMap *currentMap = World::get_instance()->getCurrentMap();
 	currentMap->setWholeMapFast();
 
-	RenderSurface *s = RenderSurface::CreateSecondaryRenderSurface(awidth,
-		aheight);
+	Graphics::Screen *screen = Ultima8Engine::get_instance()->getScreen();
+	RenderSurface *s = new RenderSurface(awidth, aheight, screen->format);
 
 	debugPrintf("Rendering map...\n");
 
@@ -767,9 +763,9 @@ void Debugger::dumpCurrentMap() {
 	s->EndPainting();
 
 #ifdef USE_PNG
-	Std::string filename = Common::String::format("map_%03d.png", currentMap->getNum());
+	Common::Path filename(Common::String::format("map_%03d.png", currentMap->getNum()));
 #else
-	Std::string filename = Common::String::format("map_%03d.bmp", currentMap->getNum());
+	Common::Path filename(Common::String::format("map_%03d.bmp", currentMap->getNum()));
 #endif
 
 	Common::DumpFile dumpFile;
@@ -783,9 +779,9 @@ void Debugger::dumpCurrentMap() {
 	}
 
 	if (result) {
-		debugPrintf("Map dumped: %s\n", filename.c_str());
+		debugPrintf("Map dumped: %s\n", filename.toString().c_str());
 	} else {
-		debugPrintf("Could not write file: %s\n", filename.c_str());
+		debugPrintf("Could not write file: %s\n", filename.toString().c_str());
 	}
 
 	delete g;
@@ -1056,7 +1052,7 @@ bool Debugger::cmdUseBackpack(int argc, const char **argv) {
 		return false;
 	}
 	MainActor *av = getMainActor();
-	Item *backpack = getItem(av->getEquip(7));
+	Item *backpack = getItem(av->getEquip(ShapeInfo::SE_BACKPACK));
 	if (backpack)
 		backpack->callUsecodeEvent_use();
 	return false;
@@ -1748,11 +1744,11 @@ bool Debugger::cmdPlayMovie(int argc, const char **argv) {
 		return true;
 	}
 
-	Std::string filename = Common::String::format("static/%s.skf", argv[1]);
-	FileSystem *filesys = FileSystem::get_instance();
-	Common::SeekableReadStream *skf = filesys->ReadFile(filename);
-	if (!skf) {
+	Common::String filename = Common::String::format("static/%s.skf", argv[1]);
+	auto *skf = new Common::File();
+	if (!skf->open(filename.c_str())) {
 		debugPrintf("movie not found.\n");
+		delete skf;
 		return true;
 	}
 
@@ -1830,7 +1826,8 @@ bool Debugger::cmdBenchmarkRenderSurface(int argc, const char **argv) {
 	GameData *gamedata = GameData::get_instance();
 	Shape *s = gamedata->getMainShapes()->getShape(shapenum);
 
-	RenderSurface *surface = RenderSurface::CreateSecondaryRenderSurface(320, 200);
+	Graphics::Screen *screen = Ultima8Engine::get_instance()->getScreen();
+	RenderSurface *surface = new RenderSurface(320, 200, screen->format);
 	surface->BeginPainting();
 
 	uint32 start, end;
@@ -1884,8 +1881,8 @@ bool Debugger::cmdBenchmarkRenderSurface(int argc, const char **argv) {
 	return true;
 }
 
-#ifdef DEBUG
 bool Debugger::cmdVisualDebugPathfinder(int argc, const char **argv) {
+#ifdef DEBUG_PATHFINDER
 	if (argc != 2) {
 		debugPrintf("Usage: Pathfinder::visualDebug objid\n");
 		debugPrintf("Specify objid -1 to stop tracing.\n");
@@ -1899,10 +1896,9 @@ bool Debugger::cmdVisualDebugPathfinder(int argc, const char **argv) {
 		Pathfinder::_visualDebugActor = (uint16)p;
 		debugPrintf("Pathfinder: visually tracing _actor %d\n", Pathfinder::_visualDebugActor);
 	}
-
+#endif
 	return true;
 }
-#endif
 
 } // End of namespace Ultima8
 } // End of namespace Ultima

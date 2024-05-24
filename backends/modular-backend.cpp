@@ -73,7 +73,13 @@ int ModularGraphicsBackend::getGraphicsMode() const {
 	return _graphicsManager->getGraphicsMode();
 }
 
-bool ModularGraphicsBackend::setShader(const Common::String &fileName) {
+#if defined(USE_IMGUI)
+void ModularGraphicsBackend::setImGuiCallbacks(const ImGuiCallbacks &callbacks) {
+	_graphicsManager->setImGuiCallbacks(callbacks);
+}
+#endif
+
+bool ModularGraphicsBackend::setShader(const Common::Path &fileName) {
 	return _graphicsManager->setShader(fileName);
 }
 

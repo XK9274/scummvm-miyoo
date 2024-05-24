@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #include "common/debug.h"
@@ -311,11 +318,11 @@ int32 ScriptFunc::sys_Cmd_Flip_Screens(EMCState *state) {
 
 int32 ScriptFunc::sys_Cmd_Play_Flic(EMCState *state) {
 	Common::String stateText = GetText(0, state);
-	Common::String name;
+	Common::Path name;
 
 	// workaround for the video of the beginning
 	if (stateText.contains("209")) {
-		name = stateText;
+		name = Common::Path(stateText);
 	} else {
 		name = _vm->createRoomFilename(stateText.c_str());
 	}

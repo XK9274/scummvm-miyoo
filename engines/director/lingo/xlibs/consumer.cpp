@@ -52,7 +52,7 @@ I          mHackMenu                       --Hack to destroy menu
 
 namespace Director {
 
-const char *ConsumerXObj::xlibName = "consumer";
+const char *ConsumerXObj::xlibName = "Consumer";
 const char *ConsumerXObj::fileNames[] = {
 	"consumer",
 	nullptr
@@ -78,34 +78,28 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-ConsumerXObject::ConsumerXObject(ObjectType ObjectType) :Object<ConsumerXObject>("ConsumerXObj") {
+ConsumerXObject::ConsumerXObject(ObjectType ObjectType) :Object<ConsumerXObject>("Consumer") {
 	_objType = ObjectType;
 }
 
-void ConsumerXObj::open(int type) {
+void ConsumerXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		ConsumerXObject::initMethods(xlibMethods);
 		ConsumerXObject *xobj = new ConsumerXObject(kXObj);
 		g_lingo->exposeXObject(xlibName, xobj);
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
-void ConsumerXObj::close(int type) {
+void ConsumerXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		ConsumerXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
 void ConsumerXObj::m_new(int nargs) {
-	if (nargs != 0) {
-		warning("Consumer::m_new: expected 0 arguments");
-		g_lingo->dropStack(nargs);
-	}
+	g_lingo->printSTUBWithArglist("ConsumerXObj::m_new", nargs);
+	g_lingo->dropStack(nargs);
 	g_lingo->push(g_lingo->_state->me);
 }
 

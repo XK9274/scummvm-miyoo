@@ -246,11 +246,23 @@ void OSystem_iOS7::handleEvent_applicationClearState() {
 #if TARGET_OS_IOS
 static const char * const helpTabs[] = {
 
+_s("Getting help"),
+"",
+_s(
+"## Help, I'm lost!\n"
+"\n"
+"First, make sure you have the games and necessary game files ready. Check the **Where to Get the Games** section under the **General** tab. Once obtained, follow the steps outlined in the **Adding Games** tab to finish adding them on this device.\n"
+"\n"
+"Need more help? Refer to our [online documentation for iOS](https://docs.scummvm.org/en/latest/other_platforms/ios.html). Got questions? Swing by our [support forums](https://forums.scummvm.org/viewforum.php?f=15) or hop on our [Discord server](https://discord.gg/4cDsMNtcpG), which includes an [iOS support channel](https://discord.com/channels/581224060529148060/1149456560922316911).\n"
+"\n"
+"Oh, and heads up, many of our supported games are intentionally tricky, sometimes mind-bogglingly so. If you're stuck in a game, think about checking out a game walkthrough. Good luck!\n"
+),
+
 _s("Touch Controls"),
 "ios-help.zip",
 _s(
 "## Touch control modes\n"
-"The touch control mode can be changed by tapping or clicking on the controller icon in the upper right corner, by swiping two fingers from left to right or in the global settings From the Launcher, go to **Global Options > Backend > Choose the preferred touch mode**. It's possible to configure the touch mode for three situations (ScummVM menus, 2D games and 3D games).\n"
+"The touch control mode can be changed by tapping or clicking on the controller icon in the upper right corner, by swiping two fingers from left to right, or in the global settings from the Launcher go to **Global Options > Backend > Choose the preferred touch mode**. It's possible to configure the touch mode for three situations (ScummVM menus, 2D games and 3D games).\n"
 "\n"
 "### Direct mouse \n"
 "\n"
@@ -283,10 +295,11 @@ _s(
 "### Virtual Gamepad \n"
 "\n"
 "Devices running iOS 15 or later can connect virtual gamepad controller by swiping two fingers from right to left or through **Global Options > Backend**. The directional button can be configured to either a thumbstick or a dpad.\n"
+"**Note** While the virtual controller is connected it is not possible to perform mouse clicks using tap gestures since they are disabled as long as the virtual controller is visible. Left mouse clicks are performed by pressing the A button. Tap gestures are enabled again when virtual controller is disconnected.\n"
 "\n"
 "### Global Main Menu\n"
 "\n"
-"To open the Global Main Menu, tap on the menu icon at the top right of the screen or by swiping two fingers downwards.\n"
+"To open the Global Main Menu, tap on the menu icon at the top right of the screen or swipe two fingers downwards.\n"
 "\n"
 "  ![Menu icon](menu.png \"Menu icon\"){w=10em}\n"
 "\n"
@@ -298,7 +311,28 @@ _s(
 "  ![Keybpard icon](keyboard.png \"Keyboard icon\"){w=10em}\n"
 "\n"
 ),
-
+_s("External keyboard"),
+"",
+_s(
+"## Use of keyboard\n"
+"External keyboards are supported and from iOS 13.4 most of the special keys, e.g. function keys, Home and End, are mapped. \n"
+"For external keyboards missing the special keys, e.g. the Apple Magic Keyboard for iPads, the special keys can be triggered using the following key combinations: \n"
+"\n"
+"\n"
+"| Key combination   | Action            \n"
+"| ------------------|-------------------\n"
+"| `CMD + 1`         | F1                \n"
+"| `CMD + 2`         | F2                \n"
+"| `...`             | ...               \n"
+"| `CMD + 0`         | F10               \n"
+"| `CMD + SHIFT + 1` | F11               \n"
+"| `CMD + SHIFT + 2` | F12               \n"
+"| `CMD + UP`        | PAGE UP           \n"
+"| `CMD + DOWN`      | PAGE DOWN         \n"
+"| `CMD + LEFT`      | HOME              \n"
+"| `CMD + RIGHT`     | END               \n"
+"\n"
+),
 _s("Adding Games"),
 "ios-help.zip",
 _s(

@@ -49,6 +49,7 @@ const CMakeProvider::Library *CMakeProvider::getLibraryFromFeature(const char *f
 		LibraryProps("flac", "flac").Libraries("FLAC"),
 		LibraryProps("mad", "mad").Libraries("mad"),
 		LibraryProps("mikmod", "mikmod").Libraries("mikmod"),
+		LibraryProps("openmpt", "openmpt").Libraries("openmpt"),
 		LibraryProps("ogg", "ogg").Libraries("ogg"),
 		LibraryProps("vorbis", "vorbisfile vorbis").Libraries("vorbisfile vorbis"),
 		LibraryProps("tremor", "vorbisidec").Libraries("vorbisidec"),
@@ -283,7 +284,12 @@ void CMakeProvider::createProjectFile(const std::string &name, const std::string
 		error("Could not open \"" + projectFile + "\" for writing");
 
 	if (name == setup.projectName) {
-		project << "add_executable(" << name << "\n";
+		project << "add_executable(" << name;
+		// console subsystem is required for text-console, tools, and tests
+		if (setup.useWindowsSubsystem && !setup.featureEnabled("text-console") && !setup.devTools && !setup.tests) {
+			project << " WIN32";
+		}
+		project << "\n";
 	} else if (name == setup.projectName + "-detection") {
 		project << "list(APPEND SCUMMVM_LIBS " << name << ")\n";
 		project << "add_library(" << name << "\n";

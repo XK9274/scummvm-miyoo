@@ -55,10 +55,7 @@ public:
 	GUI_status MouseUp(int x, int y, Shared::MouseButton button) override;
 	GUI_status MouseMotion(int x, int y, uint8 state) override;
 
-	virtual void AddLine(Std::string line);
-
-protected:
-
+	virtual void AddLine(const Std::string &line);
 };
 
 } // End of namespace Nuvie

@@ -337,6 +337,7 @@ const SciWorkaroundEntry uninitializedReadWorkarounds[] = {
 	{ GID_FANMADE,       516,   979,  0,                   "", "export 0",                     nullptr,    20,    20, { WORKAROUND_FAKE,   0 } }, // Happens in Grotesteing after the logos
 	{ GID_FANMADE,       528,   990,  0,            "GDialog", "doit",                         nullptr,     4,     4, { WORKAROUND_FAKE,   0 } }, // Happens in Cascade Quest when closing the glossary - bug #5116
 	{ GID_FANMADE,       488,     1,  0,         "RoomScript", "doit",        sig_uninitread_fanmade_1,     1,     1, { WORKAROUND_FAKE,   0 } }, // Happens in Ocean Battle while playing - bug #5335
+	{ GID_FANMADE,        -1,     0,  0,             "Tetris", "init",                         nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // SCI Tetris 1.1: at start of game, broken high score script passes uninit temp variable instead of reference to temp variable
 	{ GID_FREDDYPHARKAS,  -1,    24,  0,              "gcWin", "open",                         nullptr,     5,     5, { WORKAROUND_FAKE, 0xf } }, // is used as priority for game menu
 	{ GID_FREDDYPHARKAS,  -1,    31,  0,            "quitWin", "open",                         nullptr,     5,     5, { WORKAROUND_FAKE, 0xf } }, // is used as priority for game menu
 	{ GID_FREDDYPHARKAS, 540,   540,  0,          "WaverCode", "init",                         nullptr,     0,     1, { WORKAROUND_FAKE,   0 } }, // Gun pratice mini-game, all temps - 0+1 - bug #5232
@@ -423,6 +424,7 @@ const SciWorkaroundEntry uninitializedReadWorkarounds[] = {
 	{ GID_LAURABOW2,      -1,    90,  1,        "MuseumActor", "init",                         nullptr,     6,     6, { WORKAROUND_FAKE,   0 } }, // Random actors in museum - bug #5197
 	{ GID_LAURABOW2,     240,   240,  0,     "sSteveAnimates", "changeState",                  nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // Steve Dorian's idle animation at the docks - bug #5028
 	{ GID_LAURABOW2,      -1,   928,  0,              nullptr, "startText",                    nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // gets caused by Text+Audio support (see script patcher)
+	{ GID_LIGHTHOUSE,     -1,     0,  0,          "globalVMD", "play",                         nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // when playing a VMD while inventory is disabled (opening a portal in room 360) - bug #14924
 	{ GID_LIGHTHOUSE,     -1,    17,  0,              nullptr, "handleEvent",                  nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // when operating the joystick in the puzzle to lower the bridge at the entrance to the workshop, or the joystick that moves the robotic arm in the mini-sub
 	{ GID_LONGBOW,        -1,     0,  0,            "Longbow", "restart",                      nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // When canceling a restart game - bug #5244
 	{ GID_LONGBOW,        -1,   213,  0,              "clear", "handleEvent",                  nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // When giving an answer using the druid hand sign code in any room
@@ -547,6 +549,13 @@ const SciWorkaroundEntry kAbs_workarounds[] = {
 	{ GID_HOYLE1,          3,     3,  0,              "room3", "doit",                   nullptr,     0,     0, { WORKAROUND_FAKE,  0x3e9 } }, // hearts - called with objects instead of integers
 	{ GID_QFG1VGA,        -1,    -1,  0,              nullptr, "doit",                   nullptr,     0,     0, { WORKAROUND_FAKE,  0x3e9 } }, // when the game is patched with the NRS patch
 	{ GID_QFG3   ,        -1,    -1,  0,              nullptr, "doit",                   nullptr,     0,     0, { WORKAROUND_FAKE,  0x3e9 } }, // when the game is patched with the NRS patch - bugs #6042, #6043
+	SCI_WORKAROUNDENTRY_TERMINATOR
+};
+
+//    gameID,           room,script,lvl,          object-name, method-name, local-call-signature, index-range,   workaround
+const SciWorkaroundEntry kAnimate_workarounds[] = {
+	{ GID_FANMADE,        -1,    76,  0,              "rm076", "init",                   nullptr,     0,     0, { WORKAROUND_FAKE,  0 } }, // Betrayed Alliance Book 2 Demo: when starting game, script passes stale accumulator (8) instead of list
+	{ GID_FANMADE,        -1,    76,  0,         "RoomScript", "changeState",            nullptr,     0,     0, { WORKAROUND_FAKE,  0 } }, // Betrayed Alliance Book 2 Demo: when starting game, script passes stale accumulator (theMusic object) instead of list
 	SCI_WORKAROUNDENTRY_TERMINATOR
 };
 
@@ -770,6 +779,8 @@ const SciWorkaroundEntry kFileIOCheckFreeSpace_workarounds[] = {
 
 //    gameID,           room,script,lvl,          object-name, method-name,              local-call-signature, index-range,   workaround
 const SciWorkaroundEntry kFileIOReadString_workarounds[] = {
+	{ GID_FANMADE,        -1,   800,  0,       "TitleScreen", "init",                    nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // SCI Tetris 1.0: at start of game, broken high score script passes temp variable instead of reference to temp variable
+	{ GID_FANMADE,        -1,   993,  0,           "hiscore", "read",                    nullptr,     0,     0, { WORKAROUND_FAKE,   0 } }, // SCI Tetris 1.1: at start of game, broken high score script passes temp variable instead of reference to temp variable
 	{ GID_HOYLE5,         -1, 64993,  0,           "version", "readString",              nullptr,     0,     0, { WORKAROUND_IGNORE, 0 } }, // Zero passed as string when game initializes and VERSION file is present, which only Mac includes. Result is unused
 	SCI_WORKAROUNDENTRY_TERMINATOR
 };
@@ -1005,6 +1016,7 @@ const SciWorkaroundEntry kRandom_workarounds[] = {
 const SciWorkaroundEntry kReadNumber_workarounds[] = {
 	{ GID_CNICK_LAURABOW,100,   101,  0,          "dominoes.opt", "doit",                nullptr,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // When dominoes.opt is present, the game scripts call kReadNumber with an extra integer parameter - bug #6425
 	{ GID_HOYLE3,        100,   101,  0,          "dominoes.opt", "doit",                nullptr,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // When dominoes.opt is present, the game scripts call kReadNumber with an extra integer parameter - bug #6425
+	{ GID_FANMADE,        -1,     0,  0,                "Tetris", "init",                nullptr,     0,     0, { WORKAROUND_FAKE,      0 } }, // SCI Tetris 1.1: at start of game, broken high score script passes temp variable instead of reference to temp variable
 	SCI_WORKAROUNDENTRY_TERMINATOR
 };
 
@@ -1263,6 +1275,8 @@ static const SciMessageWorkaroundEntry messageWorkarounds[] = {
 	// Clicking the drink-me potion on ego in the castle basement hallways while guards are around
 	{ GID_KQ6,           SCI_MEDIA_ALL,    K_LANG_NONE,     -1,  840,   3,  14,   1,  1, { MSG_WORKAROUND_REMAP,    899,   0,   0, 198,  1, 99,   0,   0, nullptr } },
 	{ GID_KQ6,           SCI_MEDIA_ALL,    K_LANG_NONE,     -1,  899,   1,  14,   1,  1, { MSG_WORKAROUND_REMAP,    899,   0,   0, 198,  1, 99,   0,   0, nullptr } },
+	// Clicking Do on the horse on the wall in room 870; the message resource has the wrong verb.
+	{ GID_KQ6,           SCI_MEDIA_ALL,    K_LANG_NONE,     -1,  870,  12,   5,   0,  1, { MSG_WORKAROUND_REMAP,    870,  12,  75,   0,  1, 99,   0,   0, nullptr } },
 	// "Tips for playing King's Quest VI" displays a message that's too long to display on the screen
 	// with Macintosh fonts and causes the graphics code to crash. In the original this "worked" because
 	// of a script bug that truncated all CD and Mac messages to 400 characters, even though KQ6 has
@@ -1345,6 +1359,8 @@ static const SciMessageWorkaroundEntry messageWorkarounds[] = {
 	{ GID_SQ4,           SCI_MEDIA_CD,     K_LANG_NONE,     -1,   16,   7,   0,   3,  1, { MSG_WORKAROUND_FAKE,      16,   7,   0,   3,  1,  7,   0,   0, "" } },
 	// Missing message when clicking talk in room 520 - bug #10915
 	{ GID_SQ4,           SCI_MEDIA_CD,     K_LANG_NONE,     -1,  510,  99,   0,   3,  1, { MSG_WORKAROUND_REMAP,    500,  99,   0,   3,  1,  0,   0,   0, nullptr } },
+	// Wrong talker when looking at Cliffy in room 240 after returning from Genetix
+	{ GID_SQ5,           SCI_MEDIA_ALL,    K_LANG_NONE,     -1,  240,   5,   1,   5,  1, { MSG_WORKAROUND_EXTRACT,  240,   5,   1,   5,  1, 99,   0,   0, nullptr } },
 	// Missing message when looking at hole in room 740
 	{ GID_SQ6,           SCI_MEDIA_ALL,    K_LANG_NONE,     -1,  740,   3,   1,   8,  1, { MSG_WORKAROUND_REMAP,    740,   3,  88,   8,  1, 99,   0,   0, nullptr } },
 	SCI_MESSAGEWORKAROUNDENTRY_TERMINATOR

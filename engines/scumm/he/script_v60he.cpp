@@ -34,6 +34,9 @@
 #include "scumm/util.h"
 #include "scumm/verbs.h"
 
+#include "scumm/he/moonbase/moonbase.h"
+#include "scumm/he/moonbase/map_main.h"
+
 namespace Scumm {
 
 struct vsUnpackCtx {
@@ -90,7 +93,7 @@ void ScummEngine_v60he::setupOpcodes() {
 	_opcodes[0xed].setProc(nullptr, nullptr);
 }
 
-Common::String ScummEngine_v60he::convertFilePath(const byte *src) {
+Common::Path ScummEngine_v60he::convertFilePath(const byte *src) {
 	debug(2, "convertFilePath in: '%s'", (const char *)src);
 
 	int srcSize = resStrLen(src);
@@ -136,21 +139,14 @@ Common::String ScummEngine_v60he::convertFilePath(const byte *src) {
 
 	debug(2, "convertFilePath out: '%s'", dst.c_str());
 
-	return dst;
+	return Common::Path(dst, '/');
 }
 
 Common::String ScummEngine_v60he::convertSavePath(const byte *src) {
 	debug(2, "convertSavePath in: '%s'", (const char *)src);
 
-	Common::String filePath = convertFilePath(src);
-
 	// Strip us down to only the file
-	for (int32 i = filePath.size() - 1; i >= 0; i--) {
-		if (filePath[i] == '/') {
-			filePath = Common::String(filePath.c_str() + i + 1);
-			break;
-		}
-	}
+	Common::String filePath = convertFilePath(src).baseName();
 
 	// Prepend the target name
 	filePath = _targetName + '-' + filePath;
@@ -192,6 +188,13 @@ Common::String ScummEngine_v60he::convertSavePathOld(const byte *src) {
 }
 
 Common::SeekableReadStream *ScummEngine_v60he::openFileForReading(const byte *fileName) {
+#ifdef ENABLE_HE
+	if (_moonbase) {
+		Common::SeekableReadStream *substitutedFile = _moonbase->_map->substituteFile(fileName);
+		if (substitutedFile)
+			return substitutedFile;
+	}
+#endif
 	Common::SeekableReadStream *saveFile = openSaveFileForReading(fileName);
 
 	if (saveFile)
@@ -515,11 +518,15 @@ void ScummEngine_v60he::o60_actorOps() {
 	switch (subOp) {
 	case SO_ACTOR_DEFAULT_CLIPPED:
 		// _game.heversion >= 70
-		_actorClipOverride.bottom = pop();
-		_actorClipOverride.right = pop();
-		_actorClipOverride.top = pop();
-		_actorClipOverride.left = pop();
-		break;
+		{
+			int x1, y1, x2, y2;
+			y2 = pop();
+			x2 = pop();
+			y1 = pop();
+			x1 = pop();
+			setActorClippingRect(-1, x1, y1, x2, y2);
+			break;
+		}
 	case SO_COSTUME:
 		a->setActorCostume(pop());
 		break;

@@ -70,21 +70,21 @@ void Viewport::handleInput(NancyInput &input) {
 	if (	g_nancy->getGameType() != kGameTypeVampire &&
 			input.input & (NancyInput::kLeftMouseButton | NancyInput::kRightMouseButton)
 			&& _stickyCursorPos.x > -1) {
-		g_nancy->_cursorManager->warpCursor(_stickyCursorPos);
+		g_nancy->_cursor->warpCursor(_stickyCursorPos);
 		input.mousePos = _stickyCursorPos;
 	}
 
 	Common::Rect viewportActiveZone;
 
 	if (g_nancy->getGameType() == kGameTypeVampire) {
-		viewportActiveZone = g_nancy->_graphicsManager->getScreen()->getBounds();
+		viewportActiveZone = g_nancy->_graphics->getScreen()->getBounds();
 		viewportActiveZone.bottom = _screenPosition.bottom;
 	} else {
 		viewportActiveZone = _screenPosition;
 	}
 
 	if (viewportActiveZone.contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kNormal);
+		g_nancy->_cursor->setCursorType(CursorManager::kNormal);
 
 		if (input.mousePos.x < _nonScrollZone.left) {
 			direction |= kLeft;
@@ -133,27 +133,32 @@ void Viewport::handleInput(NancyInput &input) {
 		if (direction & kLeft) {
 			if (summary.fastMoveTimeDelta == kInvertedNode) {
 				// Support nancy6+ inverted rotation scenes
-				g_nancy->_cursorManager->setCursorType(CursorManager::kInvertedRotateLeft);
+				g_nancy->_cursor->setCursorType(CursorManager::kInvertedRotateLeft);
 			} else {
-				g_nancy->_cursorManager->setCursorType(CursorManager::kRotateLeft);
+				g_nancy->_cursor->setCursorType(CursorManager::kRotateLeft);
 			}
 		} else if (direction & kRight) {
 			if (summary.fastMoveTimeDelta == kInvertedNode) {
 				// Support nancy6+ inverted rotation scenes
-				g_nancy->_cursorManager->setCursorType(CursorManager::kInvertedRotateRight);
+				g_nancy->_cursor->setCursorType(CursorManager::kInvertedRotateRight);
 			} else {
-				g_nancy->_cursorManager->setCursorType(CursorManager::kRotateRight);
+				g_nancy->_cursor->setCursorType(CursorManager::kRotateRight);
 			}
 		} else if (direction & kUp) {
-			g_nancy->_cursorManager->setCursorType(CursorManager::kMoveUp);
+			g_nancy->_cursor->setCursorType(CursorManager::kMoveUp);
 		} else if (direction & kDown) {
-			g_nancy->_cursorManager->setCursorType(CursorManager::kMoveDown);
+			g_nancy->_cursor->setCursorType(CursorManager::kMoveDown);
 		}
 
 		if (input.input & NancyInput::kRightMouseButton) {
 			direction |= kMoveFast;
 		} else if ((input.input & NancyInput::kLeftMouseButton) == 0 && _autoMove == false) {
 			direction = 0;
+		}
+
+		// Just pressed RMB down, cancel the timer (removes jank when auto move is on)
+		if (input.input & NancyInput::kRightMouseButtonDown) {
+			_nextMovementTime = 0;
 		}
 
 		// If we hover over an edge we don't want to click an element in the viewport underneath
@@ -207,13 +212,13 @@ void Viewport::handleInput(NancyInput &input) {
 	_movementLastFrame = direction;
 }
 
-void Viewport::loadVideo(const Common::String &filename, uint frameNr, uint verticalScroll, byte panningType, uint16 format, const Common::String &palette) {
+void Viewport::loadVideo(const Common::Path &filename, uint frameNr, uint verticalScroll, byte panningType, uint16 format, const Common::Path &palette) {
 	if (_decoder.isVideoLoaded()) {
 		_decoder.close();
 	}
 
-	if (!_decoder.loadFile(filename + ".avf")) {
-		error("Couldn't load video file %s", filename.c_str());
+	if (!_decoder.loadFile(filename.append(".avf"))) {
+		error("Couldn't load video file %s", filename.toString().c_str());
 	}
 
 	_videoFormat = format;
@@ -225,7 +230,7 @@ void Viewport::loadVideo(const Common::String &filename, uint frameNr, uint vert
 	setFrame(frameNr);
 	setVerticalScroll(verticalScroll);
 
-	if (palette.size()) {
+	if (!palette.empty()) {
 		GraphicsManager::loadSurfacePalette(_fullFrame, palette);
 		setPalette(palette);
 	}

@@ -89,12 +89,12 @@ void TextMgr::init(SystemUI *systemUI) {
 	_systemUI = systemUI;
 }
 
-void TextMgr::configureScreen(uint16 row_Min) {
-	_window_Row_Min = row_Min;
-	_window_Row_Max = row_Min + 21;
+void TextMgr::configureScreen(uint16 gameRow) {
+	_window_Row_Min = gameRow;
+	_window_Row_Max = gameRow + 21;
 
 	// forward data to GfxMgr as well
-	_gfx->setRenderStartOffset(row_Min * FONT_VISUAL_HEIGHT);
+	_gfx->setRenderStartOffset(gameRow * FONT_VISUAL_HEIGHT);
 }
 uint16 TextMgr::getWindowRowMin() {
 	return _window_Row_Min;
@@ -260,15 +260,12 @@ void TextMgr::display(int16 textNr, int16 textRow, int16 textColumn) {
 }
 
 void TextMgr::displayTextInsideWindow(const char *textPtr, int16 windowRow, int16 windowColumn) {
-	int16 textRow = 0;
-	int16 textColumn = 0;
-
 	if (!_messageState.window_Active)
 		return;
 
 	charPos_Push();
-	textRow = _messageState.textPos.row + windowRow;
-	textColumn = _messageState.textPos.column + windowColumn;
+	int16 textRow = _messageState.textPos.row + windowRow;
+	int16 textColumn = _messageState.textPos.column + windowColumn;
 	charPos_Set(textRow, textColumn);
 	displayText(textPtr);
 	charPos_Pop();
@@ -296,10 +293,9 @@ void TextMgr::displayText(const char *textPtr, bool disabledLook) {
 	}
 
 	const char *curTextPtr = textPtr;
-	byte  curCharacter = 0;
 
 	while (1) {
-		curCharacter = *curTextPtr;
+		byte curCharacter = *curTextPtr;
 		if (!curCharacter)
 			break;
 
@@ -391,7 +387,9 @@ bool TextMgr::messageBox(const char *textPtr) {
 	uint32 windowTimer = _vm->getVar(VM_VAR_WINDOW_AUTO_CLOSE_TIMER);
 	debugC(3, kDebugLevelText, "blocking window v21=%d", windowTimer);
 
-	windowTimer = windowTimer * 10; // 1 = 0.5 seconds
+	// 1 = 0.5 seconds. NB: ScummVM runs at 40 fps, not 20, so we have
+	// to multiply by 20, not 10, to get the number of cycles.
+	windowTimer = windowTimer * 20;
 	_messageBoxCancelled = false;
 
 	_vm->inGameTimerResetPassedCycles();
@@ -735,7 +733,7 @@ void TextMgr::promptKeyPress(uint16 newKey) {
 	if (_messageState.dialogue_Open) {
 		maxChars = TEXT_STRING_MAX_SIZE - 4;
 	} else {
-		maxChars = TEXT_STRING_MAX_SIZE - strlen(_vm->_game.strings[0]); // string 0 is the prompt string prefix
+		maxChars = TEXT_STRING_MAX_SIZE - strlen(_vm->_game.getString(0)); // string 0 is the prompt string prefix
 	}
 
 	if (_promptCursorPos)
@@ -828,8 +826,6 @@ void TextMgr::promptEchoLine() {
 }
 
 void TextMgr::promptRedraw() {
-	char *textPtr = nullptr;
-
 	if (_promptEnabled) {
 		if (_optionCommandPromptWindow) {
 			// Abort, in case command prompt window is active
@@ -841,7 +837,7 @@ void TextMgr::promptRedraw() {
 		charPos_Set(_promptRow, 0);
 		// agi_printf(str_wordwrap(msg, state.string[0], 40) );
 
-		textPtr = _vm->_game.strings[0];
+		const char *textPtr = _vm->_game.getString(0);
 		textPtr = stringPrintf(textPtr);
 		textPtr = stringWordWrap(textPtr, 40);
 
@@ -1085,10 +1081,8 @@ char *TextMgr::stringWordWrap(const char *originalText, int16 maxWidth, int16 *c
 	int16 lineWidthLeft = maxWidth; // width left of current line
 
 	int16 wordStartPos = 0;
-	int16 wordLen = 0;
 	int16 curReadPos = 0;
 	int16 curWritePos = 0;
-	byte  wordEndChar = 0;
 
 	//memset(resultWrappedBuffer, 0, sizeof(resultWrappedBuffer)); for debugging
 
@@ -1111,10 +1105,10 @@ char *TextMgr::stringWordWrap(const char *originalText, int16 maxWidth, int16 *c
 				break;
 			curReadPos++;
 		}
-		wordEndChar = originalText[curReadPos];
+		byte wordEndChar = originalText[curReadPos];
 
 		// Calculate word length
-		wordLen = curReadPos - wordStartPos;
+		int16 wordLen = curReadPos - wordStartPos;
 
 		if (wordLen >= lineWidthLeft) {
 			// Not enough space left
@@ -1251,7 +1245,7 @@ char *TextMgr::stringPrintf(const char *originalText) {
 				break;
 			case 's':
 				i = strtoul(originalText, nullptr, 10);
-				safeStrcat(resultString, stringPrintf(_vm->_game.strings[i]));
+				safeStrcat(resultString, stringPrintf(_vm->_game.getString(i)));
 				break;
 			case 'm':
 				i = strtoul(originalText, nullptr, 10) - 1;

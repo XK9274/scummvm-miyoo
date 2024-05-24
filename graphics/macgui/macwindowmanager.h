@@ -30,6 +30,7 @@
 
 #include "graphics/font.h"
 #include "graphics/fontman.h"
+#include "graphics/palette.h"
 #include "graphics/macgui/macwindow.h"
 #include "graphics/macgui/macmenu.h"
 
@@ -364,7 +365,7 @@ public:
 
 	BorderOffsets getBorderOffsets(uint32 windowType);
 	Common::SeekableReadStream *getBorderFile(uint32 windowType, uint32 flags);
-	Common::SeekableReadStream *getFile(const Common::String &filename);
+	Common::SeekableReadStream *getFile(const Common::Path &filename);
 
 	void setTextInClipboard(const Common::U32String &str);
 	/**
@@ -402,7 +403,7 @@ public:
 	Common::Point _lastMousePos;
 	Common::Rect _menuHotzone;
 
-	bool _menuTimerActive;
+	uint32 _menuTimer;
 	bool _mouseDown;
 
 	uint32 _colorBlack, _colorGray80, _colorGray88, _colorGrayEE, _colorWhite, _colorGreen, _colorGreen2;

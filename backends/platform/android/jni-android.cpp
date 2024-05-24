@@ -90,7 +90,7 @@ jmethodID JNI::_MID_setTextInClipboard = 0;
 jmethodID JNI::_MID_isConnectionLimited = 0;
 jmethodID JNI::_MID_setWindowCaption = 0;
 jmethodID JNI::_MID_showVirtualKeyboard = 0;
-jmethodID JNI::_MID_showKeyboardControl = 0;
+jmethodID JNI::_MID_showOnScreenControls = 0;
 jmethodID JNI::_MID_getBitmapResource = 0;
 jmethodID JNI::_MID_setTouchMode = 0;
 jmethodID JNI::_MID_getTouchMode = 0;
@@ -222,6 +222,19 @@ void JNI::setReadyForEvents(bool ready) {
 	_ready_for_events = ready;
 }
 
+void JNI::wakeupForQuit() {
+	if (!_system)
+		return;
+
+	if (pause) {
+		pause = false;
+
+		// wake up all threads except the main one as we are run from it
+		for (uint i = 0; i < 2; ++i)
+			sem_post(&pause_sem);
+	}
+}
+
 void JNI::throwByName(JNIEnv *env, const char *name, const char *msg) {
 	jclass cls = env->FindClass(name);
 
@@ -238,13 +251,15 @@ void JNI::throwRuntimeException(JNIEnv *env, const char *msg) {
 
 // calls to the dark side
 
-void JNI::getDPI(float *values) {
-	values[0] = 0.0;
-	values[1] = 0.0;
+void JNI::getDPI(DPIValues &values) {
+	// Use sane defaults in case something goes wrong
+	values[0] = 160.0;
+	values[1] = 160.0;
+	values[2] = 1.0;
 
 	JNIEnv *env = JNI::getEnv();
 
-	jfloatArray array = env->NewFloatArray(2);
+	jfloatArray array = env->NewFloatArray(3);
 
 	env->CallVoidMethod(_jobj, _MID_getDPI, array);
 
@@ -254,16 +269,15 @@ void JNI::getDPI(float *values) {
 		env->ExceptionDescribe();
 		env->ExceptionClear();
 	} else {
-		jfloat *res = env->GetFloatArrayElements(array, 0);
+		env->GetFloatArrayRegion(array, 0, 3, values);
+		if (env->ExceptionCheck()) {
+			LOGE("Failed to get DPIs");
 
-		if (res) {
-			values[0] = res[0];
-			values[1] = res[1];
-
-			env->ReleaseFloatArrayElements(array, res, 0);
+			env->ExceptionDescribe();
+			env->ExceptionClear();
 		}
 	}
-	LOGD("JNI::getDPI() xdpi: %f, ydpi: %f", values[0], values[1]);
+	LOGD("JNI::getDPI() xdpi: %f, ydpi: %f, density: %f", values[0], values[1], values[2]);
 	env->DeleteLocalRef(array);
 }
 
@@ -406,13 +420,13 @@ void JNI::showVirtualKeyboard(bool enable) {
 	}
 }
 
-void JNI::showKeyboardControl(bool enable) {
+void JNI::showOnScreenControls(int enableMask) {
 	JNIEnv *env = JNI::getEnv();
 
-	env->CallVoidMethod(_jobj, _MID_showKeyboardControl, enable);
+	env->CallVoidMethod(_jobj, _MID_showOnScreenControls, enableMask);
 
 	if (env->ExceptionCheck()) {
-		LOGE("Error trying to show virtual keyboard control");
+		LOGE("Error trying to show on screen controls");
 
 		env->ExceptionDescribe();
 		env->ExceptionClear();
@@ -782,7 +796,7 @@ void JNI::create(JNIEnv *env, jobject self, jobject asset_manager,
 	FIND_METHOD(, setTextInClipboard, "(Ljava/lang/String;)Z");
 	FIND_METHOD(, isConnectionLimited, "()Z");
 	FIND_METHOD(, showVirtualKeyboard, "(Z)V");
-	FIND_METHOD(, showKeyboardControl, "(Z)V");
+	FIND_METHOD(, showOnScreenControls, "(I)V");
 	FIND_METHOD(, getBitmapResource, "(I)Landroid/graphics/Bitmap;");
 	FIND_METHOD(, setTouchMode, "(I)V");
 	FIND_METHOD(, getTouchMode, "()I");

@@ -24,7 +24,7 @@
 
 namespace Director {
 
-const char *directoryGlobs[] = {
+const char *const directoryGlobs[] = {
 	"install",
 	"win_data",						// L-ZONE
 	"data",
@@ -57,6 +57,7 @@ const char *directoryGlobs[] = {
 	"flugzeuge bauen",
 	"willyhau",
 	"willyraumschiff",				// Willy Werkel (Mulle Meck) series
+	"demo",							// Tivola Demo - Frühjahr '97 sampler
 	"demos",						// Headbone samplers
 	"blender",						// Blender CD-ROM magazines
 	"bilder",
@@ -122,7 +123,6 @@ const char *directoryGlobs[] = {
 	"scr_mov",						// Cardcaptor Sakura screen savers
 	"dicfiles",						// Time Blazers series
 	"docs",							// Enhanced CDs
-	"anim",							// 1 vs 100 (Mindscape)
 	"lingo expo",					// D4 sample movies
 	"main",							// Meet MediaBand
 	"toinstall",					// Jönssonligan series

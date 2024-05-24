@@ -166,6 +166,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ayac",               "Are You a Chef?" },
 	{ "azteca",             "Azteca" },
 	{ "b7snare",            "Snare" },
+	{ "babysitter",         "The Babysitter" },
 	{ "babytree",           "Baby Tree" },
 	{ "backtowakeup",       "Back to WakeUp" },
 	{ "backup",             "Backup" },
@@ -203,7 +204,6 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "briantimmons",       "The Surprising Case of Brian Timmons" },
 	{ "bronze",             "Bronze" },
 	{ "bryantcollection",   "The Bryant Collection" },
-	{ "bse",                "BSE" },
 	{ "building",           "Building" },
 	{ "bureaucrocy_zcode",  "Bureaucrocy" },
 	{ "burglar",            "Burglar!" },
@@ -239,6 +239,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "checkerhaunt",       "A Checkered Haunting" },
 	{ "cheesedoff_zcode",   "Cheesed Off!" },
 	{ "cheeseshop",         "Cheeseshop" },
+	{ "chengara",           "Chengara" },
 	{ "cheshirecat_zcode",  "Save the Cheshire Cat!" },
 	{ "chico",              "Chico and I Ran" },
 	{ "childsplay",         "Child’s Play" },
@@ -246,6 +247,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "christminster",      "Christminster" },
 	{ "cia",                "C.I.A. Adventure" },
 	{ "classchallenge",     "Class Challenge" },
+	{ "classroom",          "The Classroom Done" },
 	{ "cleanair",           "Clean Air" },
 	{ "cliffedge",          "Edge of the Cliff" },
 	{ "cockandbull",        "A Cock and Bull Story" },
@@ -288,6 +290,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "dayishothitler",     "The Day I Shot Hitler" },
 	{ "dd4",                "Dutch Dapper IV: The Final Voyage" },
 	{ "dday",               "D-Day" },
+	{ "deadmen",            "Down Among the Dead Men" },
 	{ "deadmeat",           "Dead Meat in the Pit" },
 	{ "deadreckon_zcode",   "Dead Reckoning" },
 	{ "death",              "Death to my Enemies" },
@@ -341,6 +344,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "escapade",           "Escapade!" },
 	{ "escape",             "Escape!" },
 	{ "escaperemember",     "An Escape to Remember" },
+	{ "escapetrollcave",    "Escape From the Troll's Cave" },
 	{ "eto",                "ETO" },
 	{ "everydaysamedream",  "Every Day the Same Dream" },
 	{ "f209",               "Apartment 209" },
@@ -366,6 +370,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "fmvpoker",           "Frobozz Magic Video Poker" },
 	{ "forest",             "Forest" },
 	{ "forgottengirls",     "The Forgotten Girls" },
+	{ "forgottenpyramid",   "The Forgotten Pyramid" },
 	{ "fork",               "Fork: The Great Underground Dining Room" },
 	{ "fractalz",           "Fractalz" },
 	{ "fracturemeta",       "Fractured Metamorphoses" },
@@ -388,6 +393,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "geist",              "Geist" },
 	{ "gerbilriot",         "Gerbil Riot" },
 	{ "ghandi",             "The Day I Hugged Ghandi" },
+	{ "ghostsblackwood",    "The Ghosts of Blackwood Manor" },
 	{ "ghosttrain",         "The Ghost Train" },
 	{ "ghostmountain",      "Ghost Mountain" },
 	{ "glass_zcode",        "Glass" },
@@ -399,9 +405,11 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "gowest",             "Go West" },
 	{ "greaterthan",        "> by @" },
 	{ "greatpancake",       "The Great Pancake Detectives - Case #27" },
+	{ "greenblood",         "Green Blood" },
 	{ "greenrain",          "A Green Rain" },
 	{ "greensboro",         "Greensboro Sit-In" },
 	{ "growingup",          "Growing Up" },
+	{ "grumpytck_zcode",    "The Grumpy Cricket (And Other Enormous Creatures)" },
 	{ "guestreet",          "Life on Gue Street" },
 	{ "gumshoe",            "Gumshoe" },
 	{ "gussdeath",          "Guss's Death" },
@@ -410,10 +418,12 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "hamhouse",           "In the House of Professor Evil: The HAM HOUSE" },
 	{ "hamil",              "Hamil" },
 	{ "hangar22",           "Hangar 22" },
+	{ "hangmansgulch",      "Hangman's Gulch" },
 	{ "happyeverafter",     "Happy Ever After" },
 	{ "hauntedhouse",       "Haunted House" },
 	{ "hauntings",          "Hauntings" },
 	{ "headcase",           "Head Case" },
+	{ "heartice",           "Heart of Ice" },
 	{ "heidi",              "Heidi" },
 	{ "heist",              "Heist: The Crime of the Century" },
 	{ "heliopause",         "Hoist Sail for the Heliopause and Home" },
@@ -423,6 +433,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "hibernated1",        "Hibernated 1 - This Place is Death (Director's Cut)" },
 	{ "hiddennazi",         "The Game Formerly Known as Hidden Nazi Mode" },
 	{ "hiddenverbiage",     "Hidden Verbiage" },
+	{ "hideseek",           "Hide Seek" },
 	{ "hidepachyderm",      "Hide a Pachyderm!" },
 	{ "hippoelmstr_zcode",  "Hippo on Elm Street" },
 	{ "hipponewyear",       "And a Hippo New Year" },
@@ -493,6 +504,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "legendmisshat",      "The Legend of the Missing Hat" },
 	{ "lex",                "LeX" },
 	{ "librarian",          "Life of a Librarian" },
+	{ "libraryhorror",      "The Library of Horror" },
 	{ "lifewithocd",        "Life With OCD" },
 	{ "lifeordeath",        "Life or Death" },
 	{ "limp",               "Limp" },
@@ -519,9 +531,11 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "magicmuffin",        "Magic Muffin - The Desert" },
 	{ "makeitgood",         "Make it Good" },
 	{ "mansion",            "Mansion" },
+	{ "mapa_zcode",         "El Mapa" },
 	{ "martyquest",         "Back to the Future - Marty Quest" },
 	{ "medusa",             "Medusa" },
 	{ "meetingrobb",        "Meeting Robb Sherwin" },
+	{ "mehplace_zcode",     "The Meh Place" },
 	{ "memorylane",         "Memory Lane" },
 	{ "mercurytrucking",    "The Mercury Trucking Company" },
 	{ "mercy",              "Mercy" },
@@ -545,7 +559,10 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "mortlakemanor",      "Mortlake Manor" },
 	{ "motelcalifornia",    "Motel California" },
 	{ "mountain",           "Mountain" },
-	{ "mousequest",         "Mouse Quest Chapter 1 - The Arrival of Winter" },
+	{ "mousequest",         "Mouse Quest - Chapter 1: The Arrival of Winter" },
+	{ "mousequest2",        "Mouse Quest - Chapter 2: Down the Coble Creek" },
+	{ "mousequest3",        "Mouse Quest - Chapter 3: The Council of Mice" },
+	{ "mousequest4",        "Mouse Quest - Chapter 4: The Forgotten Hero" },
 	{ "mrscrabtree",        "Mrs. Crabtree's Geography Class" },
 	{ "mst3k1",             "Mystery Science Theater 3000 Presents 'Detective'" },
 	{ "mst3k2",             "Mystery Science Theater 3000 Presents 'A Fable'" },
@@ -563,6 +580,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "myunclegeorge",      "My Uncle George" },
 	{ "nameless",           "Endless, Nameless" },
 	{ "nascarexperience",   "The Realistic Nascar eXperience" },
+	{ "necklace",           "Necklace of Skulls" },
 	{ "nemeanlion",         "The Nemean Lion" },
 	{ "nemesismacana",      "Nemesis Macana" },
 	{ "neverplayed_zcode",  "So, You've Never Played a Text Adventure Before, Huh?" },
@@ -662,7 +680,6 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "rota",               "The Reliques of Tolti-Aph" },
 	{ "rpn",                "RPN" },
 	{ "rtdoom",             "Return to Doom" },
-	{ "sabotage",           "Sabotage" },
 	{ "safe_zcode",         "Safe" },
 	{ "samegame",           "SameGame, Another Episode in the Z-Machine Abuse Saga" },
 	{ "samhain",            "Samhain: Pick Up the Jack O' Lantern and Die" },
@@ -729,7 +746,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "sunburst",           "Sunburst: A C64 Science Fiction Adventure Game" },
 	{ "sundayafternoon",    "Sunday Afternoon" },
 	{ "surfboard",          "Surfboard" },
-	{ "survive",            "Survive" },
+	{ "survive_zcode",      "Survive" },
 	{ "sutwin",             "The Space Under the Window" },
 	{ "suvehnux",           "Suveh Nux" },
 	{ "swineback",          "Swineback Ridge" },
@@ -763,7 +780,6 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "themall",            "The Mall" },
 	{ "thesnowman",         "The Snowman" },
 	{ "thesproutpouch",     "Reor's Bush-Cave: The Sprout Pouch" },
-	{ "thewedding",         "The Wedding" },
 	{ "thorn",              "The Thorn" },
 	{ "threecows",          "Three Cows and Two Doors" },
 	{ "threediopolis",      "Threediopolis" },
@@ -781,6 +797,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "trapped_zcode",      "Trapped" },
 	{ "tristamisland",      "Tristam Island" },
 	{ "trolleyeview",       "Zork: A Troll's Eye View" },
+	{ "truehero",           "True Hero: Quest for the Banshee Heart" },
 	{ "trunspecified",      "Treasures of an Unspecified Region or District" },
 	{ "trw",                "Tull Road Warrior" },
 	{ "trystoffate",        "Tryst of Fate" },
@@ -843,6 +860,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "wwwanderer",         "Werewolves and Wanderer" },
 	{ "xenophobia",         "Xenophobia" },
 	{ "yakshaving",         "Yak Shaving for Kicks and Giggles!" },
+	{ "yastanding",         "You Are Standing" },
 	{ "yomomma",            "Raising the Flag on Mount Yo Momma" },
 	{ "zassball",           "ZassBall, Another Abuse of the Z-Machine" },
 	{ "zbefunge",           "ZBefunge 0.7" },
@@ -947,6 +965,13 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "apollo36",           "Apollo 18+20 #36: Fingertips - Fingertips(Reprise)" },
 	{ "apollo37",           "Apollo 18+20 #37: Fingertips - I Walk Along Darkened Corridors" },
 	{ "apollo38",           "Apollo 18+20 #38: Space Suit" },
+
+	// Acorn User 1996 IFComp
+	{ "bse",                "BSE" },                                                                    //    1st Place
+	{ "thewedding",         "The Wedding" },                                                            //    2nd Place
+	{ "leopold",            "Leopold the Ministrel" },                                                  //    3rd Place
+	{ "transporter",        "Trasnsporter" },                                                           //    Runner-Up
+	{ "blacknwhiterag",     "Black’n’White Rag" },                                                      //    Runner-Up
 
 	// IFComp 1995
 	{ "if95_weather",       "A Change in the Weather" },                                                //    1st Place
@@ -1374,6 +1399,11 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "if22_campusinvader", "Campus Invaders" },                                                        //   45th Place
 	{ "if22_zerochance",    "Zero Chance of Recovery" },                                                //   52nd Place
 
+	// IFComp 2023
+	{ "if23_bbkk_zcode",    "Bright Brave Knight Knave" },                                             //    36th Place
+	{ "if23_h2",            "Milliways: The Restaurant at the End of the Universe" },                   //   52nd Place
+	{ "if23_thewitch",      "The Witch" },                                                              //   66nd Place
+
 	// Spring IF Art Show 1999
 	{ "ifas_tpold",         "The Possibility of Life's Destruction" },
 
@@ -1595,6 +1625,9 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 
 	// Ectocomp 2022 - Le Grand Guignol
 	{ "ec22_civil",         "Prime Pro-Rhyme Row #4: Civil Seeming Drivel Dreaming" },                  //   15th Place
+
+	// Ectocomp 2023 - La Petite Mort
+	{ "ec23_tallertech",    "Taller Tech Mauler Mech" },                                                //   19th Place
 
 	// EnvComp
 	{ "ec_laseine",         "La Seine" },
@@ -2067,7 +2100,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "sif_hentai2",        "Captain Cumshot’s Second Adventure: The Rim Job" },
 	{ "sif_definefar",      "Define Far" },
 	{ "sif_expedition",     "Expedition" },
-	{ "sif_speedifnockle",  "Revenge of the Nockle : A Speed IF" },
+	{ "sif_speedifnockle",  "Revenge of the Nockle: A Speed IF" },
 
 	// SpeedIF New Year's Speed Competition 2007
 	{ "sif_nazimice",       "Nazi Mice" },
@@ -2220,6 +2253,10 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	// Swash Comp
 	{ "swa_seacaptains",    "Sea Captains" },
 
+	// Text Adventure Literacy Jam 2024
+	{ "bakemono",           "Bakemono no Sekai" },                                                      //      Entrant
+	{ "whokidmgoose",       "Who Kidnapped Mother Goose?" },                                            //      Entrant
+
 	// Toaster Competition
 	{ "toa_burnttoast",     "Burnt Toast" },
 	{ "toa_friarbaconstr",  "Friar Bacon's Secret" },
@@ -2310,6 +2347,9 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	// Spring Thing 2023 - Main Festival
 	{ "stc23_mariewaits",   "Marie Waits" },                                                            //      Entrant
 
+	// Spring Thing 2024 - Main Festival
+	{ "stc24_zomburbia",    "Zomburbia" },                                                              //      Entrant
+
 	// Danish games
 	{ "nissen",             "Pa Loftet Sidder Nissen" },
 
@@ -2380,54 +2420,54 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "verdeterre",         "Le Butin du Capitaine Verdeterre" },
 	{ "vindaloofr",         "Vindaloo" },
 
-	// French games: French Comp 2005
+	// French Comp 2005 (French)
 	{ "frc_cercledesgros",  "Le Cercle des Gros Geeks Disparus" },                                      //    1st Place
 	{ "frc_dreamlands",     "Echappee Belle Dans Les Contrees du Reve" },                               //    2nd Place
 	{ "frc_templedefeu",    "Le Temple de Feu" },                                                       //    3rd Place
 
-	// French games: French Comp 2006
+	// French Comp 2006 (French)
 	{ "frc_citeeaux",       "La Cité des Eaux" },                                                       //    1st Place
 	{ "frc_sarvegne",       "Sarvegne" },                                                               //    2nd Place
 
-	// French games: French Comp 2007
+	// French Comp 2007 (French)
 	{ "frc_heuresduvent",   "Heures Du Vent" },                                                         //    1st Place
 	{ "frc_divinebonace",   "Divine Bonace" },                                                          //    2nd Place
 	{ "frc_brrr",           "Brrr!" },                                                                  //    3rd Place
 	{ "frc_ilephare_zcode", "L'Ile du Phare Abandonné" },                                               //    5th Place
 
-	// French games: French Comp 2008
+	// French Comp 2008 (French)
 	{ "frc_brume",          "Brume" },                                                                  //    1st Place
 	{ "frc_lettresvolees",  "Les Lettres Volées" },                                                     //    2nd Place
 	{ "frc_louplachevre",   "Le Loup, la Chèvre, et la Salade" },                                       //    4th Place
 
-	// French games: French Comp 2009
+	// French Comp 2009 (French)
 	{ "frc_catapole",       "Catapole" },                                                               //    1st Place
 	{ "frc_chambresyrion",  "La Chambre de Syrion" },                                                   //    2nd Place
 	{ "frc_mechants",       "Les Méchants Meurent au Moins deux Fois" },                                //    3rd Place
 
-	// French games: French Comp 2011
+	//French Comp 2011 (French)
 	{ "frc_aventureszeus",  "Les Aventures de Zeus" },                                                  //    1st Place
 	{ "frc_dardenfer",      "Dard d'Enfer" },                                                           //    2nd Place
 	{ "frc_terreciel",      "Entre Terre et Ciel" },                                                    //    3rd Place
 	{ "frc_astrologue",     "La Grande Prédiction ou l'Astrologue Etourdi" },                           //    4th Place
 	{ "frc_homelandsec",    "Homeland Security" },                                                      //    5th Place
 
-	// French games: French Comp 2013
+	// French Comp 2013 (French)
 	{ "frc_lifeonmarsfr",   "Life on Mars?" },                                                          //    1st Place
 	{ "frc_sourcedezig",    "La Source de Zig" },                                                       //    3rd Place
 	{ "frc_trac",           "Trac" },                                                                   //    4th Place
 
-	// French games: French Comp 2015
+	// French Comp 2015 (French)
 	{ "frc_envol",          "L'Envol" },                                                                //    1st Place
 
-	// French games: French Comp 2016
+	// French Comp 2016 (French)
 	{ "frc_tipelau",        "Tipelau" },                                                                //    2nd Place
 	{ "frc_diamantblanc",   "Le Diamant Blanc" },                                                       //    3rd Place
 
-	// French games: French Comp 2018
+	// French Comp 2018 (French)
 	{ "frc_exil",           "L'Exil" },                                                                 //    5th Place
 
-	// French games: French Comp 2021
+	// French Comp 2021 (French)
 	{ "frc_donjon",          "Le Donjon de BatteMan" },                                                 //      Entrant
 	{ "frc_stationspatial",  "Station Spatiale S16: Prologue" },                                        //      Entrant
 
@@ -2439,6 +2479,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "deklinator",         "Object Declination Tool" },
 	{ "dermantel",          "Der Mantel der Finsternis" },
 	{ "diegerechtenricht",  "Die Gerechten Richter" },
+	{ "drakdiamanten_zcode","Drakulas Diamanten" },
 	{ "eskmausden",         "Es Kam aus den Alpen" },
 	{ "halb2",              "Halb Zwei" },
 	{ "herr",               "Die Geschichte des Herrn P. von Hannes Schuller" },
@@ -2446,6 +2487,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "kleine",             "Der Kleine Halbling" },
 	{ "knack",              "Knack!" },
 	{ "mchatton",           "Tutorial Eine Einfuhrung in Textadventures von Cooper McHatton" },
+	{ "nurmengard",         "Nurmengard" },
 	{ "o",                  "O" },
 	{ "schiebefehl",        "Schiebefehl" },
 	{ "seestrasse",         "Seestraße" },
@@ -2454,48 +2496,48 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "wasserhasser",       "Wasser-Hasser" },
 	{ "wichtel",            "Wichtel" },
 
-	// German games: Textfire Grand Prix 2002
+	// Textfire Grand Prix 2002 (German)
 	{ "tgp_eden",           "Eden" },                                                                   //    1st Place
 	{ "tgp_bewerbung",      "Die Bewerbung" },                                                          //    3rd Place
 	{ "tgp_seite",          "Mein Leben für Seite Drei" },                                              //    4th Place
 
-	// German games: Textfire Grand Prix 2003
+	// Textfire Grand Prix 2003 (German)
 	{ "tgp_linear",         "Linear" },                                                                 //    1st Place
 
-	// German games: Textfire Grand Prix 2004
+	// Textfire Grand Prix 2004 (German)
 	{ "tgp_jazteg",         "Jazz auf Tegemis" },                                                       //    1st Place
 	{ "tgp_spater",         "Zwei Jahre später" },                                                      //    4th Place
 	{ "tgp_unterwelt",      "Unterwelt" },                                                              //    5th Place
 	{ "tgp_die5",           "Die 5 Kammer" },                                                           //    8th Place
 	{ "tgp_dichter",        "Dichter" },                                                                //    9th Place
 
-	// German games: Textfire Grand Prix 2005
+	// Textfire Grand Prix 2005 (German)
 	{ "tgp_kopialbuch",     "Das Kopialbuch" },                                                         //    1st Place
 
-	// German games: Textfire Grand Prix 2006
+	// Textfire Grand Prix 2006 (German)
 	{ "tgp_felleisen",      "Das Felleisen" },                                                          //    1st Place
 	{ "tgp_pmason",         "P. Mason und der Schlitzerhans und die Busenkathi" },                      //    2nd Place
 
-	// German games: Textfire Grand Prix 2010
+	// Textfire Grand Prix 2010 (German)
 	{ "tgp_hausaufgabe",    "Die Hausaufgabe" },                                                        //    3rd Place
 	{ "tgp_absturzmomente", "Absturzmomente" },                                                         //    4th Place
 
-	// German games: Textfire Grand Prix 2011
+	// Textfire Grand Prix 2011 (German)
 	{ "tgp_gorgonir",       "Gorgonir" },                                                               //    2nd Place
 	{ "tgp_ausgerechnet",   "Ausgerechnet Mamph Pamph!" },                                              //    4th Place
 
-	// German games: IF Grand Prix 2015
+	// IF Grand Prix 2015 (German)
 	{ "tgp_dieakte",        "Die Akte Paul Bennet" },                                                   //    1st Place
 	{ "tgp_lilie",          "Die Schwarze Lilie" },                                                     //    1st Place
 
-	// German games: IF Grand Prix 2016
+	// IF Grand Prix 2016 (German)
 	{ "tgp_emilia",         "Der Tag an dem Emilia W. Verschwand" },                                    //    3rd Place
 
-	// German games: IF Grand Prix 2022
+	// IF Grand Prix 2022 (German)
 	{ "tgp_schief",         "Schief" },                                                                 //    1st Place
 	{ "tgp_dieerstenacht",  "Die Erste Nacht" },                                                        //    2nd Place
 
-	// German games: IF Grand Prix 2023
+	// IF Grand Prix 2023 (German)
 	{ "tgp_fischstaebchen", "Fischstaebchen" },                                                         //    3rd Place
 	{ "tgp_gennorden",      "Gen Norden" },                                                             //    4th Place
 
@@ -2528,7 +2570,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "lazyjones",          "Lazy Jones e il Meritato Riposo" },
 	{ "littlefalls_zcode",  "Little Falls" },
 	{ "lucifinanza_zcode",  "Luci della Finanza" },
-	{ "marconi",            "Visita al Marconi" },
+	{ "marconi_zcode",      "Visita al Marconi" },
 	{ "noalpitour",         "No Alpitour" },
 	{ "noavventura",        "Non Sarà un'Avventura" },
 	{ "oldwest1",           "Pecos Town, Old West Episode I" },
@@ -2558,14 +2600,14 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "zombie",             "Uno Zombie a Deadville" },
 	{ "zorkita",            "Zork I: Il Grande Impero Sotterraneo" },
 
-	// Italian games: Marmellata d'Avventura 2018
+	// Marmellata d'Avventura 2018 (Italian)
 	{ "ma_lastprigioniero", "I Cinque Feudi" },
 	{ "ma_skepto",          "Skepto!" },
 	{ "ma_dejavu_zcode",    "Déjà Vu" },
 	{ "ma_lazystranocaso",  "Lazy Jones e lo Strano Caso" },
 	{ "ma_pilastri",        "Sigehao - I Quattro Pilastri" },
 
-	// Italian games: Marmellata d'Avventura 2019
+	// Marmellata d'Avventura 2019 (Italian)
 	{ "ma_salagamescastle", "La Sala dei Giochi del Castello del Signore di Ylourgne in Averoigne" },
 	{ "ma_tesorosalagames", "Il Tesoro della Sala Giochi" },
 	{ "ma_lazysalagiochi",  "Lazy Jones e la Sala Giochi" },
@@ -2582,11 +2624,12 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "zenin",              "Zenin na Begu" },
 
 	// Spanish games
-	{ "abismo",             "El Abismo" },
-	{ "acuario",            "Acuario" },
+	{ "abismo_zcode",       "El Abismo" },
+	{ "acuario_zcode",      "Acuario" },
 	{ "adso",               "Adso de Melk" },
 	{ "alicia",             "A Trves del Espejo" },
 	{ "anillo",             "El Anillo" },
+	{ "anillo3",            "Anillo III" },
 	{ "avent",              "Aventurilandia" },
 	{ "aventura",           "Aventura" },
 	{ "bicho",              "El Bicho" },
@@ -2598,32 +2641,39 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "cronicasparaiso",    "Cronicas del Paraiso" },
 	{ "cruzado",            "El Cruzado" },
 	{ "cueva",              "La Oscura Cueva" },
+	{ "dagon_zcode",        "Dagon" },
 	{ "despert",            "El Despertar" },
 	{ "draculasp",          "Dracula: Episodio 1, La Primera Noche" },
 	{ "ecss",               "es.comp.sistemas.sinclair" },
 	{ "edaylobo",           "Eda y el Lobo" },
 	{ "elcontinente",       "El Continente" },
 	{ "ellibro",            "El Libro" },
+	{ "elpuzzle",           "El Puzzle" },
 	{ "encierro",           "Encierro" },
 	{ "ergotdelima_zcode",  "Ergot de Lima" },
-	{ "estacion",           "Secuestro" },
+	{ "estacion_zcode",     "Secuestro" },
 	{ "excessus",           "Excessus" },
 	{ "forrajeo",           "Forrajeo" },
 	{ "fotopia",            "Fotopia" },
 	{ "geo",                "Geo" },
 	{ "gorron",             "El Gorron del Tren" },
-	{ "hampa",              "Historias del Hampa" },
+	{ "hampa_zcode",        "Historias del Hampa" },
 	{ "heredar",            "Heredar!" },
 	{ "heresville",         "Heresville" },
 	{ "imposibl",           "Imposible" },
 	{ "islamisteriosa",     "La Isla Misteriosa" },
 	{ "juguete",            "Jugueteria" },
 	{ "laberinto",          "Un Laberinto Acordado" },
+	{ "latorre_zcode",      "La Torre" },
+	{ "laverja",            "La Verja" },
+	{ "legion",             "Legin de las Tinieblas" },
 	{ "logicinv",           "Lógica Inversa" },
 	{ "maquina",            "Maquina" },
 	{ "marsmenace",         "Mars Menace From Outer Space" },
 	{ "memorias_zcode",     "Memorias de reXXe" },
 	{ "mpdroidone",         "Operacion MPDroid1" },
+	{ "nada",               "La Nada" },
+	{ "pantalla",           "Pantallas y Más Pantallas..." },
 	{ "paraiso",            "Llave Hacia el Paraíso" },
 	{ "perseo",             "Perseo y Andromeda" },
 	{ "peso",               "Una Cuestión de Peso" },
@@ -2636,6 +2686,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "redencionmomificad", "Redención Momificada" },
 	{ "reflejos",           "Reflejos Blancos" },
 	{ "regalo",             "El Regalo de Gorbag" },
+	{ "relojes_zcode",      "Un Lugar en Ninguna Parte Pero en Algún Momento" },
 	{ "roleando",           "Roleando" },
 	{ "saee",               "Saee" },
 	{ "sgw_zcode",          "Test Para SGW" },
@@ -2647,16 +2698,51 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "tribu",              "La TrIbU" },
 	{ "varenna",            "Varenna Quest I: El Castillo de la Rosa Negra" },
 	{ "waxworksspa",        "Adventura de Misterio #11: Museo de Cera" },
+	{ "werewolf",           "Lobos y Aldeanos" },
 	{ "zipi",               "Zipi" },
 	{ "zna",                "Zna No es una Aventura" },
 
-	// Spanish games: Ectocomp 2017 - Le Grand Guignol
+	// Ectocomp 2017 - Le Grand Guignol (Spanish)
 	{ "ec17_decolor",       "Decolor" },                                                                //    3rd Place
 
-	// Spanish games: Ectocomp 2022 - Le Grand Guignol
+	// Ectocomp 2022 - Le Grand Guignol (Spanish)
 	{ "ec22_estadop_zcode", "Estado Profundo" },                                                        //    2nd Place
 
-	// Spanish games: Premios Hispanos 2000
+	// Interactive Fiction Writing Month 2009
+	{ "ifm_artifice",       "Artifice" },
+	{ "ifm_assignone",      "Assignment Onde" },
+	{ "ifm_blackberry",     "Blackberry" },
+	{ "ifm_blasphemy",      "Blasphemy" },
+	{ "ifm_breakenter",     "Breaking and Entering" },
+	{ "ifm_busstation",     "Bus Station" },
+	{ "ifm_checkpoint",     "Checkpoint" },
+	{ "ifm_colophon",       "Colophon" },
+	{ "ifm_fraterevan",     "Frater Evanesco" },
+	{ "ifm_grocery",        "Grocery Shopping" },
+	{ "ifm_heavensent",     "Heaven-Sent" },
+	{ "ifm_helloworld",     "Hello World!" },
+	{ "ifm_ifmonth",        "IF-Month-Zero" },
+	{ "ifm_inheritance",    "Inheritance" },
+	{ "ifm_latetrain",      "Late Train to Nowhere" },
+	{ "ifm_laura",          "Laura" },
+	{ "ifm_metrohobo",      "Metro Hobo" },
+	{ "ifm_nomuse",         "No Muse" },
+	{ "ifm_octopus",        "Octopus's Garden" },
+	{ "ifm_office",         "The Office" },
+	{ "ifm_ohmyeldergod",   "Oh My Elder God" },
+	{ "ifm_painterly",      "Painterly" },
+	{ "ifm_perilkeet",      "Perilkeet" },
+	{ "ifm_rolled",         "Rolled" },
+	{ "ifm_seadreams",      "Sea Dreams" },
+	{ "ifm_searchanswer",   "Search for Answers" },
+	{ "ifm_smugglers",      "Smugglers Rest" },
+	{ "ifm_sparechange",    "Spare Some Change" },
+	{ "ifm_tower",          "Tower" },
+	{ "ifm_trails",         "Trails" },
+	{ "ifm_upyoursleeve",   "Up Your Sleeve" },
+	{ "ifm_winter",         "Winter" },
+
+	// Premios Hispanos 2000 (Spanish)
 	{ "ph00_abalanzate",    "Abalanzate" },
 	{ "ph00_alemanes",      "Golpe a Los Nazis" },
 	{ "ph00_aparato",       "El Aparato" },
@@ -2674,7 +2760,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph00_torre",         "Misterio en la Torre" },
 	{ "ph00_tokland",       "La Isla de Tokland" },
 
-	// Spanish games: Premios Hispanos 2001
+	// Premios Hispanos 2001 (Spanish)
 	{ "ph01_aciegas",       "A Ciegas" },
 	{ "ph01_celos",         "Un Asunto de Celos" },
 	{ "ph01_ch3ch2oh",      "CH3-CH2-OH" },
@@ -2685,7 +2771,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph01_ocaso",         "Ocaso Mortal I: The Bug" },
 	{ "ph01_segapark",      "Aventurero en el Segapark" },
 
-	// Spanish games: Premios Hispanos 2002
+	// Premios Hispanos 2002 (Spanish)
 	{ "ph02_asesinato",     "Asesinato en el Continental" },
 	{ "ph02_aveces",        "A Veces..." },
 	{ "ph02_cv",            "Curriculum Vitae" },
@@ -2699,9 +2785,9 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph02_pruebafisica",  "Prueba Física" },
 	{ "ph02_regente_zcode", "El Anillo Regente" },
 	{ "ph02_sombras",       "Sombras de Moria" },
-	{ "ph02_ultimohogar",   "Misterio en el Ultimo Hogar" },
+	{ "ph02_uhogar_zcode",  "Misterio en el Ultimo Hogar" },
 
-	// Spanish games: Premios Hispanos 2003
+	// Premios Hispanos 2003 (Spanish)
 	{ "ph03_aluzine",       "Aluzine" },
 	{ "ph03_array",         "Array" },
 	{ "ph03_castillo",      "El Castillo de los Lamentos" },
@@ -2714,14 +2800,14 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph03_otrpalab",      "En Otras Palabras" },
 	{ "ph03_rural",         "La Aventura Rural" },
 
-	// Spanish games: Premios Hispanos 2004
+	// Premios Hispanos 2004 (Spanish)
 	{ "ph04_islas",         "El Archipielago" },
 	{ "ph04_lamansion",     "La Mansion" },
 	{ "ph04_navidad",       "Una Pequena Historia de Navidad" },
 	{ "ph04_oculta",        "La Cara Oculta de la Luna" },
 	{ "ph04_remi",          "ReminiscenciaRol" },
 
-	// Spanish games: Premios Hispanos 2005
+	// Premios Hispanos 2005 (Spanish)
 	{ "ph05_castilsilenco", "El Castillo del Silencio" },
 	{ "ph05_pozo",          "Al Fondo del Pozo" },
 	{ "ph05_elprotector",   "El Protector" },
@@ -2730,7 +2816,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph05_trono",         "El Trono de Inglaterra" },
 	{ "ph05_romanfredo",    "Romanfredo" },
 
-	// Spanish games: Premios Hispanos 2006
+	// Premios Hispanos 2006 (Spanish)
 	{ "ph06_draculasp2",    "Dracula: Episodio 2, La Llegada" },
 	{ "ph06_elgatocheko",   "El Gato Cheko" },
 	{ "ph06_goteras",       "Goteras" },
@@ -2738,7 +2824,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph06_regreso",       "El Regreso" },
 	{ "ph06_resaca",        "Resaca" },
 
-	// Spanish games: into Premios Hispanos 2007
+	// Premios Hispanos 2007 (Spanish)
 	{ "ph07_030307",        "Unidad 030307" },
 	{ "ph07_afuera",        "Afuera" },
 	{ "ph07_aod",           "Antes o Despuses" },
@@ -2751,7 +2837,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph07_mausoleo",      "Yuriko in the Mausoleo" },
 	{ "ph07_umami",         "El Día del Umami" },
 
-	// Spanish games: Premios Hispanos 2008
+	// Premios Hispanos 2008 (Spanish)
 	{ "ph08_diana_zcode",   "Diana" },
 	{ "ph08_emmy",          "Museo Poetico Emmy" },
 	{ "ph08_gambito",       "El Gambito Slagar" },
@@ -2765,7 +2851,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph08_sonrisas",      "Sonrisas... Y Lagrimas" },
 	{ "ph08_venenaverbo",   "Venenarius Verborum" },
 
-	// Spanish games: Premios Hispanos 2009
+	// Premios Hispanos 2009 (Spanish)
 	{ "ph09_amanda",        "Amanda" },
 	{ "ph09_gorbag",        "El Regalo de Gorbag" },
 	{ "ph09_hhorcus_zcode", "Homo Homini Orcus" },
@@ -2774,9 +2860,9 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "ph09_megara",        "Los Placeres de Megara" },
 	{ "ph09_panajo",        "Pan de Ajo" },
 	{ "ph09_sm6ascenso",    "Serie Minúscula #6: El Ascenso de Kunelar" },
-	{ "ph09_visitantes",    "Visitantes" },
+	{ "ph09_visit_zcode",   "Visitantes" },
 
-	// Spanish games: Premios Hispanos 2010
+	// Premios Hispanos 2010 (Spanish)
 	{ "ph10_azul",          "Azul Fuerte" },
 	{ "ph10_lpc_zcode",     "La Pequena Cerillera" },
 	{ "ph10_modusvivendi",  "Modus Vivendi" },
@@ -2804,8 +2890,12 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "1156chapelstreet",   "1156 Chapel Street" },
 	{ "1948",               "1948" },
 	{ "1984",               "1984" },
+	{ "1997experiment",     "The 1997 Experiment of Dr Dysnomia" },
 	{ "2084",               "2084" },
+	{ "2136",               "2136" },
 	{ "a221",               "A-221" },
+	{ "abandonedhouse",     "The Abandoned House" },
+	{ "abandonedlab",       "The Abandoned Laboratory" },
 	{ "abandonedneigh",     "The Abandoned Neighborhood" },
 	{ "abandonhospital_ms", "Abandoned Hospital (by Michelle Santiago)" },
 	{ "abandonhospital_an", "Abandoned Hospital (by Anonymous)" },
@@ -2843,6 +2933,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "agescat1stadv",      "AGES: Cat's First Adventure" },
 	{ "agrovegame",         "A Grove Game" },
 	{ "ahole",              "A Hole" },
+	{ "aholenewworld",      "A Hole New World of Stupidity" },
 	{ "ahorrificadvcomedy", "A Horrific Adventure in Comedy" },
 	{ "ahouse",             "A House" },
 	{ "ahousetour",         "A House Tour" },
@@ -2866,6 +2957,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "amatteroftiming",    "A Matter of Timing" },
 	{ "amazetwistypass",    "A Maze of Twisty Passages" },
 	{ "ameadow",            "A Meadow" },
+	{ "aminedorm",          "Amine's Dorm" },
 	{ "amnesiapf",          "Amnesia" },
 	{ "amnesie",            "Amnesie" },
 	{ "amodestproposal",    "A Modest Proposal" },
@@ -2895,6 +2987,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "applestwoapples",    "Apples, Two Apples" },
 	{ "apprenticeschg",     "Apprentice's Challenge" },
 	{ "arainynight",        "A Rainy Night" },
+	{ "arcade",             "The Arcade" },
 	{ "arcadeescape",       "Arcade Escape" },
 	{ "arealbeach",         "A Real Beach" },
 	{ "areaone",            "Area One" },
@@ -2942,8 +3035,10 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "bakerbonanza",       "Baker Bonanza" },
 	{ "bananaquest",        "Banana Quest" },
 	{ "barroombrawl_zcode", "Barroom Brawl" },
+	{ "bartholimules",      "Bartholimules Camp" },
 	{ "base0",              "Base 0" },
 	{ "bearsadventure",     "Bear's Adventure" },
+	{ "beastmode",          "Beast Mode" },
 	{ "beepboopboopbop",    "Beep Boop Boop Bop" },
 	{ "bellsloveforhermom", "Bell's Love for Her Mom Awakens" },
 	{ "bensappartment",     "Ben's Appartment" },
@@ -2953,13 +3048,16 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "blankgame",          "Blank Game" },
 	{ "bloodlust",          "Bloodlust" },
 	{ "breachofcode",       "Breach of Code" },
+	{ "breathdragon",       "Breath of the Dragon" },
 	{ "breakunderscorein",  "Break-in" },
+	{ "bruh",               "Bruh" },
 	{ "busstop",            "Bus Stop" },
 	{ "bymannualsession",   "BYM Annual Session: The Game" },
 	{ "cabbages",           "Cabbages" },
 	{ "campywakegne",       "Camp Ywakegne" },
 	{ "candyland",          "Candy Land" },
 	{ "cannibals",          "Cannibals" },
+	{ "carcinogenesis",     "Carcinogenesis" },
 	{ "cardinal",           "Cardina!" },
 	{ "castle",             "Castle" },
 	{ "caveescape",         "Cave Escape" },
@@ -2969,6 +3067,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "chipaguccicollar",   "Chip, A Gucci Collar & Paris" },
 	{ "clarionsun",         "Clarion Sun" },
 	{ "clarionsun2",        "Clarion Sun II" },
+	{ "classmurder",        "Class Murder" },
 	{ "clownsinthedark",    "Clowns in the Dark" },
 	{ "coffequest",         "Coffee Quest" },
 	{ "coffeetime",         "Coffee Time!" },
@@ -2977,10 +3076,12 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "coleandmichael",     "Cole and Michael" },
 	{ "colinexplore1984",   "Colin Explore 1984" },
 	{ "colonialproject",    "Colonial Project" },
+	{ "coma",               "Coma" },
 	{ "complimentarypean",  "Complimentary Peanuts" },
 	{ "comprehenszombie",   "A Comprehensive Zombie Pedagogy" },
 	{ "concealedpassages",  "Concealed Passages" },
 	{ "cipande",            "Confederation, Identity, Promise and Empire" },
+	{ "courtyardmania",     "Courtyardmania" },
 	{ "coverletter",        "Cover Letter" },
 	{ "crashcourse",        "Crash Course" },
 	{ "crashlanding",       "Crash Landing" },
@@ -2993,6 +3094,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "dankception",        "Dankception" },
 	{ "darenotspeak",       "Dare Not Speak" },
 	{ "dark",               "Dark" },
+	{ "darkforest",         "Dark Forest" },
 	{ "datenightmare",      "Date Nightmare" },
 	{ "david",              "David" },
 	{ "dayalpha",           "Day Alpha" },
@@ -3023,16 +3125,24 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "donttrytoescape",    "Don't Try to Escape" },
 	{ "doors",              "Doors" },
 	{ "doorstopinvasion",   "Doorstop Invasion" },
+	{ "downtownswingers",   "Downtown Swingers" },
+	{ "dragongems",         "The Dragon Gems" },
+	{ "dragonquest",        "Dragon Quest" },
+	{ "dreampet",           "Dream Pet" },
 	{ "dressingup",         "Dressing Up" },
 	{ "drunkennight",       "Drunken Night" },
 	{ "dryingup",           "Drying Up" },
 	{ "duplicatebiopunkif", "Duplicate a Biopunk IF" },
 	{ "eastereggs",         "Easter Eggs" },
 	{ "eateverything",      "Eat Everything!" },
+	{ "echoesepoch",        "Echoes of Epoch" },
 	{ "edu5cedtaskat2b",    "EDU5CED Task AT2b" },
 	{ "eldariasurvival",    "Eldaria Survival" },
+	{ "electroroom",        "Electricity Room" },
 	{ "embassy",            "Embassy" },
 	{ "emptypalace",        "Empty Palace" },
+	{ "endandwin",          "Ending and Winning" },
+	{ "endinggamedeath",    "Ending the Game Death or Victory" },
 	{ "entinieblas",        "En Tinieblas" },
 	{ "endofdays",          "End of Days" },
 	{ "environmentaladv",   "Environmental Adventure" },
@@ -3042,6 +3152,8 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "escapechucky",       "Escape Chucky" },
 	{ "escapeemmalam",      "Escape Emma Lam" },
 	{ "escapeforniteisle",  "Escape Fornite Island" },
+	{ "escapegrimwoods",    "Escape from the Grimwoods" },
+	{ "escapeloganli",      "Escape Logan Li" },
 	{ "escapetheartmuseum", "Escape the Art Museum" },
 	{ "escapethecolony",    "Escape the Colony" },
 	{ "escapethecolosseum", "Escape From the Colosseum" },
@@ -3050,13 +3162,17 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "escapethepyramid",   "Escape the Pyramid" },
 	{ "escapetherooms",     "Escape the Rooms" },
 	{ "escapethewizcastle", "Escape the Wizard's Castle" },
+	{ "escapetsunami",      "Escape From a Tsunami" },
 	{ "escapedprisoner",    "Escaped Prisoner" },
 	{ "escapingprison",     "Escaping Prison" },
 	{ "experimentpf",       "Experiment" },
 	{ "exploratriceperdue", "L'Exploratrice Perdue" },
+	{ "exploreexamine",     "Explore and Examine" },
 	{ "exterminsim2014",    "Exterminator Simulator 2014" },
+	{ "extremehs",          "Extreme Hide and Seek" },
 	{ "faction11",          "Faction 11" },
 	{ "fairyring",          "Fairy Ring" },
+	{ "feverdream",         "Fever Dream" },
 	{ "finallythefestival", "Finally the Festival" },
 	{ "findairplanekey",    "Find the Airplane Key" },
 	{ "findjoker",          "Find Joker" },
@@ -3079,14 +3195,20 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "freeparking",        "Free Parking" },
 	{ "freighterraphus",    "Freighter Raphus" },
 	{ "fridayafteroffice",  "Friday Afternoon in the Office" },
+	{ "friendlydebat",      "The Friendly Debat" },
 	{ "fromportlandxoxo",   "From Portland Get XOXO" },
 	{ "fungus",             "Fungus" },
 	{ "futurebookshop",     "#futurebookshop" },
+	{ "galaxia",            "Galaxia" },
 	{ "galisancommence",    "Galisan, Le Commencement" },
 	{ "gamerstereotypes",   "Gamer Stereotypes" },
+	{ "garysgetaway",       "Gary's Getaway" },
 	{ "generations",        "Generations" },
+	{ "generationsend",     "Generations With Ending" },
 	{ "genesis",            "Genesis" },
+	{ "genesisevil",        "Genesis Evil" },
 	{ "getbackhomewoods",   "Get Back Home From the Woods" },
+	{ "getontrain",         "Get On the Train!" },
 	{ "getoutalive",        "Get Out Alive" },
 	{ "getoutofthehouse",   "Get Out of the House" },
 	{ "getthatcat",         "Get That Cat!" },
@@ -3098,7 +3220,10 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "goblinmarket",       "Goblin Market" },
 	{ "goddammitcthulhu",   "Goddammit, Cthulhu" },
 	{ "goldrush",           "Gold Rush" },
+	{ "gondoladvent",       "Gondola Adventure" },
 	{ "goodmourning",       "Good Mourning" },
+	{ "goofyahh",           "Goofy Ahh!" },
+	{ "gosandwich",         "Go Get a Sandwich at 2am" },
 	{ "grandtheftfood",     "Grand Theft Food" },
 	{ "gravitationquand",   "Gravitational Quandary" },
 	{ "greatescape",        "Great Escape" },
@@ -3107,54 +3232,73 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "grocerymadness",     "Grocery Madness" },
 	{ "gustavosbusiness",   "Gustavo's Business" },
 	{ "halfdead",           "Half-Dead" },
+	{ "halloweenadv",       "Halloween Adventure" },
 	{ "halloweenhangover",  "Halloween Hangover" },
 	{ "hannahinwonderland", "Hannah in Wonderland" },
 	{ "hanze",              "Hanze" },
 	{ "happybirthdaygon",   "Happy Birthday, Gon!" },
 	{ "happycycling",       "Happy Cycling" },
 	{ "harrowingdefiance",  "Harrowing Defiance" },
+	{ "hauntedhallway",     "The Haunted Hallway" },
+	{ "hauntedhousescape",  "Haunted House Escape" },
+	{ "hauntedmansion",     "The Haunted Mansion" },
 	{ "hellsisland",        "Hell's Island" },
 	{ "helpsherlock",       "Help Sherlock!" },
 	{ "henryhudson",        "Henry Hudson" },
 	{ "herculesjourney",    "Hercules’ Journey" },
 	{ "highschoolsurvival", "High School Survival" },
 	{ "historicalwln",      "Historical Williamsburg Living Narrative" },
+	{ "hogwartshome",       "Hogwarts Homecoming" },
 	{ "honeymoondisaster",  "Honeymoon Disaster" },
 	{ "hospital",           "Hospital" },
+	{ "hotelgrindell",      "Hotel Grindell" },
+	{ "housekeys",          "The House of Keys" },
 	{ "houseoflafayette",   "House of Lafayette Street" },
+	{ "housetreasure",      "House of Treasure Boxes" },
+	{ "howdidineverknow",   "How Did I Never Know" },
 	{ "howlsmovingcastle",  "Howl's Moving Castle" },
 	{ "hungoverinbelfast",  "Hungover in Belfast" },
 	{ "idontevenknow",      "I Don't Even Know" },
 	{ "iliketrains",        "I Like Trains" },
 	{ "illusion",           "Illusion" },
 	{ "imprieteneasca",     "Imprieteneasca - Chapter 1: INCEPE" },
-	{ "inthebasement",      "In the Basement" },
+	{ "infiltrator",        "The Infiltrator Present Within Our Midst" },
 	{ "inception",          "Inception" },
+	{ "incognizance",       "Incognizance" },
+	{ "inescapableroom",    "The Inescapable Room" },
 	{ "inferno",            "Inferno" },
-	{ "infiltrator",        "The Infiltrator Present Within our Midst" },
 	{ "infinitydestiny",    "Infinity Destiny" },
 	{ "inheritancepf",      "Inheritance" },
 	{ "insaneasylum",       "Insane Asylum" },
+	{ "insidemindscape",    "Inside Mindscape" },
+	{ "inthebasement",      "In the Basement" },
 	{ "isthisacowfantasy",  "Is This a Cow or Just Fantasy" },
 	{ "isiscrisis",         "ISIS Crisis" },
+	{ "islandhopper",       "Island Hopper" },
+	{ "itsjustyou",         "Its Just You and Your Dog" },
 	{ "jaccuse",            "J'Accuse!" },
 	{ "jailbreak",          "Jail Break" },
 	{ "jailescape",         "Jail Escape" },
 	{ "jakesgame",          "Jake's Game" },
 	{ "jellen",             "Jellen" },
 	{ "joeyskey",           "Joey's Key" },
+	{ "johntory",           "John Tory: Austere Mayor" },
 	{ "journeyofosiris",    "Journey of Osiris" },
 	{ "journeyofosirisp2",  "Journey of Osiris - Part II" },
 	{ "juliuscaesar",       "Julius Caesar" },
 	{ "junglesearch",       "Jungle Search" },
+	{ "jurassicescape",     "Jurassic Escape" },
 	{ "keepingdido",        "Keeping Dido" },
+	{ "killerbear",         "Killer Bear" },
 	{ "killthedisease",     "Kill the Disease!" },
+	{ "kindergarten",       "Kindergarten" },
 	{ "kingheartbuildraft", "Kingdom Hearts: Building the Raft" },
 	{ "kingheartdangerous", "Kingdom Hearts: It's Dangerous to Go Alone" },
 	{ "kingdomofamphibia",  "Kingdom of Amphibia" },
 	{ "lanote",             "La Note" },
 	{ "laboratoriodetalf",  "Laboratorio de TALF" },
 	{ "laboratory321",      "Laboratory 321" },
+	{ "lacrimosa",          "Lacrimosa" },
 	{ "lamia",              "Lamia" },
 	{ "laska",              "Dobrodruzsvi Pro Lasku!" },
 	{ "lastnight",          "Last Night" },
@@ -3165,13 +3309,16 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "lesgaleriemaudites", "Les Galeries Maudites" },
 	{ "lieblingshause",     "Lieblings Hause" },
 	{ "lifeaftertesting",   "Life After Testing" },
+	{ "lifecat",            "Life as a Cat" },
 	{ "lifegoals",          "Life Goals" },
 	{ "lifepf",             "Life" },
+	{ "lifesqpv",           "The Life of SQPV" },
 	{ "limbo",              "Limbo" },
 	{ "lines",              "Lines" },
 	{ "littleharmoniclab",  "Little Harmonic Labyrinth" },
 	{ "littlered",          "Little Red" },
 	{ "littleredplumbboy",  "Little Red Plumber Boy" },
+	{ "livesoundadv",       "Live Sound Adventure" },
 	{ "ljsawesomeadvent",   "LJs Awesome Adventure" },
 	{ "locategoldendonut",  "Locate the Golden Donut!" },
 	{ "lookingatzombies",   "Looking at Zombies" },
@@ -3184,8 +3331,10 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "lostintheforest",    "Lost in the Forest" },
 	{ "lostinthejungle",    "Lost in the Jungle" },
 	{ "lostinthewoods",     "Lost in the Woods" },
+	{ "lostkeys",           "Lost Keys" },
 	{ "lostsoul",           "Lost Soul" },
 	{ "lozlanternshadows",  "Legend of Zelda Lantern of Shadows" },
+	{ "lukefeverdream",     "Luke's part of Fever Dream" },
 	{ "lunchbreak",         "Lunch Break" },
 	{ "macandcheese",       "Mac and Cheese" },
 	{ "machineprojectadv",  "Machine Project Adventure" },
@@ -3197,11 +3346,12 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "manicomio",          "Manicomio" },
 	{ "manor",              "Manor" },
 	{ "mansionmath",        "Mansion Math" },
+	{ "maxcrazymom",        "Max and Her Crazy Mom" },
 	{ "mayantempleescape",  "Mayan Temple Escape" },
 	{ "mcmansion",          "McMansion" },
 	{ "medievaljailbreak",  "Medieval Jail Break" },
 	{ "meetingtime",        "Meeting Time!" },
-	{ "memoriespf",           "Memories" },
+	{ "memoriespf",         "Memories" },
 	{ "micasa",             "Mi Casa" },
 	{ "middeleeuwsdrama",   "Een Middeleeuws Drama" },
 	{ "midnightlibrary",    "Midnight Library" },
@@ -3216,11 +3366,14 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "mondaymorning",      "Monday Morning" },
 	{ "moneyandwater",      "Money and Water" },
 	{ "moonriver",          "Moon River" },
+	{ "mossybricks",        "Mossy Bricks" },
 	{ "motel6",             "Motel 6" },
+	{ "mrmoore",            "Mr.Moore..." },
 	{ "multimodalproject",  "Multimodal Project" },
 	{ "mummiesroom",        "Mummy Room" },
 	{ "murderinbigapple",   "Murder in the Big Apple" },
 	{ "murderincourtyard",  "Murder in the Courtyard" },
+	{ "murdermansion",      "Murder Mansion" },
 	{ "murdermystery",      "Murder Mystery" },
 	{ "murderspicemansion", "A Murder at the Spice Mansion" },
 	{ "mushrooms",          "Mushrooms" },
@@ -3232,13 +3385,18 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "needingawee",        "Needing a Wee" },
 	{ "neithersense",       "Neither Sense Nor Sensibility" },
 	{ "newdealhitman",      "New Deal Hitman" },
+	{ "newsheriff",         "The New Sheriff" },
+	{ "nickeldrophalley",   "Nickeldrop Halley" },
+	{ "nigthbeforedusk",    "The Night Before Dusk" },
 	{ "nightshiftz",        "Night Shift Z" },
 	{ "notalone",           "Not Alone" },
 	{ "nowlookwhatyoudone", "Now Look What You've Done!" },
 	{ "october17th",        "October 17th" },
 	{ "odiasvirtreality",   "Odias Virtual Reality" },
+	{ "oneday",             "One Day" },
 	{ "onelostraena",       "One Lost Raena" },
 	{ "oneroomandafish",    "One Room and a Fish" },
+	{ "onewayhome",         "One Way Home" },
 	{ "operblackcobra",     "Operation Black Cobra" },
 	{ "opto",               "OPTO One Person Train Operation" },
 	{ "overpoweringdark",   "Overpowering Darkness" },
@@ -3247,6 +3405,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "passiveaggrdragon",  "Passive Aggressive Dragon" },
 	{ "peasantscreed",      "Peasant's Creeds" },
 	{ "pedaltothemedal",    "Pedal to the Medal" },
+	{ "persecution",        "The Persecution of the Unknown" },
 	{ "piecethingtogether", "Piecing Things Together" },
 	{ "piratesofhighseas",  "Pirates of the High Seas" },
 	{ "pitchblack",         "Pitch Black" },
@@ -3262,6 +3421,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "prisonbreakpf",      "Prison Break" },
 	{ "prisonescape",       "Prison Escape" },
 	{ "prisonerdrunkenera", "Prisoner of the Drunken Era" },
+	{ "projectalfa",        "Projet Alfa" },
 	{ "projetinform",       "Projet Inform" },
 	{ "puzzleescaperoom",   "Puzzle Escape Room" },
 	{ "quarantine",         "Quarantine" },
@@ -3306,6 +3466,9 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "r33disenchantbay11", "Recipe #33: Disenchantment Bay 11" },
 	{ "r34brown",           "Recipe #34: Brown" },
 	{ "r35disenchantbay12", "Recipe #35: Disenchantment Bay 12" },
+	{ "rabbitchase",        "Rabbit Chase" },
+	{ "reallylatest",       "The Really Latest Sandbox" },
+	{ "redsea",             "The Red Sea" },
 	{ "refuge",             "Refuge" },
 	{ "reign",              "Reign" },
 	{ "retribution",        "Retribution" },
@@ -3313,25 +3476,31 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "roadstoroam",        "Roads to Roam" },
 	{ "romanadventure",     "Roman Adventure" },
 	{ "romancolosseum",     "Roman Colosseum" },
+	{ "ronswoodshop",       "Rons Wood-Shop" },
 	{ "rooms",              "Rooms" },
 	{ "ruinsremixed",       "Ruins Remixed" },
-	{ "spy",                "S.P.Y." },
+	{ "safadventurev1",     "Shimpy's Almost-Fantastic Adventure Volume 1: Rinsttripolous" },
 	{ "safeskies",          "Safe Skies" },
+	{ "samsonrobots",       "Samson and the Robots" },
 	{ "scatterbrain",       "Scatterbrain" },
 	{ "schooltingz",        "School Tingz" },
 	{ "scifistorynewmedia", "Sci-Fi Story for New Media" },
 	{ "scp173",             "SCP-173" },
+	{ "seadeep",            "The Sea is Deep" },
 	{ "searchmagicalbox",   "Search For the Magical Box" },
 	{ "secretdoors",        "Secret Doors" },
+	{ "secretswithin",      "Secrets Within Closed Doors" },
+	{ "segradocorazon",     "Sagrado Corazon de la Molina" },
 	{ "selkiesnacks",       "Selkie Snacks" },
 	{ "sepiadreams",        "Sepia Dreams" },
+	{ "sequencevents",      "Sequence od Events" },
 	{ "shadowsflight",      "Shadow's Flight" },
 	{ "sheepandshamans",    "Sheep and Shamans" },
 	{ "sherlockic",         "Sherlock Holmes and the Indecipherable Cipher" },
 	{ "sherylcrowadvent",   "Sheryl Crow Adventure" },
-	{ "safadventurev1",     "Shimpy's Almost-Fantastic Adventure Volume 1: Rinsttripolous" },
 	{ "shootingstarfinder", "Shooting Star Finder" },
 	{ "simulation",         "Simulation" },
+	{ "sleepingpearl",      "The Sleeping Pearl" },
 	{ "slenderforest",      "Slender Forest" },
 	{ "smallgaim",          "Small Gaim" },
 	{ "snufflewhereareyou", "Snuffles!! Where Are You?" },
@@ -3342,6 +3511,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "spaceescape",        "Space Escape" },
 	{ "spatulasearch",      "Spatula Search" },
 	{ "splittinganatom",    "Splitting an Atom" },
+	{ "spy",                "S.P.Y." },
 	{ "spyrothedragon",     "Spyro the Dragon" },
 	{ "starcitizen",        "Star Citizen" },
 	{ "stardefense1",       "Star Defence I: Attack of the Homeworld" },
@@ -3349,6 +3519,8 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "starsandbutts",      "Stars and Butts" },
 	{ "startergame",        "Starter Game" },
 	{ "stealingthestolen",  "Stealing the Stolen" },
+	{ "steph",              "Steph" },
+	{ "stolengem",          "The Stolen Gen" },
 	{ "storything",         "Story Thing" },
 	{ "strandedspcemonkst", "Stranded: A Space Monkey Story" },
 	{ "strangertheseparts", "Stranger in These Parts" },
@@ -3368,10 +3540,12 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "swordsstory",        "Sword's Story" },
 	{ "takeyourmedicine",   "Take Your Medicine" },
 	{ "takingcareyourself", "Taking Care of Yourself" },
+	{ "teamvoyager",        "Where in the World Is Voyager Demo Prime" },
 	{ "tearoom",            "Tea Room" },
 	{ "templeescape",       "Temple Escape" },
 	{ "terrorblood",        "Terrorblood" },
 	{ "textadventinnyc",    "Text Adventuring in NYC" },
+	{ "thanksgiving",       "Thanksgiving Silverware" },
 	{ "thatdarnleprechaun", "That Darn Leprechaun" },
 	{ "theabandonedmint",   "The Abandoned Mint" },
 	{ "theanniversary",     "The Anniversary" },
@@ -3380,6 +3554,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "thebasement",        "The Basement" },
 	{ "thebieberfevprob",   "The Bieber Fever Problem" },
 	{ "thebiter",           "The Biter" },
+	{ "theblue",            "The Blue" },
 	{ "thebumblebeeband",   "The Bumblebee and the Bandaid" },
 	{ "thecage",            "The Cage" },
 	{ "thecellar",          "The Cellar" },
@@ -3390,6 +3565,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "thecursedfieldtrip", "The Cursed Field Trip" },
 	{ "thedeathquentcomp",  "The Death of Quentin Compson!" },
 	{ "thediabolocontrapt", "The Diabolical Contraption" },
+	{ "thedream",           "The Dream?" },
 	{ "thedreamterminal",   "The Dream Terminal" },
 	{ "thedungdismember",   "The Dungeon of Dismemberment" },
 	{ "theelements",        "The Elements" },
@@ -3400,6 +3576,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "thehardestdecision", "The Hardest Decision" },
 	{ "theheist",           "The Heist" },
 	{ "thehideworldmathew", "The Hidden World of Matthew Ford" },
+	{ "thehospital",        "The Hospital" },
 	{ "theinnermostproj",   "The Innermost Project" },
 	{ "theislandpf",        "The Island" },
 	{ "thejewelheist",      "The Jewel Heist" },
@@ -3407,6 +3584,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "thelabyrinthpf",     "The Labyrinth" },
 	{ "thelibrarypf",       "The Library" },
 	{ "thelightprince",     "The Light Prince" },
+	{ "thelostbook",        "The Lost Book" },
 	{ "themachine",         "The Machine" },
 	{ "themafiagenerator",  "The Mafia Generator" },
 	{ "themagiccircle",     "The Magic Circle" },
@@ -3416,9 +3594,12 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "themythicalforest",  "The Mythical Forest" },
 	{ "theonlywaytobesure", "The Only Way to Be Sure" },
 	{ "thepackage",         "The Package" },
+	{ "thepilot",           "The Pilot" },
 	{ "theprogressivexorn", "The Progressive Xorn" },
 	{ "thequestdragonlord", "The Quest for the Murderous Dragon Lord" },
 	{ "theredenglishbind",  "The Red English Binder" },
+	{ "theschool",          "The School" },
+	{ "thesilence",         "The Silence" },
 	{ "thesixgatewayhell",  "The Sixth Gateway to Hell" },
 	{ "thesquawkingdead",   "The Squawking Dead" },
 	{ "thesunwentdark",     "The Sun Went Dark" },
@@ -3431,7 +3612,6 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "theuntoldstory",     "The Untold Story" },
 	{ "thevirtgrandnation", "The Virtual Grand National" },
 	{ "thewallet",          "The Wallet" },
-	{ "thewitch",           "The Witch" },
 	{ "thewizardcrystal",   "The Wizard and the Crystal Wand" },
 	{ "thewizardslair",     "The Wizard's Lair" },
 	{ "thewizardspotion",   "The Wizard's Potion" },
@@ -3445,6 +3625,9 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "threechoices3ways",  "Three Choices, Three Ways" },
 	{ "thydungeonman",      "Thy Dungeonman" },
 	{ "tiffanys",           "Tiffany's" },
+	{ "timetraveller",      "The Time Traveller" },
+	{ "timmyland",          "Timmy Land" },
+	{ "tinygardens",        "Tiny Gardens" },
 	{ "toavengethestars",   "To Avenge the Stars" },
 	{ "toyourowndevices",   "To Your Own Devices" },
 	{ "todayjustasalways",  "Today, Just as Always" },
@@ -3452,11 +3635,16 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "toxicschool",        "Toxic School" },
 	{ "trainhopneworleans", "Train Hopping in New Orleans" },
 	{ "trainofthought",     "Train of Thought" },
+	{ "trapped",            "Trapped" },
+	{ "trappedcastle",      "Trapped in a Castle" },
+	{ "treasurehunt",       "Treasure Hunt" },
 	{ "treasurehunting",    "Treasure Hunting" },
+	{ "ttcrats",            "TTC and Rats Old Game" },
 	{ "tvdream",            "TV Dream" },
 	{ "twilightmansion",    "Twilight Mansion" },
 	{ "un1015lostsoul",     "UN 1015 Lost Soul" },
 	{ "un1015tminus59min",  "UN1015 T-Minus 59 Minutes" },
+	{ "unchartedisland",    "The Uncharted Island" },
 	{ "undercoop",          "Undercoop" },
 	{ "unejournecomeautre", "Une Journée Comme une Autre" },
 	{ "unerebellion",       "Une Rebellion" },
@@ -3464,11 +3652,14 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "vacancesdeolie",     "Vacances de Folie" },
 	{ "vengefulalexdmon",   "Vengeful Alex and D-mon" },
 	{ "verge",              "Verge" },
+	{ "villagelabyrinth",   "The Village and the Labyrinth" },
 	{ "vinylrecords",       "Vinyl Records" },
 	{ "voyageinteractif",   "Voyage Interactif" },
 	{ "warrant",            "Warrant" },
 	{ "weddinghunt",        "Wedding Hunt" },
 	{ "wednesday",          "Wednesday" },
+	{ "welcomeafterlife",   "Welcome to the Afterlife" },
+	{ "whatswrong",         "What's Wrong With the Trees" },
 	{ "whereiseverybody",   "Where is Everybody" },
 	{ "whereismrhuman",     "Where is Mr. Human" },
 	{ "whittonavenue",      "Whitton Avenue" },
@@ -3482,6 +3673,7 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "yourang",            "You Rang" },
 	{ "yourgovneedsyou",    "Your Government Needs You" },
 	{ "zombiefacuacademy",  "Zombies @Faculty Academy" },
+	{ "zoocapture",         "Zoo Capture" },
 
 	// ParserComp 2015
 	{ "pc15_sixgrayrats",   "Six Gray Rats Crawl Up the Pillow" },                                      //      Entrant
@@ -3526,6 +3718,14 @@ const PlainGameDescriptor ZCODE_GAME_LIST[] = {
 	{ "pj3_seacoral",       "Sea Coral" },                                                              //    7th Place
 	{ "pj3_cleangetaway",   "A Clean Getaway" },                                                        //    8th Place
 	{ "pj3_fantadimension", "The Fantasy Dimension" },                                                  //      Entrant
+
+	// PunyJam #4
+	{ "pj4_rop",            "The Ruin of 0ceanus Pr1me" },                                              //    1st Place
+	{ "pj4_cargobreach",    "Cargo Breach" },                                                           //    2nd Place
+	{ "pj4_shaka",          "Shaka!" },                                                                 //    3rd Place
+	{ "pj4_redux",          "Redux" },                                                                  //    4th Place
+	{ "pj4_minimalgame",    "Minimal Game" },                                                           //    5th Place
+	{ "pj4_pharaoh",        "Pharaoh" },                                                                //    6th Place
 
 	// SeedComp! 2023
 	{ "kingsball",          "The King's Ball" },                                                        //      Entrant
@@ -3878,6 +4078,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("ayac", "010107", "b503a9f2817ce97480160e454e470c58", 68608),
 	ENTRY0("azteca", "070117", "e30320818aa935f1bff66fcaa862fd9f", 123904),
 	ENTRY0("b7snare", "150118", "5e1057596f6fe7d0efb100f80ae65f27", 284672),
+	ENTRY0("babysitter", "240319/z3", "db25e74cd9f8e0dde95e0e6be7facc49", 45056),
+	ENTRY0("babysitter", "240319/z5", "af6d71122f7ebed7d44131d5e6665170", 46592),
 	ENTRY0("babytree", "120512", "79e230657b07b2e8fa45ffbe4635d03f", 294352),
 	ENTRY0("backtowakeup", "080313", "73ada6a69651bea315206d7994164b95", 640246),
 	ENTRY0("backup", "091204", "52d1d40ff557c21b7d4464e12b6d646c", 429188),
@@ -3917,7 +4119,6 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("briantimmons", "130114", "94545a75f7c9f0bc33a171a925f49af6", 544936),
 	ENTRY0("bronze", "101025", "ae7671168ced4412cc6307d106e1b23a", 538040),
 	ENTRY0("bryantcollection", "090401", "2c331a7c183ef29ea13b68075a58c73b", 528620),
-	ENTRY0("bse", "970110", "d260f722540f8c24a8c5b88778c76261", 89088),
 	ENTRY0("building", "030706", "cc5ab40754fde9739113ef2524ef66b5", 253440),
 	ENTRY0("bureaucrocy_zcode", "141113", "7dcbbc724b7416ad0b80b3159c7e3525", 387606),
 	ENTRY0("burglar", "010925", "ca9ae17d983afb2d79aad60486a5a859", 71680),
@@ -3958,6 +4159,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("cheesedoff_zcode", "160724", "f22a5e611479057236e0a8af31b62e70", 448080),
 	ENTRY0("cheeseshop", "021230/v1", "88329068474b92abf4b4363c177f6971", 85504),
 	ENTRY0("cheeseshop", "021230/v2", "cbf746a948b66ae8d2a65e52134654b4", 85504),
+	ENTRY0("chengara", "090621", "1ae7fc0b20586b7ff76b4d4340dd3abc", 222720),
 	ENTRY0("cheshirecat_zcode", "140803", "69dced03ab92e1efeae0ea4a496743d5", 78848),
 	ENTRY0("cheshirecat_zcode", "141012", "0a8c570fb7499bcc35109fdf7320132b", 79872),
 	ENTRY0("cheshirecat_zcode", "150918/z5", "97f1096761d27951a1715c627390b6ba", 76800),
@@ -3967,7 +4169,9 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("cia", "961218", "2cdacedf416e7a575de47412e1d164f8", 54784),
 	ENTRY0("classchallenge", "190724", "d6caad7ab6a6964f0526f5b4c7a41316", 163840),
 	ENTRY0("classchallenge", "201112", "cf1cc6017a784a8f52daaaa7c617772a", 163840),
+	ENTRY0("classroom", "210320", "ee18db643cc029257dfe838d56aa5f86", 321536),
 	ENTRY0("cleanair", "190608", "3e5a972edf102956f6973c9fc7a8d388", 410302),
+	ENTRY0("cleanair", "220825", "a988a1fd11f394316632c1759b2eb4a5", 414916),
 	ENTRY0("cliffedge", "111030", "2bcba042a3b56fb010c9ab0e64cecad5", 324608),
 	ENTRY0("cockandbull", "170401", "6036a188e9def979678697ce7be14171", 895024),
 	ENTRY0("clockwork", "200725", "e7a388799d227c9b8b114a4b398b500a", 40344),
@@ -4023,6 +4227,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("dayinlife", "080406", "ad0b46d14e3a8d577a58f0d93d700f4f", 173558),
 	ENTRY0("dd4", "030207", "c5921ad782bc25cbd7e3f8c8b1412a4a", 163328),
 	ENTRY0("dday", "110720", "897fbdf9cb2468b09c30961524d36ae5", 266364),
+	ENTRY0("deadmen", "200825", "d6d9516a7f2ca84d3397df54504ceb68", 230340),
 	ENTRY0("deadmeat", "170527", "c0f127f032ade1f46267028371e68e5b", 252374),
 	ENTRY0("deadmeat", "170617", "beed7ee4185f9ddf31f3b94db8ff4ec0", 252374),
 	ENTRY0("deadreckon_zcode", "030730", "1232dc599a00548bcc2d6453a01c5e50", 87040),
@@ -4060,6 +4265,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("egcpc", "100408", "ab75fb61ae23aff72c1dcd104e651766", 353280),
 	ENTRY0("eggstraordadv", "160813", "80ddef3cc800e2ad11d00cb1172f8341", 293528),
 	ENTRY0("eldariasurvival", "130213", "ffdd78885e5883dc86291294c8cd45b4", 156672),
+	ENTRY0("electroroom", "221101", "f58523f22e3a91e62e3b0ee310362406", 157184),
 	ENTRY0("electricpuppet", "080425", "9a98f65333d8efe621cb5e3688e60bf9", 188416),
 	ENTRY0("elephants1", "120407", "c2594ae4986d460f5f47ec38d3759a24", 151040),
 	ENTRY0("elephants2", "120407", "70263b9eee2e0c03111c3ebc529de760", 156672),
@@ -4079,6 +4285,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("escapade", "100111", "64f5e34efe18300476ea6e2dba0e4f81", 678318),
 	ENTRY0("escape", "130210", "988b6899f8d3c9bc4bbd3153ce1ab31f", 275358),
 	ENTRY0("escaperemember", "060705", "57b062c6f3e42cac8cb0775265c33c42", 284810),
+	ENTRY0("escapetrollcave", "240319/z3", "fd79d6ef9f61061b3d4d9fba44da4d07", 36864),
+	ENTRY0("escapetrollcave", "240319/z5", "80b6a16191e6a6bf912223a4b13d8905", 38400),
 	ENTRY0("eto", "040123", "3ac8b0a5ee2f69c86a34008f92da2c13", 74752),
 	ENTRY0("everydaysamedream", "100619", "0c4486b71b7a19e2220c85e055caf43f", 163840),
 	ENTRY0("f209", "970806", "98d739b8f6f5df78cbdc338dd50f89c5", 56832),
@@ -4112,6 +4320,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("fmvpoker", "001227", "0d7bec942838ba2d42af2f836e2a8fc5", 24064),
 	ENTRY0("forest", "121216/Demo", "f629bfa6755cd36f45dbc3fe12b97936", 243130),
 	ENTRY0("forgottengirls", "120817", "421e83ead89a7a0f2fd05791f9b87db7", 410034),
+	ENTRY0("forgottenpyramid", "230914/z3", "c9bf8ffc3e103d18e620d034eed9c089", 70144),
+	ENTRY0("forgottenpyramid", "230914/z5", "bdf948698b4e4f638f45c8f212210b71", 73216),
 	ENTRY0("fork", "071205", "cc07f97369a7f20da06eabf4fa8f2e4a", 201728),
 	ENTRY0("fractalz", "000714", "847523b3d366b2621d593ee260f4d9a6", 6144),
 	ENTRY0("fracturemeta", "010306/Demo", "d684caf97f01d447b37376ef7c708a85", 111104),
@@ -4136,6 +4346,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("geist", "140115/v2", "96f54aaa29ddd0bbfa5db914150633a5", 244736),
 	ENTRY0("gerbilriot", "000513", "69d3926fdd11464a3a79bc10c03cd324", 79360),
 	ENTRY0("ghandi", "110603", "1f276ccb870b63c4c287d8dadd8b8aac", 177664),
+	ENTRY0("ghostsblackwood", "240303", "847f77943687e6fa837d289ebf52e181", 111616),
 	ENTRY0("ghosttrain", "290912", "3e737617d1eb7f551d858e1b9ad5dd3f", 210944),
 	ENTRY0("ghostmountain", "210417", "9528c0c0996c41dd210bd023a6e1e28d", 43008),
 	ENTRY0("ghostmountain", "210509", "3c09bc59d5d38fd11f3523cf330045a0", 43520),
@@ -4152,9 +4363,11 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("gowest", "120425", "2c1e329d9cde395785f8323a740a361e", 251988),
 	ENTRY0("greatpancake", "180117", "9f4e359b40bc53631937c2c44ee5082c", 264268),
 	ENTRY0("greaterthan", "100415", "f7e6e82cda24f2e6f8f06f74323aa19f", 232844),
+	ENTRY0("greenblood", "200825", "3a0b9d06df3ccbca6e2bdfcefa8a8c35", 184936),
 	ENTRY0("greenrain", "100611", "f28e8e500d4fbc94d59f5bfdb9cf7f4d", 275516),
 	ENTRY0("greensboro", "080712", "dd7bd20aa69092b009f9f5503c01f124", 141714),
 	ENTRY0("growingup", "110825", "9bada495ce70bfcae2566f01b844d20a", 267720),
+	ENTRY0("grumpytck_zcode", "231225/z8", "5798bf89bbce4493d325e12dc1f569a2", 341504),
 	ENTRY0("guestreet", "100031", "2637075afb748532ebf851310158017e", 12800),
 	ENTRY0("gumshoe", "960331", "935eabe90b3904a0cde9811a463fcc39", 143360),
 	ENTRY0("gussdeath", "040131", "1c3d12957d1ecf3ce28b7fe36cb34111", 41472),
@@ -4164,10 +4377,13 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("hamhouse", "081124", "068b91ec4a227760e08f1ba48acaeb7a", 238080),
 	ENTRY0("hamil", "111115", "3c6f7131752edfd7b78252112b3a6e66", 81920),
 	ENTRY0("hangar22", "110617", "a96bff6dae1e76771688f73e6570550e", 152064),
+	ENTRY0("hangmansgulch", "240319/z3", "9804519607ebca0a985f8f27c293677c", 58880),
+	ENTRY0("hangmansgulch", "240319/z5", "a6dacaccc69cc0b605e9f17ff0f8007e", 61440),
 	ENTRY0("happyeverafter", "130114", "921e9eec1c4049b630b0a00379bd7d5b", 121856),
 	ENTRY0("hauntedhouse", "170103", "6d1a6caced27d901c09896ac74de6022", 400078),
 	ENTRY0("hauntings", "111109", "931b910ab47044e8792c4d5adc5163e3", 225792),
 	ENTRY0("headcase", "230310", "d05d6cef1edfa94fe52b76f25477b7f7", 613492),
+	ENTRY0("heartice", "200825", "68b954b47816ee47297cf1a51f816f51", 232408),
 	ENTRY0("heidi", "051112", "0b13ec8dec91b35662a62c7a60b54ddb", 83456),
 	ENTRY0("heist", "990217", "d37eab3288f34d5673f72d8697835e8e", 358400),
 	ENTRY0("heliopause", "100703", "423b5192b31eb0705a928b3900b6b208", 389388),
@@ -4177,6 +4393,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("hibernated1", "220625", "6b64251594ac07e042bde09689a388c1", 94208),
 	ENTRY0("hibernated1", "220814/z3", "a97e01c8d4545660ff4522bf2640f3af", 91136),
 	ENTRY0("hibernated1", "220814/z5", "df80b9e7979960cab74ac95fe290eb3f", 94208),
+	ENTRY0("hideseek", "210409", "a3a8cedd516bd3bf37b1cb3922709a07", 321536),
 	ENTRY0("hiddennazi", "100911", "93521e3903e1fa63cfb7ababebd4c3e1", 367570),
 	ENTRY0("hiddenverbiage", "181127", "736af995f8cb87601fe170695efa7180", 477130),
 	ENTRY0("hidepachyderm", "140705", "5e46b32c2897c46097b379f2eef7f5fa", 215040),
@@ -4244,6 +4461,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("kennykoala", "220501/z3", "064f6ee27d2716e5056d27b77eb232a4", 74752),
 	ENTRY0("kennykoala", "220501/z5", "467939dbb4493db7c91cc98b4c25d3f7", 77312 ),
 	ENTRY0("kentishplover", "200118", "d06991d44cdedc0ce4cbf17b3aa79f76", 162816),
+	ENTRY0("kentishplover", "200119", "07d9e4de03a8b80200d0e9124e162f57", 162304),
 	ENTRY0("kentishplover", "200213", "2c93242398a841ad069e81fa3b2c80f1", 163328),
 	ENTRY0("kidnapsea", "110608", "ddcf23cb530746544e0f416337dcf6bc", 191488),
 	ENTRY0("kierkegaardsspider", "120413", "19f457515033fd938856e6507b8a6bc1", 254414),
@@ -4266,6 +4484,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("legendmisshat", "140109", "8b83ea3984edc9d979be31e8c9562a9f", 383088),
 	ENTRY0("lex", "120830", "29de1a490f09a9c756b28c00bcc95230", 368060),
 	ENTRY0("librarian", "130211", "ff40eb307c9ec5b015531201cb0bcf00", 247754),
+	ENTRY0("libraryhorror", "231010", "7178965ebaa5795e378c1b9c466e61cc", 35328),
 	ENTRY0("lifeordeath", "980702", "aa820dffedafe40d7d3f895ec8f30840", 51200),
 	ENTRY0("lifewithocd", "160814", "63997ca4dd1fcb724d9027f9467847d3", 292562),
 	ENTRY0("limp", "980517", "9e36e35b17cbdebcd9d348de156b51df", 47104),
@@ -4295,11 +4514,14 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("makeitgood", "091227", "061af5747715511a5ac5a3476278a914", 495616),
 	ENTRY0("mansion", "010505", "cb310588d3ebdfe419b16ed29f5bc8df", 107008),
 	ENTRY0("mansion", "220406", "0bef5d345f25200423aa4828ab6e15c6", 108544),
-	ENTRY0("marconi", "150606", "5bd573961828acb20766ed203d373f60", 137728),
+	ENTRY0("mapa_zcode", "010711", "57e67b50fe180f9073da28548bd73a5f", 70144),
+	ENTRY0("marconi_zcode", "150606", "5bd573961828acb20766ed203d373f60", 137728),
 	ENTRY0("martyquest", "120430", "80b274b7feb7c19ee0aeba85dac0d688", 268272),
 	ENTRY0("medusa", "030314", "f9e93b13a6f940ef0d25cfef559e36c8", 109056),
 	ENTRY0("meetingrobb", "190928", "b3fb96f61f8c5a01f637cdbfe582612e", 464290),
 	ENTRY0("meetingrobb", "191002", "9eb2560176aaaaa2f7fd820944891ec3", 464290),
+	ENTRY0("mehplace_zcode", "?????\?/zblorb/v1", "407a01a7709a13dad6582c212ced97f4", 456130),
+	ENTRY0("mehplace_zcode", "?????\?/zblorb/v2", "32aef84c45a635f3014e67a34ffcf217", 459714),
 	ENTRY0("memorylane", "230311/z3", "34a1ce5f414e01c3e0a97c723cbca4d0", 104960),
 	ENTRY0("memorylane", "230311/z5", "33ca0166735982befe7ca3569df99389", 108544),
 	ENTRY0("mercy", "980217", "865d53d9764636ddf1bcaa2b703673a6", 97792),
@@ -4324,7 +4546,10 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("mortlakemanor", "120304", "80d317fd404451e436e9c36de5445de8", 261632),
 	ENTRY0("motelcalifornia", "110329", "67a1855ce59354e8eeff4f2a684811bc", 331712),
 	ENTRY0("mountain", "030317", "b84bb15597f7aa53ae407e2d996c0c6c", 103424),
-	ENTRY0("mousequest", "100509", "2993b235743e6a6a4d69063e80c187d9", 325062),
+	ENTRY0("mousequest", "??????", "2993b235743e6a6a4d69063e80c187d9", 325062),
+	ENTRY0("mousequest2", "??????", "32531caa725d44ddbbe720b05a364a11", 323014),
+	ENTRY0("mousequest3", "??????", "4820cc5cf2aa9dbdc1c660146cdcf79e", 352198),
+	ENTRY0("mousequest4", "??????", "8480dd58a0c6b3e0dae916f2aa8b19a2", 439238),
 	ENTRY0("mrscrabtree", "130225", "3ce7aebc7cdad846e1bdc8f46823f4b3", 235520),
 	ENTRY0("mst3k1", "000715", "0a0748937d23bf380cd139de874df32d", 141312),
 	ENTRY0("mst3k2", "981104", "55dc31376ee9e99700e4ad144c5670af", 83456),
@@ -4344,6 +4569,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("myunclegeorge", "090714", "dbdf7f0ea10c10ae2654d58e6ab9d1a4", 179090),
 	ENTRY0("nameless", "131206", "197a58d317be0e6060c490bd40baf8a1", 472064),
 	ENTRY0("nascarexperience", "130827", "d45dc3ab1f9898cf85a09854db0a6b17", 152576),
+	ENTRY0("necklace", "200825", "61cd8722a6030361c09e317189e27cd7", 217972),
 	ENTRY0("nemeanlion", "081113", "c298fdabefb085ca297f0f0917e2fd4e", 77824),
 	ENTRY0("nemesismacana", "120503/z8", "8f5ab052cc4f4f808a40add1be324c3b", 356352),
 	ENTRY0("nemesismacana", "120503/zblorb", "d24a6aaa2d9430b668fb7bda7caf9b42", 397226),
@@ -4529,7 +4755,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("sunburst", "070222", "9f1eee6db8dce7cfb803e5c430fe942a", 65532),
 	ENTRY0("sundayafternoon", "121213", "73d9c96d54922bcd58781aff41e449ed", 347136),
 	ENTRY0("surfboard", "201027", "b3e4c1784465d78111b3eda7b7969647", 180224),
-	ENTRY0("survive", "120116", "5391b23b5d02a9ff853ef93f76bb73f6", 89088),
+	ENTRY0("survive_zcode", "120116", "5391b23b5d02a9ff853ef93f76bb73f6", 89088),
 	ENTRY0("sutwin", "970402", "b4fe3b29aab816470906ce3ae0613ba4", 31744),
 	ENTRY0("suvehnux", "150314", "c085af56acb090e7e4c8af6f69ed216f", 248320),
 	ENTRY0("swineback", "060422", "853342a5b088a2998201123b0c5faa73", 111104),
@@ -4570,9 +4796,6 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("themall", "190718", "c63d87266eb12e24308d9046da2aab22", 87552),
 	ENTRY0("thesnowman", "080301", "ae3a9c15dee678e85e3569582a4522df", 367516),
 	ENTRY0("thesproutpouch", "170462", "70d182102f3544fdb72968f942ccf73c", 1057454),
-	ENTRY0("thewedding", "970602", "40b0b13d420f894ebac54106f0e92ff8", 151552),
-	ENTRY0("thewedding", "100221", "b3749fb3d3999331bcd4415969cb6602", 255940),
-	ENTRY0("thewitch", "230529", "9e02d2f514734c0553e55887091ac4cb", 167424),
 	ENTRY0("thorn", "030701", "63faf28ec7cad962816e9ed3a7310a74", 75776),
 	ENTRY0("threecows", "120208", "449fd20d3b0981ba6f8a7d929e56c820", 153088),
 	ENTRY0("threediopolis", "160814", "cc601a569e19166cfd3b379e7f6dc2f3", 590176),
@@ -4592,6 +4815,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("tristamisland", "200925/Demo", "6fc31da7d0afb034f05b12da56d075a8", 56320),
 	ENTRY0("tristamisland", "220107", "a0b1f6d3aa9167bb2c8039fe9e4c69c0", 56832),
 	ENTRY0("trolleyeview", "980518", "3e0f69e678dd289cd32bf41b2be58bd6", 64000),
+	ENTRY0("truehero", "130916", "3175612caba7b24c091ed4c102c8b902", 195072),
 	ENTRY0("trunspecified", "101224", "cc1ee9ddc4b64f0e5a2b6b91bcf8f363", 273920),
 	ENTRY0("trw", "021229", "1fdb2baeefcabb635ddbbb3433b1b125", 126464),
 	ENTRY0("trystoffate", "970629", "7f7eb7e7df03025b9046139d042dd363", 165888),
@@ -4619,10 +4843,11 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("varicella", "990831", "f5791cd7d8ebfd568928eb2b888a5264", 501760),
 	ENTRY0("vengeance", "000000", "cf68c5b27e9275a0962b622ed4662108", 83968),
 	ENTRY0("verge", "120523", "c7e60b875d240ee83dfac37596cce177", 267776),
-	ENTRY0("vergingpaths", "151027", "c6df1e824df593e8c4995502e6704571", 1131672),
 	ENTRY0("veryvile_zcode", "190928", "14f7780e689e0cf4c321904332238970", 490998),
 	ENTRY0("vigilance", "070106", "97364e2e3f4197bf9dcfeef8fa6e6ee9", 183296),
+	ENTRY0("villagelabyrinth", "240126", "03f1df1242899f17942e7e67254e874e", 159744),
 	ENTRY0("vindaloo", "960613", "d4e69f29f435b55dff5057a1d0d5bd45", 53248),
+	ENTRY0("vergingpaths", "151027", "c6df1e824df593e8c4995502e6704571", 1131672),
 	ENTRY0("virtualgrandnation", "200426", "e8f662bdd08fa0f7520e8ef5615c12b5", 175104),
 	ENTRY0("visualizing", "000218", "81458ba52d6deb8b30ee2628b45976dc", 97792),
 	ENTRY0("vosr", "060925", "73746a1dd6938ca4b034eb424936ffe7", 267776),
@@ -4668,6 +4893,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("xenophobia", "111115", "d132c3b5defcef212f36e03a7c9a2e74", 124928),
 	ENTRY0("yakshaving", "101127", "3c4114a0999f2a68bd08c58fe0494a97", 394958),
 	ENTRY0("yakshaving", "210311", "388cf2afe8648e481b292ef435b099c1", 688198),
+	ENTRY0("yastanding", "240105", "828fe02ff64d29f7cb80cbc235e9b157", 8857),
 	ENTRY0("yomomma", "100228/z8", "a63d6aa5c9741b7c0ccb27756c741c12", 398336),
 	ENTRY0("yomomma", "100228/zblorb", "325cd63060b5509300c71af58902670c", 1081664),
 	ENTRY0("zassball", "980314", "ab906aa444b7fdd0a92119828616bb58", 12288),
@@ -4797,6 +5023,15 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("apollo36", "120324", "01f6f3552fff6a8eaaf5ad31c4c57f64", 209408),
 	ENTRY0("apollo37", "120323", "55b8607a451ab30d03314f815a30e40b", 327144),
 	ENTRY0("apollo38", "120321", "a760169a6643d08ff3db22be84caed37", 353734),
+
+	// Acorn User 1996 IFComp
+	ENTRY0("bse", "970110", "d260f722540f8c24a8c5b88778c76261", 89088),
+	ENTRY0("thewedding", "970602", "40b0b13d420f894ebac54106f0e92ff8", 151552),
+	ENTRY0("thewedding", "970825", "b2f3bee12b17b4d905d05f72d83932a3", 152064),
+	ENTRY0("thewedding", "100221", "b3749fb3d3999331bcd4415969cb6602", 255940),
+	ENTRY0("leopold", "960726", "b396f6af14b77671bfcea4a711fd6f8c", 140800),
+	ENTRY0("transporter", "960729", "4359c7d02e08f46a6262add4bd810bf4", 94208),
+	ENTRY0("blacknwhiterag", "960730", "61a07a049c5160b95cacac9995cf38d6", 42496),
 
 	// IFComp 1995
 	ENTRY0("if95_weather", "950819", "0f8eca394c2956f12e0efc6027a60395", 93696),
@@ -5255,8 +5490,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("if14_15minutes", "140929", "794388850a60ce63f181efb194519bee", 402308),
 	ENTRY0("if14_15minutes", "141021", "8f99e176b2fd4387219b808515c75d0e", 402308),
 	ENTRY0("if14_teaceremony", "140918", "f8b04f52fc3294539405893474413e16", 268352),
-	ENTRY0("if14_enigmasd", "140929", "3e2bfc7b4a45cb0bf3936cb7b164ee17", 414884),
-	ENTRY0("if14_enigmasd", "141020", "5f933e199785495bc884d003a4579b9b", 415396),
+	ENTRY0("if14_enigma_sd", "140929", "3e2bfc7b4a45cb0bf3936cb7b164ee17", 414884),
+	ENTRY0("if14_enigma_sd", "141020", "5f933e199785495bc884d003a4579b9b", 415396),
 	ENTRY0("if14_blacklily", "140926", "16e3dee79b000c19e3f211af3bea9266", 188364),
 	ENTRY0("if14_blacklily", "150318", "f74981accbff8eaa36e07bb175640ea2", 199124),
 	ENTRY0("if14_tower", "140912", "9e4e1ffe01254b8f45f22c79d664cbb2", 390132),
@@ -5327,6 +5562,13 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("if22_intosun", "220928", "16616858fd3c197b3c6f3e69df6b4bfa", 348160),
 	ENTRY0("if22_lowkey", "220928", "59279a95782344dc98303a5e492664b8", 534510),
 	ENTRY0("if22_zerochance", "220928", "fc11a5a21798584e3dd6441479dbc8d9", 259678),
+
+	// IFComp 2023
+	ENTRY0("if23_bbkk_zcode", "230928", "89f93705c53044276ef0da46f72cef18", 505188),
+	ENTRY0("if23_h2", "231113", "31928f11d5ea6652a0dc59600df4d1fe", 237332),
+	ENTRY0("if23_h2", "240106", "0e66f27d2cdc31ded2c8f2d0699c3272", 241744),
+	ENTRY0("if23_thewitch", "230529", "9e02d2f514734c0553e55887091ac4cb", 167424),
+	ENTRY0("if23_thewitch", "230924", "2b6e92d925964638837d4be0231091d2", 182272),
 
 	// Spring IF Art Show 1999
 	ENTRY0("ifas_tpold", "990417", "fdcd6216895f55cfc591f9d77c32bfed", 46080),
@@ -5573,6 +5815,9 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("ec22_civil", "221122", "6dff9f0c6b642590a41daed3642a6ae7", 339172),
 	ENTRY0("ec22_civil", "221212", "b9384e68587e6bec4890d62c40f47a5d", 339684),
 
+	// Ectocomp 2023 - La Petite Mort
+	ENTRY0("ec23_tallertech", "231031", "f8063c9804dca335ce5c9784f21d6f6c", 368666),
+
 	// EnvComp
 	ENTRY0("ec_laseine", "090320", "1073245f6178172de42f73208b8cfcc2", 167424),
 
@@ -5799,6 +6044,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("shd_everythinggame", "150418/zblorb", "130aa6031169e969258ef8e6e1105f52", 1490056),
 	ENTRY0("shd_headingeast", "150507", "ee6869fc4d02966a7ebc7681ae751dc2", 109568),
 	ENTRY0("shd_seeksorrow", "150505", "0e37bd629858f51e2c83649973170dec", 1362330),
+	ENTRY0("shd_seeksorrow", "160505", "e985ee4cff0da7f034cc76fdf5a65f6e", 1365918),
 	ENTRY0("shd_seeksorrow", "160602", "6108059cd52dc1aba9112b554d6aee0f", 1365918),
 
 	// SmoochieComp 2001
@@ -6228,6 +6474,11 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	// Swash Comp
 	ENTRY0("swa_seacaptains", "030902", "7fb736fb5ffd548d87e0e0d36475a451", 120832),
 
+	// Text Adventure Literacy Jam 2024
+	ENTRY0("bakemono", "240428", "476c0811f5b57104a50238e32f9b235f", 103424),
+	ENTRY0("whokidmgoose", "240501/z3", "c3973f356cd94999d4158259d27d1b20", 97280),
+	ENTRY0("whokidmgoose", "240501/z5", "d9093db101f6995a19e4c8e0fe6ac5ad", 101376),
+
 	// Toaster Competition
 	ENTRY0("toa_burnttoast", "000931", "70dba603317dff1feafe1e1941021c95", 80384),
 	ENTRY0("toa_friarbaconstr", "000831", "b499ff3d6468e7f3dffba37bb2ecd458", 92160),
@@ -6324,6 +6575,55 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	// Spring Thing 2023 - Main Festival
 	ENTRY0("stc23_mariewaits", "230402", "8d6e47991a8eff1925acb14f918eb2dd", 105472),
 
+	// Spring Thing 2024 - Main Festival
+	ENTRY0("stc24_zomburbia", "240318", "e0937b22e9c393a5f00ddb8cb8115953", 327432),
+
+	// Interactive Fiction Writing Month 2009
+	ENTRY0("ifm_artifice", "090221", "9b10987623485aa736fca5d8d298010a", 106496),
+	ENTRY0("ifm_assignone", "090221", "6bc2131c94c2e685f959cd13c6210dad", 138752),
+	ENTRY0("ifm_blackberry", "090228", "372bff3cbfbccf49b732d77f299637e1", 141824),
+	ENTRY0("ifm_blasphemy", "090223", "d66df23ff590c8a16842138199e11598", 83968),
+	ENTRY0("ifm_breakenter", "090221", "a94a659187979018b481f72cc4db301d", 145920),
+	ENTRY0("ifm_busstation", "090222", "2addd714375e67c9ef2b9c6ba99f80af", 82432),
+	ENTRY0("ifm_busstation", "090302", "ab8e60a033ceb220e1dbc57d65d5d565", 86016),
+	ENTRY0("ifm_busstation", "090307", "4156afe0aa8dc1fdb5ba90fa6929ff63", 89600),
+	ENTRY0("ifm_busstation", "090316", "53e274376517d00f4c200c6ad218622d", 90624),
+	ENTRY0("ifm_checkpoint", "090222", "2b53bdde933b2f8b4b8f2c7dcb8e7ef6", 177152),
+	ENTRY0("ifm_colophon", "090223", "76d9b4140f3e404517046a22f5e02917", 83968),
+	ENTRY0("ifm_colophon", "090315", "a3b3316ee01dbf17f1cbf2b9c15a934a", 167424),
+	ENTRY0("ifm_fraterevan", "090220", "9c79ae105b9cfad69b4ae9f182b85975", 83456),
+	ENTRY0("ifm_fraterevan", "090228", "1bedfd0d4a7225845629e2c998f333ab", 94208),
+	ENTRY0("ifm_fraterevan", "090308", "fbc31dc689d1057a890a2136f985d105", 96256),
+	ENTRY0("ifm_fraterevan", "090315", "e2baa09f68e69696ce086aea5ad382ba", 97792),
+	ENTRY0("ifm_grocery", "090301", "fe01df3ad2b3e0f0e9cc5d38bbe3a008", 164864),
+	ENTRY0("ifm_heavensent", "090221", "3cd4e4d7eb57ca8312ff6853a21cacea", 157696),
+	ENTRY0("ifm_helloworld", "090222", "5f27d1bc38b0434e1375794272ecbd58", 183296),
+	ENTRY0("ifm_ifmonth", "090222", "5de63a6c2816f38bac4b12a579965f9c", 143360),
+	ENTRY0("ifm_inheritance", "090221", "f0ba0f9771894cdb05832da06bf9eb3a", 90624),
+	ENTRY0("ifm_latetrain", "090306", "1a286fbf43377eaecc6821ee4f3ed7f4", 210432),
+	ENTRY0("ifm_laura", "090228", "98a415373925c05bcaf776e5621dfee5", 94208),
+	ENTRY0("ifm_laura", "090307", "c08952a31d691a03f4ef3b5e5eccd445", 100352),
+	ENTRY0("ifm_metrohobo", "090221", "2351bbbd7a78eefaca4cec6ebe13b66a", 82432),
+	ENTRY0("ifm_metrohobo", "090228", "6d24341d7b80899912c5770a3a75df2c", 83456),
+	ENTRY0("ifm_nomuse", "090309", "237014a04f8af746dcd1a433e94b49e8", 150016),
+	ENTRY0("ifm_octopus", "090228", "13f253ea85499e8d38f848a15a32e824", 207360),
+	ENTRY0("ifm_office", "090222", "29730d2a73d4f4477ab68fbe761c9270", 144896),
+	ENTRY0("ifm_ohmyeldergod", "090221", "e6f101a31324b925e6c959ba59f49976", 82944),
+	ENTRY0("ifm_painterly", "090317", "dcff5796a5dc990a6f5e5e5005efafdd", 152576),
+	ENTRY0("ifm_perilkeet", "090221", "2427a2b95dbca6d5f5e74f02ffe9eacd", 142336),
+	ENTRY0("ifm_rolled", "090221", "b26fcfb0b2659a9b844eb1a239d57bb9", 86016),
+	ENTRY0("ifm_seadreams", "090313", "7a46d05667d7eeac045c11d0da47441d", 216064),
+	ENTRY0("ifm_searchanswer", "090301/z5", "16944a4b7d4f08cbfc2bb97b9798cc87", 169984),
+	ENTRY0("ifm_searchanswer", "090301/zblorb", "fc2e893d078815240ec4baa7739c4bce", 171418),
+	ENTRY0("ifm_smugglers", "090306", "0bd2b7d3164ed67edc6a2abb013947b3", 145920),
+	ENTRY0("ifm_sparechange", "090307", "73d44c50673cc473dcfae3340923a69e", 198144),
+	ENTRY0("ifm_tower", "090222", "409d5cf0ce32b8283ef1948cea70194a", 141824),
+	ENTRY0("ifm_tower", "090228", "80fba25e34e5cb55961c5e705aac4928", 147968),
+	ENTRY0("ifm_trails", "090221", "e78c8d21edf41ce74c192a450b2ec685", 54272),
+	ENTRY0("ifm_upyoursleeve", "090302", "f97b59e9f4b6ba736b59bd6ba0e096c5", 150016),
+	ENTRY0("ifm_upyoursleeve", "090307", "f4ce1c0e8f2e0d337f7753d9e4ae3a72", 172032),
+	ENTRY0("ifm_winter", "090221", "bcef0fe05ba3e449d0110c5731157598", 143872),
+
 	// Danish games
 	ENTRY1("nissen", "171207/v1", "fb28905b7ff93a22d5fe43a18efa90c3", 142848, Common::DA_DNK),
 	ENTRY1("nissen", "171207/v2", "c81784afb569b863098e8374dfdd4f32", 142848, Common::DA_DNK),
@@ -6417,54 +6717,54 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("verdeterre", "150805", "a2bd16f0dbf5cae8cf90ce71c4c71fb4", 1402584, Common::FR_FRA),
 	ENTRY1("vindaloofr", "021001", "95642b4ec28e36f1e250d343c1342bba", 98816, Common::FR_FRA),
 
-	// French games: French Comp 2005
+	// French Comp 2005 (French)
 	ENTRY1("frc_cercledesgros", "051008", "091a9ab30302eb20d421ccbd0c530439", 128512, Common::FR_FRA),
 	ENTRY1("frc_dreamlands", "050908", "79cecc22e3f020a3ccc23912122785d4", 79872, Common::FR_FRA),
 	ENTRY1("frc_templedefeu", "080317", "ce4d11a46341d6307f4cd2bb303d1c74", 134656, Common::FR_FRA),
 
-	// French games: French Comp 2006
+	// French Comp 2006 (French)
 	ENTRY1("frc_citeeaux", "061024", "aec85f8500c931d478d43bb25d75cf90", 159232, Common::FR_FRA),
 	ENTRY1("frc_sarvegne", "081227", "5f6b489cd12c151e4bf67822a5d22b8a", 239104, Common::FR_FRA),
 
-	// French games: French Comp 2007
+	// French Comp 2007 (French)
 	ENTRY1("frc_heuresduvent", "080220", "5b9470352594bb79edee84ecc0134e4e", 337920, Common::FR_FRA),
 	ENTRY1("frc_divinebonace", "070711", "a09271e95d3720d1e8016600b7871906", 103936, Common::FR_FRA),
 	ENTRY1("frc_brrr", "070709", "8657c6e47832ce1a1a976fc1107e16fc", 73216, Common::FR_FRA),
 	ENTRY1("frc_ilephare_zcode", "071220/z5", "b9a70f4bbebbcdca4c52baa6dbac143f", 102912, Common::FR_FRA),
 
-	// French games: French Comp 2008
+	// French Comp 2008 (French)
 	ENTRY1("frc_brume", "100424", "b661a3f9a2f9a3700c6cfee216063615", 152576, Common::FR_FRA),
 	ENTRY0("frc_lettresvolees", "081227", "2590cafc6a7b22b40bd3765c16a0e3d0", 250880),
 	ENTRY1("frc_louplachevre", "081121", "473a02087280f01a81e4ee4035249ed5", 98304, Common::FR_FRA),
 
-	// French games: French Comp 2009
+	// French Comp 2009 (French)
 	ENTRY1("frc_catapole", "100114", "e326f5ab2f236791b5b8f122d75bdb7d", 156672, Common::FR_FRA),
 	ENTRY1("frc_chambresyrion", "100111", "7db1461b938e392ced1d36747525437d", 123392, Common::FR_FRA),
 	ENTRY1("frc_mechants", "100117", "0d580033a9b180484ea6c8bbc2b6106b", 270848, Common::FR_FRA),
 
-	// French games: French Comp 2011
+	// French Comp 2011 (French)
 	ENTRY1("frc_aventureszeus", "120122", "bef1f77e9dfd65d7d39350e3c50b40ce", 91136, Common::FR_FRA),
 	ENTRY1("frc_dardenfer", "120822", "fea4fe5607327d8f0c15c88b65ac5d9a", 275968, Common::FR_FRA),
 	ENTRY1("frc_terreciel", "120122", "cf24a28bea8bb8f80e006acebbef8e33", 245248, Common::FR_FRA),
 	ENTRY1("frc_astrologue", "120122", "4259e9bb2a97152e454ba8feda4f9a04", 198656, Common::FR_FRA),
 	ENTRY1("frc_homelandsec", "120124", "ea70cf57b134c45c2234c976d06d1948", 155136, Common::FR_FRA),
 
-	// French games: French Comp 2013
+	// French Comp 2013 (French)
 	ENTRY1("frc_lifeonmarsfr", "140108", "8ef2f4e9dfe63bcce9ff7726cdcca7ea", 163840, Common::FR_FRA),
 	ENTRY1("frc_sourcedezig", "140102", "675d4956a12d6a23cf2a7d491e13cbff", 88064, Common::FR_FRA),
 	ENTRY1("frc_trac", "131213", "5db3d7270a0b2c7b8dab1672b2f24b8c", 334848, Common::FR_FRA),
 
-	// French games: French Comp 2015
+	// French Comp 2015 (French)
 	ENTRY1("frc_envol", "150201", "5aa75d7b333fdb69c71601d95d2def30", 157696, Common::FR_FRA),
 
-	// French games: French Comp 2016
+	// French Comp 2016 (French)
 	ENTRY1("frc_tipelau", "160104", "e4c8b0d99ceab57393db70b64dcd49c4", 173568, Common::FR_FRA),
 	ENTRY1("frc_diamantblanc", "160103", "d349be5b008ee06ad93bb7342d5ffbea", 167936, Common::FR_FRA),
 
-	// French games: French Comp 2018
+	// French Comp 2018 (French)
 	ENTRY1("frc_exil", "180114", "ff9628e84c46771168b5be5a9e23acd9", 107520, Common::FR_FRA),
 
-	// French games: French Comp 2021
+	// French Comp 2021 (French)
 	ENTRY1("frc_donjon", "210110", "923d5ef805cb1ab6ecaef82e35750b7f", 201728, Common::FR_FRA),
 	ENTRY1("frc_stationspatial", "210110", "6b9e23599bb921aaf4fc744d80e193f5", 130048, Common::FR_FRA),
 
@@ -6482,6 +6782,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("deklinator", "040630", "1ca69e16e8e3e1941eb5c4cd403b2022", 103424, Common::DE_DEU),
 	ENTRY1("dermantel", "100913", "81155fc7363968d2a47612d13d12830d", 281564, Common::DE_DEU),
 	ENTRY1("diegerechtenricht", "101024", "47f0308a684a569ed6df68dbdc92387e", 439064, Common::DE_DEU),
+	ENTRY1("drakdiamanten_zcode", "240103", "484eead39ed34619a3af8a23e1e94b6e", 476510, Common::DE_DEU),
 	ENTRY1("eskmausden", "130714", "71d37a2c11f9c0b085ff1ce06ba488f9", 199168, Common::DE_DEU),
 	ENTRY1("halb2", "020523", "d424290a37b5efc67482e4fc9224bc0e", 30208, Common::DE_DEU),
 	ENTRY1("herr", "140620", "a6493768373d50096344f4319e7f074a", 208028, Common::DE_DEU),
@@ -6490,6 +6791,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("kleine", "181019", "2c2c6112c51bf47da4b5f3c7301c4729", 590784, Common::DE_DEU),
 	ENTRY1("knack", "081215", "b8fa6a55c469cd92d01985933ac093a3", 64388, Common::DE_DEU),
 	ENTRY1("mchatton", "120413", "1485309be7aed1ed0ada396fe3eeb1ec", 290768, Common::DE_DEU),
+	ENTRY1("nurmengard", "171009", "45a45c3800da76386e74e2ea5ff2d4ec", 250368, Common::DE_DEU),
 	ENTRY1("o", "120412", "850ed6092daa2dcc87862404a2e88338", 240424, Common::DE_DEU),
 	ENTRY1("schiebefehl", "120412", "c9551891b01c10be5f1aa214be17a0ef", 236544, Common::DE_DEU),
 	ENTRY1("seestrasse", "090315", "4739869217c7c79eaddafaf493039277", 192512, Common::DE_DEU),
@@ -6498,51 +6800,51 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("wasserhasser", "140105/zblorb", "1d332f660aec117a4460d0555a2b30f6", 165336, Common::DE_DEU),
 	ENTRY1("wichtel", "021006", "f52166e02c6bd5e0311145683f415ef5", 88576, Common::DE_DEU),
 
-	// German games: Textfire Grand Prix 2002
+	// Textfire Grand Prix 2002 (German)
 	ENTRY1("tgp_eden", "020401/z5", "cac7c7f917cc93824f41efa96bf77e57", 120320, Common::DE_DEU),
 	ENTRY1("tgp_eden", "020401/zblorb", "73a6cf485aa833ca895b0f860493cfce", 221618, Common::DE_DEU),
 	ENTRY1("tgp_bewerbung", "020429", "5b2a90b66bfcf4564b37dab92afe846a", 114688, Common::DE_DEU),
 	ENTRY1("tgp_seite", "020330", "7f1bcab47897d5bbed1351aea77e6f56", 169984, Common::DE_DEU),
 
-	// German games: Textfire Grand Prix 2003
+	// Textfire Grand Prix 2003 (German)
 	ENTRY1("tgp_linear", "030331", "427dd13d669e139f31011da42cdd6c6c", 116736, Common::DE_DEU),
 
-	// German games: Textfire Grand Prix 2004
+	// Textfire Grand Prix 2004 (German)
 	ENTRY1("tgp_jazteg", "040522", "6635a44223e0017418acdeb0c78a9c7a", 192000, Common::DE_DEU),
 	ENTRY1("tgp_spater", "040330", "1dc330438f4f064b5bbc22e3f80d1c2c", 84208, Common::DE_DEU),
 	ENTRY1("tgp_unterwelt", "040330", "606d95b5e66ccdeb54febbbf2de7c60c", 92160, Common::DE_DEU),
 	ENTRY1("tgp_die5", "200304", "2a2139d806fc179c98cf8633f671559f", 121344, Common::DE_DEU),
 	ENTRY1("tgp_dichter", "040222", "ea4afef4907aa5d232fe61168ceca08d", 13808, Common::DE_DEU),
 
-	// German games: Textfire Grand Prix 2005
+	// Textfire Grand Prix 2005 (German)
 	ENTRY1("tgp_kopialbuch", "050330", "3e4b21e39f57ad741fae18b4836e1d64", 151040, Common::DE_DEU),
 
-	// German games: Textfire Grand Prix 2006
+	// Textfire Grand Prix 2006 (German)
 	ENTRY1("tgp_felleisen", "060331", "51b62cb229fde3719ddc616f450ba1e2", 131072, Common::DE_DEU),
 	ENTRY1("tgp_pmason", "060329", "7c7ec84f10d40a90f76685558abaf81c", 138240, Common::DE_DEU),
 
-	// German games: Textfire Grand Prix 2010
+	// Textfire Grand Prix 2010 (German)
 	ENTRY1("tgp_hausaufgabe", "100405", "74a0227fcee105fed02e7458ab8a4e51", 199168, Common::DE_DEU),
 	ENTRY1("tgp_absturzmomente", "100405", "eac3e7f2a6eff119dd4141dc1af7608e", 283542, Common::DE_DEU),
 
-	// German games: Textfire Grand Prix 2011
+	// Textfire Grand Prix 2011 (German)
 	ENTRY1("tgp_gorgonir", "110330", "7b1f7c22b6fb7aceb630958e19c76e54", 542304, Common::DE_DEU),
 	ENTRY1("tgp_ausgerechnet", "110403", "5c4cc7e4689850d0726423cb4d14f6d0", 158720, Common::DE_DEU),
 
-	// German games: IF Grand Prix 2015
+	// IF Grand Prix 2015 (German)
 	ENTRY1("tgp_dieakte", "141113", "a4e9bc0f32e66c521e21373ec67e7b8f", 264704, Common::DE_DEU),
 	ENTRY1("tgp_dieakte", "150514", "f85adc48c759f62636cb435f2fc7dbee", 279040, Common::DE_DEU),
 	ENTRY1("tgp_lilie", "150318", "645bb70a097de033452216d5ef85c8dd", 241256, Common::DE_DEU),
 
-	// German games: IF Grand Prix 2016
+	// IF Grand Prix 2016 (German)
 	ENTRY1("tgp_emilia", "160401", "bb5872728bbc705c3dbaee32e2629d7c", 161280, Common::DE_DEU),
 
-	// German games: IF Grand Prix 2022
+	// IF Grand Prix 2022 (German)
 	ENTRY1("tgp_schief", "220401", "8e74eeb93f60b63ec4eee8a7db80880b", 515794, Common::DE_DEU),
 	ENTRY1("tgp_schief", "220404", "78aaa2553d490488b96bda6abe9a7aa7", 516306, Common::DE_DEU),
 	ENTRY1("tgp_dieerstenacht", "220326", "c9a1532c6122c33ac40fd4cf19f41dbb", 104412, Common::DE_DEU),
 
-	// German games: IF Grand Prix 2023
+	// IF Grand Prix 2023 (German)
 	ENTRY1("tgp_fischstaebchen", "230401", "6c07ebfdcfe23bfcac98cc2a8fdf2c48", 869242, Common::DE_DEU),
 	ENTRY1("tgp_gennorden", "230331", "dcc67e5b97f6aaf5f0c7e90a3c62f128", 208896, Common::DE_DEU),
 
@@ -6619,6 +6921,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("zazie", "990506", "74f0a21352b3f6f52e94309e5a02feaf", 114688, Common::IT_ITA),
 	ENTRY1("zazie", "030113", "906b9a3e02b2080ce7f06595c8bdcbb3", 89600, Common::IT_ITA),
 	ENTRY1("zenfactorspa", "100524", "22373bcd74d843ce647c4bd7b6a4404b", 288256, Common::IT_ITA),
+	ENTRY1("zigamusita_zcode", "160227", "016f92fcf0125765da1ed8b3d8863fab", 98816, Common::IT_ITA),
 	ENTRY1("zigamusita_zcode", "200426/z5", "72ef8669029dce42ec1e1f73ef66fa3c", 98816, Common::IT_ITA),
 	ENTRY1("zombie", "180601", "aa5956094aa8e909f63679a67fb52b14", 134144, Common::IT_ITA),
 	ENTRY1("zombie", "180820", "19a1369039b5226f86323ab19e7aea96", 135168, Common::IT_ITA),
@@ -6626,14 +6929,14 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("zorkita", "000031", "3d85a97ddfc1fb0f6bfbf1cb00b4df7b", 192512, Common::IT_ITA),
 	ENTRY1("zorkita", "v6/000031", "be15759f2273cdaf124dbc40436244b0", 192512, Common::IT_ITA),
 
-	// Italian games: Marmellata d'Avventura 2018
+	// Marmellata d'Avventura 2018 (Italian)
 	ENTRY1("ma_lastprigioniero", "180723", "e658aef675c3b44a5027f52b49d53abb", 199168, Common::IT_ITA),
 	ENTRY1("ma_skepto", "989484", "b1642bac5df936d0d6e56e141a4fd120", 145408, Common::IT_ITA),
 	ENTRY1("ma_dejavu_zcode", "180331/z5", "2fdfccb2539bf6d73ea5b86fe1cb7e81", 116224, Common::IT_ITA),
 	ENTRY1("ma_lazystranocaso", "180331", "6d78774d7c8cc30f8bed2e33458e7fc5", 175616, Common::IT_ITA),
 	ENTRY1("ma_pilastri", "180330", "ff72f757570e2a9d0675507c05a6bf69", 75776, Common::IT_ITA),
 
-	// Italian games: Marmellata d'Avventura 2019
+	// Marmellata d'Avventura 2019 (Italian)
 	ENTRY1("ma_salagamescastle", "191222", "6285d40140396eb6b45a3900d4e79577", 239616, Common::IT_ITA),
 	ENTRY1("ma_tesorosalagames", "191210", "bce5e94aa0667c83a869f9a71774086f", 137216, Common::IT_ITA),
 	ENTRY1("ma_lazysalagiochi", "191215", "f8f5030501e6640dbfef11c850967e93", 114176, Common::IT_ITA),
@@ -6650,12 +6953,13 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("zenin", "070628", "bda2d35eb0614374d02bae623d3a22ec", 90112, Common::SK_SVK),
 
 	// Spanish games
-	ENTRY1("abismo", "022001", "d99185503ef97dcad3a3bb10d6063b76", 94208, Common::ES_ESP),
-	ENTRY1("acuario", "120122", "b0439b17a37760be2d12579e4fc5cb75", 116224, Common::ES_ESP),
+	ENTRY1("abismo_zcode", "022001", "d99185503ef97dcad3a3bb10d6063b76", 94208, Common::ES_ESP),
+	ENTRY1("acuario_zcode", "120122", "b0439b17a37760be2d12579e4fc5cb75", 116224, Common::ES_ESP),
 	ENTRY1("adv", "971209", "2c38b40ffbc8c29fff29acbbefa317e8", 126976, Common::ES_ESP),
 	ENTRY1("adso", "010806", "260d3c709d4efe5538a1f10e725172c6", 116224, Common::ES_ESP),
 	ENTRY1("alicia", "980703", "5070504a35d51bdd7f09c67330170d8c", 65536, Common::ES_ESP),
 	ENTRY1("anillo", "990610", "e071a84c1348e49ccd339be6329ea4e0", 75776, Common::ES_ESP),
+	ENTRY1("anillo3", "15????", "046c9f3c20f190637ff9d1fd94abbcb4", 96256, Common::ES_ESP),
 	ENTRY1("avent", "961111", "7d3f5a62df58d20631f2f38623c26810", 76288, Common::ES_ESP),
 	ENTRY1("aventura", "971209", "5bee30fdf0d157186a3336ac2a977913", 128000, Common::ES_ESP),
 	ENTRY1("bicho", "000402", "b82fba5bce71304bd2545b3c5a987b3b", 61952, Common::ES_ESP),
@@ -6669,6 +6973,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("cruzado", "990610", "d872429765f5c378b35bbb4cd44d7fba", 65024, Common::ES_ESP),
 	ENTRY1("cueva", "150301/z5", "e0a6f6e6949944b7793f2822af687f2f", 74752, Common::ES_ESP),
 	ENTRY1("cueva", "150301/zblorb", "fb45c478ca1c30151186a7703a1040fc", 76172, Common::ES_ESP),
+	ENTRY1("dagon_zcode", "09????", "69f01d02b13d7d873970848da5da0e6e", 190464, Common::ES_ESP),
 	ENTRY1("despert", "980909", "f6c469e0931c9f18f149e1b6da484436", 129536, Common::ES_ESP),
 	ENTRY1("despert", "990519", "2d2bb65c166c24f89dc30be8021309b7", 128000, Common::ES_ESP),
 	ENTRY1("draculasp", "020709", "8466396cd5c66595fee8803f442e2e88", 100352, Common::ES_ESP),
@@ -6677,10 +6982,11 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("edaylobo", "020714", "5a7733503f33e5c63922e04086fef93b", 79360, Common::ES_ESP),
 	ENTRY1("elcontinente", "080402", "6dd46c1e1f58734017f3775b31aac455", 161792, Common::ES_ESP),
 	ENTRY1("ellibro", "030923", "33a3b35529ab33713913f8b92cc8ad8a", 109568, Common::ES_ESP),
+	ENTRY1("elpuzzle", "00???\?/Corrupt", "4285418449df52fff8192db61969280e", 229976, Common::ES_ESP),
 	ENTRY1("encierro", "010101", "083514ce5d9718020083ddd00d85e279", 247808, Common::ES_ESP),
 	ENTRY1("ergotdelima_zcode", "170616/z8", "c0b8265d11c2bb2dd6dd62801fb7ed73", 382464, Common::ES_ESP),
 	ENTRY1("ergotdelima_zcode", "170616/zblorb", "0bcc4c1c8cc24165cb8f02f17f00682d", 606834, Common::ES_ESP),
-	ENTRY1("estacion", "080126", "2a8d4eb4c600ce76f05f03cf862a9328", 92672, Common::ES_ESP),
+	ENTRY1("estacion_zcode", "080126", "2a8d4eb4c600ce76f05f03cf862a9328", 92672, Common::ES_ESP),
 	ENTRY1("excessus", "990610", "5bb56f1cf94a376fb34bfaf9c07791f1", 58880, Common::ES_ESP),
 	ENTRY1("forrajeo", "010101", "d86123253ae4b35570013dd87e48036a", 108032, Common::ES_ESP),
 	ENTRY1("fotopia", "991213", "bb067cca7cd769c20e7bb5dc9ed09c65", 214016, Common::ES_ESP),
@@ -6689,7 +6995,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("gorron", "001127", "74a82670f409c93607e72860552ddda2", 104960, Common::ES_ESP),
 	ENTRY1("gorron", "001205", "639f4ab6b26cc6b6e2023fa848f00d92", 74240, Common::ES_ESP),
 	ENTRY1("gorron", "020726", "67a7a86523a72c85b9cc0a0cf730ee75", 80896, Common::ES_ESP),
-	ENTRY1("hampa", "120621", "7db989262feb3c36e5e6b46eeab7447a", 277504, Common::ES_ESP),
+	ENTRY1("hampa_zcode", "120621/z8", "7db989262feb3c36e5e6b46eeab7447a", 277504, Common::ES_ESP),
 	ENTRY1("heredar", "980907", "d63cdbaf4f65a1fd6bca4f1c14317b38", 56832, Common::ES_ESP),
 	ENTRY1("heresville", "990610", "6b8c930f5b874e0c5a629b6385b0fb30", 70144, Common::ES_ESP),
 	ENTRY1("heresville", "001025", "7d4dfdf7911b926a44c66a355faddf8e", 71168, Common::ES_ESP),
@@ -6700,9 +7006,24 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("islamisteriosa", "120113", "56ce52bdf2d9a51786a4b38cf5cc3725", 236544, Common::ES_ESP),
 	ENTRY1("juguete", "010529", "28b197d2889a7f6c7c8a00c5d8f6c605", 107520, Common::ES_ESP),
 	ENTRY1("laberinto", "081027", "968500b509f1da10153186dfb3d89a37", 164352, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "001031", "7b993efc82e58225d06f86eeb4a62812", 91648, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "001101", "0dda3de17af3eba86fb81fc1d5c926ea", 92672, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "010329", "d4ea29e86a8ca925951224c74a00be0f", 70144, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "010329/v1", "f3583ab9b0eaa47d5153133a628a0666", 70144, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "010329/v2", "39226e9f683f48e6b99895b9a230a577", 70656, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "010329/v3", "498ce02c038595577c56c4c57f6319f9", 70656, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "010329/v4", "dfba87a9e0e6f2701d79a37dda9fc36b", 71168, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "010329/v5", "5bf372c65c8abb3d2cded008147e5630", 71168, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "020530/v1", "b29230110159ad197c88e22e482865bf", 94720, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "020530/v2", "4e5fce18a37f427ae22a1804318febc3", 95232, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "020530/v3", "ffa4d3d6701b228ee95f626d101b9fcb", 98816, Common::ES_ESP),
+	ENTRY1("latorre_zcode", "050702/z5", "e81e82829e35a4d6956ebfc9b883968f", 100352, Common::ES_ESP),
+	ENTRY1("laverja", "070416", "283e88358e58bde90c5a00e593642fbb", 64000, Common::ES_ESP),
+	ENTRY1("legion", "??????", "c7ee0051f293b520aad4c46e5530f783", 169004, Common::ES_ESP),
 	ENTRY1("logicinv", "000809", "0c02dd96b334038619a7a7346ae34a47", 61952, Common::ES_ESP),
 	ENTRY1("logicinv", "000909", "e7225635756c1e4a6a2c990bb8709345", 61952, Common::ES_ESP),
 	ENTRY1("maquina", "980915", "3229392e8493a2ba08efd3ce53d27ee3", 59392, Common::ES_ESP),
+	ENTRY1("marsmenace", "160109", "9d31cc5e05145d355fe7650a723eaa77", 422400, Common::ES_ESP),
 	ENTRY1("marsmenace", "160210", "c2804882005d945917d765b32c6d39ec", 427008, Common::ES_ESP),
 	ENTRY1("memorias_zcode", "000824", "e0af9b9bbef7ff5f9d1281e32e2db488", 65024, Common::ES_ESP),
 	ENTRY1("memorias_zcode", "010325", "91ab4377ff9ced804949d3e854ab431e", 137216, Common::ES_ESP),
@@ -6710,6 +7031,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("memorias_zcode", "140726", "25881186f8b84b888fcaae67724d1557", 365568, Common::ES_ESP),
 	ENTRY1("memorias_zcode", "150220", "6796107900bad430d8531c44f306ddbc", 460312, Common::ES_ESP),
 	ENTRY1("mpdroidone", "170820", "ea6bf4230bf6f267f76e191d84fb9804", 353792, Common::ES_ESP),
+	ENTRY1("nada", "010924/Corrupt", "66e0ed01d50e7082e56cffda54fd2d6b", 79872, Common::ES_ESP),
+	ENTRY1("pantalla", "060205", "c7b85db26b1bf03d9e0cc58bcc89758f", 64512, Common::ES_ESP),
 	ENTRY1("paraiso", "000214", "28abb3f35a041ea425b9ec3e93086440", 68096, Common::ES_ESP),
 	ENTRY1("perseo", "150428", "5242114f236e71848be5f6c92fdcb6ef", 26624, Common::ES_ESP),
 	ENTRY1("peso", "981021", "db6fa2c6d6e9d385e0625f9b66c84f6b", 65536, Common::ES_ESP),
@@ -6721,10 +7044,11 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("pyramid", "150427", "7b0f878f298d131024568d9364cf54e7", 29184, Common::ES_ESP),
 	ENTRY1("quenoche", "031015", "0085e1d917110642a700551536770d8d", 101376, Common::ES_ESP),
 	ENTRY1("quovadis", "031110/Demo", "fdebdc9b5ff49977ecec03c9d6800e9c", 63488, Common::ES_ESP),
+	ENTRY1("raro", "000402", "dcbe2202d09a7f5b7dfd6ffb96438fd4", 58880, Common::ES_ESP),
 	ENTRY1("redencionmomificad", "161212", "4e1370baee1a5713a792998f8ff5ce93", 117760, Common::ES_ESP),
 	ENTRY1("reflejos", "010101", "7edc3b30022e97978ea93ef5c22edccd", 144384, Common::ES_ESP),
-	ENTRY1("raro", "000402", "dcbe2202d09a7f5b7dfd6ffb96438fd4", 58880, Common::ES_ESP),
 	ENTRY1("regalo", "100104", "8d7ea3a09f39d1d2de103e5117ad3224", 336064, Common::ES_ESP),
+	ENTRY1("relojes_zcode", "040509/z5", "da0c9341ef8b15f726a18c22bf78877c", 66048, Common::ES_ESP),
 	ENTRY1("roleando", "071221", "09f5aaad79cbb12084241d8d26199ea6", 124416, Common::ES_ESP),
 	ENTRY1("saee", "000721", "d37e0681b1bc1ebbf001d1a37cbd355c", 29696, Common::ES_ESP),
 	ENTRY1("saee", "010308", "0ad5c5a78ea37c53bb614f4bc6f7754f", 31232, Common::ES_ESP),
@@ -6739,17 +7063,18 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("tuuli", "180501", "9382d5a2886dd7681203128a183ebae3", 671650, Common::ES_ESP),
 	ENTRY1("varenna", "190399", "2b984b69649ff9de6c13438e4fb81172", 174592, Common::ES_ESP),
 	ENTRY1("waxworksspa", "140301", "d0de29f4f375f6ce12539f9f26800ae3", 31232, Common::ES_ESP),
+	ENTRY1("werewolf", "99????", "40010f97d191c074f55e045c0a780d0f", 126464, Common::ES_ESP),
 	ENTRY1("zipi", "990707", "98067b8edc5edadf54c66c4becfa8a3c", 9728, Common::ES_ESP),
 	ENTRY1("zna", "000803", "8e6da0f9124591a68d736e3d1036ec98", 59392, Common::ES_ESP),
 	ENTRY1("zna", "001122", "d4652457908490465a0a4b17965cc695", 64000, Common::ES_ESP),
 
-	// Spanish games: Ectocomp 2017 - Le Grand Guignol
+	// Ectocomp 2017 - Le Grand Guignol (Spanish)
 	ENTRY1("ec17_decolor", "171106", "d6fb4727e8ee20d22dbbe17d5673c878", 104960, Common::ES_ESP),
 
-	// Spanish games: Ectocomp 2022 - Le Grand Guignol
+	// Ectocomp 2022 - Le Grand Guignol (Spanish)
 	ENTRY1("ec22_estadop_zcode", "230428", "7da49889125934b46036a89de3e6d3b3", 474158, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2000
+	// Premios Hispanos 2000 (Spanish)
 	ENTRY1("ph00_abalanzate", "001116", "d235b2e983f74f6176aea5b1d1418a78", 79872, Common::ES_ESP),
 	ENTRY1("ph00_alemanes", "000405", "859f5aaec930da12b42e5dbfe42723e9", 82432, Common::ES_ESP),
 	ENTRY1("ph00_aparato", "000428", "46c40135d29e3fda669d974bb1b76b20", 63488, Common::ES_ESP),
@@ -6776,7 +7101,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph00_torre", "000208/v2", "a132c528864576ef5df1ee46c76a5c61", 126464, Common::ES_ESP),
 	ENTRY1("ph00_tokland", "001130", "7f5c796474c250f418a47fa9285e3116", 139776, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2001
+	// Premios Hispanos 2001 (Spanish)
 	ENTRY1("ph01_aciegas", "010927", "6825eaa8b9a2cc73293329bfacee1311", 78848, Common::ES_ESP),
 	ENTRY1("ph01_celos", "010403", "6f4dc34a02fe5eb872ffe99faa06fb79", 69632, Common::ES_ESP),
 	ENTRY1("ph01_ch3ch2oh", "010912", "1a4a689b28c4a17c69e7f8e662a63801", 66048, Common::ES_ESP),
@@ -6792,7 +7117,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph01_ocaso", "020215/v2", "6b47826cde5cb4bb7777bcb735dd76cc", 164352, Common::ES_ESP),
 	ENTRY1("ph01_segapark", "010506", "2d02fd8559b885868aac6a4adcc09198", 75776, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2002
+	// Premios Hispanos 2002 (Spanish)
 	ENTRY1("ph02_asesinato", "020222", "988085754ca9b41f7ade080d9b9262ff", 79872, Common::ES_ESP),
 	ENTRY1("ph02_aveces", "021024", "3e0c409d60bda50121c47094e30cd24c", 81920, Common::ES_ESP),
 	ENTRY1("ph02_aveces", "030218", "b4232196474c2dc8ae992779e2f5deae", 80384, Common::ES_ESP),
@@ -6809,9 +7134,9 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph02_pruebafisica", "021115", "4a30167350b7b94a98463da12a798e8d", 77312, Common::ES_ESP),
 	ENTRY1("ph02_regente_zcode", "090513", "7a84c3ce7a2df69b2da994aaa13ee788", 82432, Common::ES_ESP),
 	ENTRY1("ph02_sombras", "021127", "72b83812567f8a4c9cd523b6a09a9c65", 121856, Common::ES_ESP),
-	ENTRY1("ph02_ultimohogar", "021225", "45edda9ec6eb400f409681d3f2b052d4", 122368, Common::ES_ESP),
+	ENTRY1("ph02_uhogar_zcode", "021225/z5", "45edda9ec6eb400f409681d3f2b052d4", 122368, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2003
+	// Premios Hispanos 2003 (Spanish)
 	ENTRY1("ph03_aluzine", "122103", "8d974b6777b04a288db409bfc777bd22", 78336, Common::ES_ESP),
 	ENTRY1("ph03_array", "040107", "8a8e81e62d5762329bfa3d5c7a503d87", 74752, Common::ES_ESP),
 	ENTRY1("ph03_castillo", "031122", "0c6b8c77106dba58e81223c5d5c1da5f", 95744, Common::ES_ESP),
@@ -6828,7 +7153,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph03_otrpalab", "010102", "1df1630200c6e9a631bb71af494c7d81", 67072, Common::ES_ESP),
 	ENTRY1("ph03_rural", "031104", "ef441ece688cbeef11eef548d0c54aa1", 105472, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2004
+	// Premios Hispanos 2004 (Spanish)
 	ENTRY1("ph04_islas", "050531", "3d7cee978d4f69e41e8af1a8ccda2b9d", 369152, Common::ES_ESP),
 	ENTRY1("ph04_lamansion", "010103/v1", "332cf78fb9eb0a0a60895bf85b73a7f8", 138752, Common::ES_ESP),
 	ENTRY1("ph04_lamansion", "010103/v2", "0acd4655161f834b562b5560353877bd", 138752, Common::ES_ESP),
@@ -6837,7 +7162,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph04_remi", "040801", "8c724781c9356c5c94d2ccfe7dd38aba", 102400, Common::ES_ESP),
 	ENTRY1("ph04_remi", "050107", "9c91d2d67a112caa5f51aae4dfc6d4f9", 102912, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2005
+	// Premios Hispanos 2005 (Spanish)
 	ENTRY1("ph05_bardo", "050918", "7fbedef94068625973d94d672549f0ab", 156672, Common::ES_ESP),
 	ENTRY1("ph05_castilsilenco", "031205", "09ef4bbe2455f592941c817cd17cd865", 77824, Common::ES_ESP),
 	ENTRY1("ph05_elprotector", "010103/v1", "3189852634dcc62258c4e3af727bac46", 154624, Common::ES_ESP),
@@ -6850,7 +7175,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph05_trono", "060105/z5", "27576046399a460904d06942d534549c", 198656, Common::ES_ESP),
 	ENTRY1("ph05_trono", "060105/zblorb", "87bfb28edc44caf30706f3643277ce51", 200052, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2006
+	// Premios Hispanos 2006 (Spanish)
 	ENTRY1("ph06_draculasp2", "060331", "eec7853595240864f25c34da9083ca8b", 108032, Common::ES_ESP),
 	ENTRY1("ph06_draculasp2", "080819", "4de47380bf5d802f295a487eaf1499c6", 123392, Common::ES_ESP),
 	ENTRY1("ph06_elgatocheko", "061106", "3e668bdd0359ea7bdd6953f063ad0aaf", 110080, Common::ES_ESP),
@@ -6861,13 +7186,13 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph06_regreso", "060704", "21565444255a18e57988d983a283962b", 114176, Common::ES_ESP),
 	ENTRY1("ph06_resaca", "060713", "868eb485714fbc34358bff2dfa9335d0", 152576, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2007
+	// Premios Hispanos 2007 (Spanish)
 	ENTRY1("ph07_030307", "070303", "1483dca6052bb366ac32ef4901064b11", 143872, Common::ES_ESP),
 	ENTRY1("ph07_afuera", "010101", "9ed80d0b530f38cce7a7b2c0f1b6ccd9", 116224, Common::ES_ESP),
 	ENTRY1("ph07_aod", "071128", "6e486ac2bc483fab7bb713fa9e954e46", 178176, Common::ES_ESP),
 	ENTRY1("ph07_boxman", "071223", "a1c807338a3a5db6a26d3a27004a54cb", 71680, Common::ES_ESP),
 	ENTRY1("ph07_boxman", "080205", "384ea944adc4be83396c5368a3ba5ed9", 71680, Common::ES_ESP),
-	ENTRY1("ph07_edc_zcode", "070831", "3c4b4c9963fbcf69d858f6d16d9b584b", 126464, Common::ES_ESP),
+	ENTRY1("ph07_edc_zcode", "070831/z5", "3c4b4c9963fbcf69d858f6d16d9b584b", 126464, Common::ES_ESP),
 	ENTRY1("ph07_faro07", "070803", "54fdad7789f03d4c7644835bd295ad1f", 94208, Common::ES_ESP),
 	ENTRY1("ph07_htec_zcode", "071222", "64cf677261e13fb9fa6e071c3c864ae0", 222816, Common::ES_ESP),
 	ENTRY1("ph07_htec_zcode", "111128", "1e4369aae046805529ca8b490c9e5774", 394904, Common::ES_ESP),
@@ -6878,11 +7203,12 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph07_mausoleo", "071223", "a4356d2f89052328323a3dd2ce069658", 164864, Common::ES_ESP),
 	ENTRY1("ph07_umami", "070807", "86a045a71db97910e78ba402b33c5c7d", 80384, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2008
+	// Premios Hispanos 2008 (Spanish)
 	ENTRY1("ph08_diana_zcode", "080806", "2b117f98896856713a418bcd782be568", 107008, Common::ES_ESP),
 	ENTRY1("ph08_emmy", "080915", "92890016648bbfe1290f71d9a903afc9", 79872, Common::ES_ESP),
 	ENTRY1("ph08_gambito", "081202", "6ea6121f1891d46fe8cc957ef8939d68", 235990 , Common::ES_ESP),
 	ENTRY1("ph08_mushahierba", "081021", "2d28f401d63f163e5d34115fec07df72", 207240, Common::ES_ESP),
+	ENTRY1("ph08_pincoya", "010101", "a453de0f39d10cd9eb3ca028457b2b1a", 167424, Common::ES_ESP),
 	ENTRY1("ph08_pincoya", "010102", "bafb201726dd331308cdf34ec1e478cb", 168960, Common::ES_ESP),
 	ENTRY1("ph08_pronto", "080720", "a48b81b1c97d6074e3679659f9dce23a", 270826, Common::ES_ESP),
 	ENTRY1("ph08_sm1pesadilla", "080430", "79f8cb30a31146e08465acd9038ba7e6", 604046, Common::ES_ESP),
@@ -6895,7 +7221,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph08_venenaverbo", "160516", "0a89f0ad5b3df50ff6f32d961cce2c00", 192512, Common::ES_ESP),
 	ENTRY1("ph08_venenaverbo", "160517", "1c7c3ce13621f78e7cf6752a2b0fc58b", 192512, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2009
+	// Premios Hispanos 2009 (Spanish)
 	ENTRY1("ph09_amanda", "091110/z5", "11b63cb4c4ca11b86e835c1b00f9c5ae", 132096, Common::ES_ESP),
 	ENTRY1("ph09_amanda", "091110/zblorb", "c373f508436b06081cd76039dc17582e", 342504, Common::ES_ESP),
 	ENTRY1("ph09_gorbag", "100104", "581e67f731d6b1d0d40bfc38cb531bf9", 199168, Common::ES_ESP),
@@ -6907,11 +7233,12 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("ph09_megara", "091204/z5", "94b7019ed62d257344ef39727011c250", 214016, Common::ES_ESP),
 	ENTRY1("ph09_megara", "091204/zblorb", "6798f8acb0c0c60d1026a1e9a6469b55", 472716, Common::ES_ESP),
 	ENTRY1("ph09_panajo", "010102", "3969bf7b2dd00b342e6c0b4ec797919a", 124416, Common::ES_ESP),
+	ENTRY1("ph09_panajo", "010102", "3969bf7b2dd00b342e6c0b4ec797919a", 124416, Common::ES_ESP),
 	ENTRY1("ph09_sm6ascenso", "090409/z5", "108dd4e7623634e6ff7ca976118dfa29", 220672, Common::ES_ESP),
 	ENTRY1("ph09_sm6ascenso", "090409/zblorb", "352b9bb39f2fff76b409025670169a98", 380434, Common::ES_ESP),
-	ENTRY1("ph09_visitantes", "091130", "d8e7c7376b11f022e109069e4ad3b22a", 87040, Common::ES_ESP),
+	ENTRY1("ph09_visit_zcode", "091130/z5", "d8e7c7376b11f022e109069e4ad3b22a", 87040, Common::ES_ESP),
 
-	// Spanish games: Premios Hispanos 2010
+	// Premios Hispanos 2010 (Spanish)
 	ENTRY1("ph10_azul", "101223/z5", "a9b6daf1a3b3da110d1d17c1587feeef", 260096, Common::ES_ESP),
 	ENTRY1("ph10_azul", "101223/zblorb", "f6b9cd8892425e7cb97465baf950b602", 362332, Common::ES_ESP),
 	ENTRY1("ph10_lpc_zcode", "101213/z5", "b4e747ef59bf719b2edecf6b3796883f", 110592, Common::ES_ESP),
@@ -6941,13 +7268,17 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("721acaroline", "120302", "23d5a14fa4efe607cf537e8bbbc9c56d", 163328),
 	ENTRY0("1012staffordave", "150317", "d1f3bc06f30142640166b860389a0b08", 159744),
 	ENTRY0("1156chapelstreet", "200909", "7fe83bfe8854e27a4308691f04004f37", 167424),
-	ENTRY0("1984", "121027", "e30b3374275d2d4a256f1c06b388038f", 175616),
 	ENTRY0("1948", "180824", "013228f886e7bb903f5cdca95771e234", 164352),
+	ENTRY0("1984", "121027", "e30b3374275d2d4a256f1c06b388038f", 175616),
+	ENTRY0("1997experiment", "240410", "a4ba6a4d380f959112c942afd26d6e18", 183808),
 	ENTRY0("2084", "140609", "9d84e17d4a3b22dba42f96f7dbeaef7f", 164864),
+	ENTRY0("2136", "240406", "0a902c0c9d232ac23a3c248db4138808", 250368),
 	ENTRY0("a221", "130720", "2d830ad6bdd1fb8f600ddcc393cf0fc0", 160256),
+	ENTRY0("abandonedhouse", "231025", "ec5061f9cfe11ba2a55de86705ae6f84", 158720),
+	ENTRY0("abandonedlab", "231031", "cb7777878f4f2c6f84511d2c6967a995", 188928),
+	ENTRY0("abandonedneigh", "231024", "f669560a3efd1b44570a1969ec872578", 158208),
 	ENTRY0("abandonhospital_ms", "130325", "c9585ee3b9efe68548033d0add58d734", 160256),
 	ENTRY0("abandonhospital_an", "231025", "2a49b7b647f9d86bbbed0c6582a81ace", 157696),
-	ENTRY0("abandonedneigh", "231024", "f669560a3efd1b44570a1969ec872578", 158208),
 	ENTRY0("aboringroom", "151031", "a8bd6e8bbe73f5b3b38338ab1d287efa", 164352),
 	ENTRY0("abramelin", "140214", "bfb951c88c4d2858981e5ef1d651e9fb", 157184),
 	ENTRY0("acadecwars", "160307", "7416ead1a2cff4249a4d97f006263498", 161280),
@@ -6984,6 +7315,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("agescat1stadv", "180227", "43809e0a8cf91eff5515278aaff33fe6", 216064),
 	ENTRY0("agrovegame", "130320", "f25a31a105c6a8a66f5abe8f93c6d830", 159744),
 	ENTRY0("ahole", "140509", "640cc7046cf263c15371c5314e4806cf", 164352),
+	ENTRY0("aholenewworld", "231107", "64f3d8bc3432e0773836a81933aea0bd", 170496),
 	ENTRY0("ahorrificadvcomedy", "200803", "898c992e11c939546bb0e153d65814c4", 162304),
 	ENTRY0("ahouse", "150112", "cd14b928d05a19cb59096ac46db9a20b", 174592),
 	ENTRY0("ahousetour", "200930", "2047b572bd203b6ddcd2d1a7d569002f", 158208),
@@ -7008,6 +7340,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("amatteroftiming", "120331", "064767b9a5852775a1c27ca430eb38ed", 156672),
 	ENTRY0("amazetwistypass", "120215", "737279898630f7a081cb2098b8e77549", 156160),
 	ENTRY0("ameadow", "150501", "a70c4dd92f1b9a9be3a0a8c431319864", 162816),
+	ENTRY0("aminedorm", "240322", "2543747f29fd3d468447147887a4103f", 157696),
 	ENTRY0("amnesiapf", "150501", "a0bacf26ed285681dd6a617f5b3656db", 222208),
 	ENTRY1("amnesie", "130926", "e0f3c042c250c47479a5a0e0a90c1c2a", 162304, Common::FR_FRA),
 	ENTRY0("amurder", "151208", "921252791f1281807f09610aedf23e56", 161280),
@@ -7043,6 +7376,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("applestwoapples", "120720", "a1db38b3fe188661d05c82ad268e21cf", 160768),
 	ENTRY0("apprenticeschg", "120907", "36e54df8d0424c29bbb95db8fc2705d7", 241664),
 	ENTRY0("arainynight", "200329", "6510db05e30c4a7a307714e8c2d67119", 173568),
+	ENTRY0("arcade", "230405", "6d9fb09eccbd3e857ac84f6fc0ad294d", 156672),
 	ENTRY0("arcadeescape", "181005", "13db4f8811ce1e3251d99b2dfd4c3dc5", 156160),
 	ENTRY0("arealbeach", "130426", "95dde5e9cc8f2606786b48201e104fa2", 158208),
 	ENTRY0("areaone", "210424", "3362f396ffa9d0a0b8dff74464ac4d04", 157184),
@@ -7092,8 +7426,11 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("bakerbonanza", "121023", "9adf937f6a68aa8151ede3bd3d816189", 157184),
 	ENTRY0("bananaquest", "150329", "2a9046700244c09c0dcc8571612513f6", 162304),
 	ENTRY0("barroombrawl_zcode", "160314", "24cd8acebc3ffb08ff13fd08ba9c9e87", 176640),
+	ENTRY0("bartholimules", "231025", "0a2e38c871fa3c7b64b35cb4969f8aa3", 157696),
 	ENTRY0("base0", "191103", "ad75669f55edd48ae5641e30be88e74b", 224768),
 	ENTRY0("bearsadventure", "160925", "f436b157aad302b316a1dba17e0c4382", 157184),
+	ENTRY0("beastmode", "231026", "15d481f5180c09b15682f7ff1715c678", 157696),
+	ENTRY0("beastmode", "231027", "f37ba14226d4ceb2e2c9c26ad00257ea", 159232),
 	ENTRY0("beepboopboopbop", "210207", "25b493c7e60472482b167eac65f81300", 182784),
 	ENTRY0("bellsloveforhermom", "210320", "6b4b7bbc443f22a2274d1f75bb667fe2", 164864),
 	ENTRY0("bensappartment", "200527", "f7fe0db8c633ef1cb84dd733eb28d8dc", 159744),
@@ -7103,13 +7440,16 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("blankgame", "230411", "ca279fe149df68cf1e858786a8edd595", 174080),
 	ENTRY0("bloodlust", "140427", "2477062a53f74ccb22f9810f88363bc9", 225280),
 	ENTRY0("breachofcode", "140220", "3f9346f0c2322fe508e5e8d0b12d549a", 207360),
+	ENTRY0("breathdragon", "231016", "b5abcd1e20f18bd214b8c0e4788b3b97", 156160),
 	ENTRY0("breakunderscorein", "150315", "aba9debf63eea4d75f9bddffbdc63826", 177664),
+	ENTRY0("bruh", "221018", "f1d3679e308aacc4ff8810c9bb419823", 159744),
 	ENTRY0("busstop", "131011", "3602e1f9014491d9bb0022e13e1605bd", 161792),
 	ENTRY0("bymannualsession", "160816", "70283b4d760ab39ecba4e1bdb317df09", 162816),
 	ENTRY0("cabbages", "200229", "adc19ce0c954aaf6a5b853cbde10d9db", 214016),
 	ENTRY0("campywakegne", "191028", "2e42040a951047f7133de8d0459d52a9", 174592),
 	ENTRY0("candyland", "170104", "7a2674e50f9f6a0e1f62dbe61dbc6e39", 158208),
 	ENTRY0("cannibals", "140618", "ad115067caf1e2db6ebf83609f10d508", 159232),
+	ENTRY0("carcinogenesis", "231024", "7983a4902cb108b79113a53bb7c150f1", 157184),
 	ENTRY0("cardinal", "170525", "345ef241a7add6bb5abe79f7e075afbd", 261632),
 	ENTRY0("castle", "130320", "a299d7121c77e4cb2c95990f7a51248d", 164864),
 	ENTRY0("caveescape", "220522", "3144cfbed0304988cb207e083ecd50dc", 159232),
@@ -7118,9 +7458,11 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("cheesequest", "230509", "2d5b22468be765a5b510b951961ed86f", 160256),
 	ENTRY0("chipaguccicollar", "181020", "af9e47372373633cb647c80393639c13", 163840),
 	ENTRY0("cipande", "140119", "808d36111342e9b9baf6561179a690c4", 218624),
+	ENTRY0("courtyardmania", "231025", "9f27df0b30cafbabca169b6cad248a8a", 156672),
 	ENTRY0("clarionsun", "150331", "cac1787eb2ab5c07673582b8e1c1170f", 178688),
 	ENTRY0("clarionsun", "150430", "5488a2abae0378632f9b06a756a46487", 203264),
 	ENTRY0("clarionsun2", "150421", "0e7e8d807dd4fc6539ccd1bf77bdc0a4", 181248),
+	ENTRY0("classmurder", "231029", "ae95b728d40209cbd94a81b3706836f4", 158208),
 	ENTRY0("clownsinthedark", "230407", "2e991d47fc79bc51a6985cb01944d6d5", 172544),
 	ENTRY0("clownsinthedark", "230410", "b358a881d12adeb367bae638f56e3140", 190976),
 	ENTRY0("coffequest", "161105", "989dc31f16fd9bac2e04b97a0448346c", 173056),
@@ -7130,6 +7472,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("coleandmichael", "160310", "ea143276354a6415d93e64dc397f22d9", 159744),
 	ENTRY0("colinexplore1984", "190303", "43b50829ff5da64463ab8828f27b7758", 172544),
 	ENTRY0("colonialproject", "130425", "ab50d3c44e30d7d435ff75baea0998bf", 174080),
+	ENTRY0("coma", "231216", "dd6a7674ebf19dda4116112d250524f9", 159744),
 	ENTRY0("complimentarypean", "130213", "eeb7e01b8ff7dea3fa341863c838e11c", 158208),
 	ENTRY0("comprehenszombie", "121007", "68e5a82ee7d268c3b199e76185fa15cc", 166400),
 	ENTRY0("concealedpassages", "180112", "bf9074f9fe0990d5eb0c4fa5866ad068", 160256),
@@ -7145,6 +7488,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("dankception", "160414", "ce51694480c6d6a5da5f818ae60718e9", 163328),
 	ENTRY0("darenotspeak", "130424", "13a2a4d517e08ba67e4d9ebf75d96953", 161280),
 	ENTRY0("dark", "191031", "26ff01c3bc21bd1eecb7ea7dfe102dd7", 164352),
+	ENTRY0("darkforest", "221116", "f1806f329d1a07e99946aeb7945aaf69", 157184),
 	ENTRY0("datenightmare", "161212", "5ade0d809580fad7e3c36e120708f6ab", 159232),
 	ENTRY0("david", "200211", "2ccea0e7a603d8908146ffb899e5e2ba", 157184),
 	ENTRY0("dayalpha", "200211", "5df2b37f0c637c717cc7a7aa0bd1d425", 163840),
@@ -7171,6 +7515,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("doctorwhoadventure", "12022", "a7c89f0250bcefa15c7103ac345f2408", 212992),
 	ENTRY0("dogleashes", "150507", "0ab01df94101e1300ea7a94fa0d95c82", 161280),
 	ENTRY0("dollhouse", "150618", "b1dc80f67b5dd66dfc460ce24cca0832", 161792),
+	ENTRY0("dollhouse", "231018", "1ee508fcdc7dc4ef411b6ef19402bb12", 166400),
 	ENTRY0("dontmakeshootback", "120119", "8277a46ca43cd732527ac7c72404a5cc", 181760),
 	ENTRY0("dontmakeshootback", "150501", "fcc3af03b1e8395c23bae053e03594ec", 181760),
 	ENTRY0("dontpeedarthvader", "151209", "9af079588db70e0fa8897fe8b4135cd7", 158208),
@@ -7178,6 +7523,10 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("donttrytoescape", "160416", "4360462fa43d8d8fb24f83284816ea25", 164864),
 	ENTRY0("doors", "111104", "9bb1dea9e93a531e526c4f08bb5263c0", 157696),
 	ENTRY0("doorstopinvasion", "180305", "855d77f3dd9f0460864c04eee54bc7aa", 221696),
+	ENTRY0("downtownswingers", "240319", "bb6d3b1b85d9660b1d55fcd774f83dd1", 162816),
+	ENTRY0("dragongems", "231008", "4e88f5e86b43edc3cef5bdf0420faf8c", 161280),
+	ENTRY0("dragonquest", "231017", "9a64e31692b7339789c9452c047156d2", 159744),
+	ENTRY0("dreampet", "231128", "89f7c86344716d9d4e34e67d11e01ea3", 161280),
 	ENTRY0("dressingup", "170525", "fa86f009d4bef00b0b6110a1f7a3b29e", 179712),
 	ENTRY0("drunkennight", "120425", "d4a8ba529013992770f823779c2c272f", 164352),
 	ENTRY0("drunkennight", "120503", "af3843259f835d8b269c8d8a0df41c4a", 169472),
@@ -7185,9 +7534,12 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("duplicatebiopunkif", "140413", "874cccc9d447600e7382b7bebcf2ffd4", 173056),
 	ENTRY0("eastereggs", "170424", "f931e395f44aec197968ee22f1c3d777", 167424),
 	ENTRY0("eateverything", "170613", "a23f9ae7b0ee866fdd7a6cea99babfca", 166912),
+	ENTRY0("echoesepoch", "231113", "342704ab550e36c3cdee5296566d15ab", 245760),
 	ENTRY0("edu5cedtaskat2b", "150716", "ab5f5eeaa75c2016c007f1d27dd04651", 237056),
 	ENTRY0("embassy", "130905", "d58651b994cf65f401de8249fa18602b", 226816),
 	ENTRY0("emptypalace", "150505", "1b8ab31a8c2e7a22a8b27316b36b11dd", 214016),
+	ENTRY0("endandwin", "231025", "687a359699efa21dfa77b3a6bb51af9e", 156672),
+	ENTRY0("endinggamedeath", "231017", "772aa20164ac69c9bb35b411395ae93c", 156672),
 	ENTRY1("entinieblas", "190122", "41381d7d84a0f111f7011e2290c76089", 178688, Common::ES_ESP),
 	ENTRY0("endofdays", "170315", "ab43f07257b6ba4a46ba056823c283db", 173056),
 	ENTRY0("endofdays", "170319", "5b2e4ef77cace8b8b1c675514e1b07bf", 179712),
@@ -7198,6 +7550,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("escapechucky", "181018", "1f61675468a57245916243f8053346dd", 177152),
 	ENTRY0("escapeemmalam", "220406", "be1f01557326695162eb99230046d4ed", 163328),
 	ENTRY0("escapeforniteisle", "181002", "948a08c7a7ae700e3fdab76c728e5360", 166400),
+	ENTRY0("escapegrimwoods", "221106", "c4092bde15e2893fc758fcc6740a2b90", 189440),
+	ENTRY0("escapeloganli", "221018", "170b76ee8e61e0f7b023df41f2a4a0fd", 161280),
 	ENTRY0("escapetheartmuseum", "151206", "bf25100f6c9f2f35099946444ad9c5e4", 160256),
 	ENTRY0("escapethecolony", "221119", "45d49acdb2ca504534116980bb2772f2", 245760),
 	ENTRY0("escapethecolosseum", "150511", "0ee8eb33e4c2b418a5817ffc64036dbb", 162304),
@@ -7210,14 +7564,19 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("escapethepyramid", "200420", "73dab14ee0f8544bb63e7920ba9cdeac", 158208),
 	ENTRY0("escapetherooms", "141116", "41951d82082103d889b8e61a4df0760f", 169984),
 	ENTRY0("escapethewizcastle", "121111", "16595d8dcdcb4df4d5d8a14aea674b65", 159744),
+	ENTRY0("escapetsunami", "231026", "436a8cfe7e9379de29ef01b4fb5d2767", 162816),
 	ENTRY0("escapedprisoner", "170505", "ed5c602d1b4ab2867e087e58bed8b10a", 181248),
 	ENTRY0("escapingprison", "150622", "a1b5601fbf7f1e917568a50851cd4ffc", 161792),
 	ENTRY0("experimentpf", "181019", "9d59860985a25f35ca0dfb24870a9314", 157184),
 	ENTRY1("exploratriceperdue", "131013", "62cf8a29f9c0b5e77e5db901cf740338", 188416, Common::FR_FRA),
+	ENTRY0("exploreexamine", "231210", "7481430b4e95c267fb17a1174c247848", 166400),
 	ENTRY0("exterminsim2014", "131020", "718306165224f53ac8ee68fc774821eb", 167424),
 	ENTRY0("exterminsim2014", "140310", "dbbd70a1d28f54efbeb0a7bdc50e5afa", 167424),
+	ENTRY0("extremehs", "231028", "303a36ba6a4ae6e15a089257bf630304", 162304),
 	ENTRY0("faction11", "120403", "145bd30f5373534fbda13aab436ab87f", 166912),
 	ENTRY0("fairyring", "170127", "3ad93d293d28d4429a0fa98c11423c4c", 180224),
+	ENTRY0("feverdream", "231107", "f5d2acc96375b7f0af48d1a2c2ce0d5c", 159744),
+	ENTRY0("feverdream", "231108", "e0d2ce552cdc96ee3a8362a2a914c904", 176640),
 	ENTRY0("findairplanekey", "120413", "559c55349f97f5f75143a3170585731c", 157184),
 	ENTRY0("finallythefestival", "181109", "503b862cda59c608223032c032697125", 161280),
 	ENTRY0("findjoker", "130916", "53dd23e5ec1e81021de82216cf9d1407", 158720),
@@ -7240,20 +7599,26 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("freeparking", "120423", "aae58fc77cd1da8ac90c0fa84b28aec6", 160256),
 	ENTRY0("freighterraphus", "191010", "71ab08049a6e941758e8618b3094bb18", 183808),
 	ENTRY0("fridayafteroffice", "000831", "090f9ffa40b5ab307a0e733a3de359a1", 165376),
+	ENTRY0("friendlydebat", "231116", "7e893c33bc306c9b1cfabf1c2a33cfac", 156672),
 	ENTRY0("fromportlandxoxo", "141202", "2ce5bdd1fdb792cfaa0c766aaad54e5f", 180736),
 	ENTRY0("fungus", "080220", "8d9bcf00404845bf31d35444db36f288", 174080),
 	ENTRY0("futurebookshop", "120611", "d4615b0833770113074a912db4a51ce2", 160768),
+	ENTRY0("galaxia", "240407", "75c2fb1f757f0f6c84dbc48e0165796a", 189440),
 	ENTRY1("galisancommence", "131122", "38ed3d237f15630e30d390054220604e", 175616, Common::FR_FRA),
 	ENTRY1("galisancommence", "140108", "3df8c049294f2ef358500bfd1991e220", 160768, Common::FR_FRA),
 	ENTRY0("gamerstereotypes", "120501", "9381d0b68c587d6e1569370858c2f701", 159232),
+	ENTRY0("garysgetaway", "231023", "fcf0ffb1a668f56477455aa34eab17ef", 158208),
 	ENTRY0("generations", "170222", "59a625a1aba9e1d00365096d7118b571", 159744),
 	ENTRY0("generations", "170307", "3b3158b06070f5c05e1f8f00998887c4", 159744),
 	ENTRY0("generations", "180306", "8e5d4cb115bfd9c9dfc308332e00d844", 159744),
 	ENTRY0("generations", "181002", "63d42a7b13184418e2c0a374c9914f17", 159744),
 	ENTRY0("generations", "191009", "56ebbf23c152edd1caa882b9eb47a7d0", 159744),
 	ENTRY0("generations", "220322", "c3fc659158b1516c346c206070ed9725", 160256),
+	ENTRY0("generationsend", "240321", "e3c1db82daba00f5f7ca22026c69e94e", 160256),
 	ENTRY0("genesis", "120219", "198ca37d943a60c59be718a9300c5961", 194560),
+	ENTRY0("genesisevil", "231214", "2f6e25cfcbe4165d1a903e252819e07a", 158720),
 	ENTRY0("getbackhomewoods", "160526", "d9cd0474e80bb568df4613cca81de15c", 176640),
+	ENTRY0("getontrain", "231030", "30edaa28783907bb20ced0189b065128", 158208),
 	ENTRY0("getoutalive", "171110", "408645bd678c75dc942eea0fc1b82176", 224768),
 	ENTRY0("getoutofthehouse", "130911", "8d3b4554669efb5ee28b59ee11bb098a", 158208),
 	ENTRY0("getthatcat", "161206", "db33729fbb5e22abb53f6b1380e30027", 166912),
@@ -7266,7 +7631,10 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("goblinmarket", "161208", "6104aa37c6e4f4b139491b66e251a0be", 160256),
 	ENTRY0("goddammitcthulhu", "161208", "33ecd01ef6d0ba76115d39c31adaf361", 170496),
 	ENTRY0("goldrush", "190308", "32a42de9bf891d91f4ecf417864176d4", 169984),
+	ENTRY0("gondoladvent", "230910", "06b29b42c0965937b565c47dd161ffe1", 160256),
 	ENTRY0("goodmourning", "191108", "a590d35d82bfc23a1cf26cab56f759a4", 172544),
+	ENTRY0("goofyahh", "240406", "49adc444b7fe96eea30d0f48b233bb8e", 237568),
+	ENTRY0("gosandwich", "240322", "3a43cc2a8ec56d4315a61771b13db74b", 156672),
 	ENTRY0("grandtheftfood", "130314", "c44006878d6b188893ea656faf401f34", 222208),
 	ENTRY0("gravitationquand", "160415", "d1c451bb8dd1554f1f0889b0b2ba5c1f", 168448),
 	ENTRY0("greatescape", "181031", "fcda838e33581a21534f370105d2c076", 157696),
@@ -7275,12 +7643,17 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("grocerymadness", "130426", "146b3cc72840ef69f64dfd645dab5b96", 159744),
 	ENTRY0("gustavosbusiness", "160310", "93b18bb486c39386fb82d300caf10550", 162304),
 	ENTRY0("halfdead", "120311", "47e48c1f2cc1aef9d40e930fb5ffd5d0", 302080),
-	ENTRY0("halloweenhangover", "171114", "532905c5a28eb147b368f1d6b3e05fdb", 158720),
+	ENTRY0("halloweenadv", "230912", "532905c5a28eb147b368f1d6b3e05fdb", 158720),
+	ENTRY0("halloweenhangover", "171114", "38acccce87ec3ceaa499e17777815419", 161280),
 	ENTRY0("hannahinwonderland", "180301", "cd72cd0ab27cb3bfbc3960696cfafa31", 160768),
 	ENTRY1("hanze", "160621", "a4688fb12c647296ad80f8edc414862f", 178176, Common::NL_NLD),
 	ENTRY0("happybirthdaygon", "150505", "3d186813528ab86c4e5e475865da4397", 165888),
 	ENTRY0("happycycling", "200604", "321fe501e8539348afb4fc8a0a3afdcf", 171008),
 	ENTRY0("harrowingdefiance", "150608", "e2c535f3eb77fb3c500c43d4d8a7c18f", 173568),
+	ENTRY0("hauntedhallway", "231030", "636369addf4bcfe8ab458d954f93e51d", 159232),
+	ENTRY0("hauntedmansion", "231019", "c6a0d36c0ce2393ed60f0ee3378df4e3", 157184),
+	ENTRY0("hauntedmansion", "231011", "77496c5bc97735bd5efef3ba100e0032", 156160),
+	ENTRY0("hauntedhousescape", "240412", "1db1cdf4e79593e920cac3224fe278af", 168960),
 	ENTRY0("hellsisland", "120705", "653b7a339405d1782e73d1fa7b34a6bd", 217088),
 	ENTRY0("hellsisland", "130704", "ac06011b480ea3b0af84fd687a9163c0", 232960),
 	ENTRY0("hellsisland", "170213", "49093307ca6d5fd4267ccf5d57d23bca", 232960),
@@ -7289,9 +7662,17 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("herculesjourney", "120615", "b669d8f89ba804634a683a89c335167a", 197120),
 	ENTRY0("highschoolsurvival", "170924", "58ab8e873cdcec4fe4b09c1a4f2399df", 167936),
 	ENTRY0("historicalwln", "160601", "c54ac5e7bb207b8f3ffb067cb0bac460", 209408),
+	ENTRY0("hogwartshome", "231027", "1c834759f7ab369393a47928522034cc", 157696),
 	ENTRY0("honeymoondisaster", "161211", "a5f797bebe1b7ca183d5b907bfe713d6", 163328),
 	ENTRY0("hospital", "071125", "4070dd29a806dee00d4c8381eaaa644e", 174080),
-	ENTRY0("houseoflafayette", "210321", "c0dfa5d573d0a17fa729ec1c907c0331", 163328),
+	ENTRY0("hotelgrindell", "240517", "2e05aeb08bea5d2699214ba6a8113c84", 175104),
+	ENTRY0("housekeys", "231025", "c0dfa5d573d0a17fa729ec1c907c0331", 162304),
+	ENTRY0("houseoflafayette", "210321", "e127a713a625c89d385898e6ae0e0387", 163328),
+	ENTRY0("housetreasure", "231005", "380738eaabc73a4cb289ebc05cba9ad8", 164864),
+	ENTRY0("howdidineverknow", "231012", "b814a97a55d9576149f73ee650aa6d0b", 156672),
+	ENTRY0("howdidineverknow", "231017", "b1bc21e22340e8c1237b442a5fa65e7c", 157184),
+	ENTRY0("howdidineverknow", "231025", "b67d075d57ff7f958e960ac610cbcb09", 157696),
+	ENTRY0("howdidineverknow", "231029", "9a0480d1e858935bd0ed057953061d42", 157696),
 	ENTRY0("howlsmovingcastle", "170328", "4bd96faf37812e62b342eb2b82ba10aa", 161280),
 	ENTRY0("hungoverinbelfast", "120221", "fa766137a3744e87bed131bb68b44214", 164352),
 	ENTRY0("idontevenknow", "190329", "ae7591fe067da922af5a862cb89ff782", 156160),
@@ -7301,13 +7682,19 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("imprieteneasca", "160829", "2aa1f29cdf0c0eb371e0d93e268a90e7", 173056),
 	ENTRY0("inthebasement", "121016", "a3b0a725c8d4bafd1d2636075cdaee2e", 159744),
 	ENTRY0("inception", "150501", "92b244b4965225c23deef6117205606b", 179200),
+	ENTRY0("incognizance", "240405", "3d1e8e0b64117b653d2c6d6c909156fb", 217600),
+	ENTRY0("inescapableroom", "221116", "bf00d6f06a3f4c0fe0d2d1e020dd2035", 157184),
 	ENTRY0("inferno", "171019", "9eaa0e8627d8413cb9796becd8039e77", 162816),
+	ENTRY0("infiltrator", "231031", "6b11a22eeb83300a1b89eedb619ebedb", 187904),
 	ENTRY0("infiltrator", "231101", "5058260ad0efd431eb5f83c5b4332da3", 191488),
 	ENTRY1("infinitydestiny", "140120", "efa50487c5786e83bb24220e09f6cbef", 210432, Common::FR_FRA),
 	ENTRY0("inheritancepf", "230504", "6c665834e2c73778bb565070133aca51", 174080),
 	ENTRY0("insaneasylum", "160413", "0660fe63ba667f1902f9eff78cc74e33", 224256),
+	ENTRY0("insidemindscape", "240412", "ac346fd7ed8463039851decd95eb6099", 175104),
 	ENTRY0("isthisacowfantasy", "150331", "f393a76ac85085683057416bb977dd6b", 165888),
-	ENTRY0("isiscrisis", "190531", "7abe45046fd54626f15203ba9653381d", 182784),
+	ENTRY0("isiscrisis", "190531", "7abe45046fd54626f15203ba9653381d", 161280),
+	ENTRY0("islandhopper", "231031", "ef46c155ef2191f74c0e42c8c0967710", 157696),
+	ENTRY0("itsjustyou", "231031", "3d8ece1fea23346afa91f93876fb5457", 182784),
 	ENTRY0("jaccuse", "161028", "ea9fcf094725bf4f5464f0f59575da05", 183296),
 	ENTRY0("jaccuse", "161104", "c054479a44322d1dda9595361bf7d783", 186368),
 	ENTRY0("jailbreak", "220419", "45dd886bf0a5e83d17e95f9a545ae8e3", 157184),
@@ -7315,19 +7702,24 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("jakesgame", "150604", "611cb3dcd35fbe834754c5fcc5f472dd", 164864),
 	ENTRY0("jellen", "090410", "d296cf7e7087b28c1402d3cf27910c33", 166400),
 	ENTRY0("joeyskey", "191228", "63d2fa9717de78e4e385ff3f9ab81986", 163328),
+	ENTRY0("johntory", "221024", "f246ed6445164332bb3e93b18c33dbca", 157696),
 	ENTRY0("journeyofosiris", "200429", "a7b434a7971e7b92b6cc8efceb1c85ae", 159232),
 	ENTRY0("journeyofosirisp2", "200429", "1a1eb9d4be3e7c36270d35f38b1c487b", 158208),
 	ENTRY0("juliuscaesar", "130514", "1cffed64d60cf1c5af6357202df9203c", 167424),
 	ENTRY0("junglesearch", "190306", "033f299e983d1d9d60432cac3c27243a", 167936),
+	ENTRY0("jurassicescape", "231026", "79b49ad1bef9bbf0a52ca86895dd758f", 160256),
 	ENTRY0("keepingdido", "120516", "56eb7cbeb898cbd892146d9795a91d4b", 332180),
 	ENTRY0("keepingdido", "130111", "10f71f6f39eda761bab839ad6c3dfcec", 271872),
+	ENTRY0("killerbear", "231025", "1a184325138c5b031de17a1edaabc08b", 157696),
 	ENTRY0("killthedisease", "130911", "6941693d3fcba2b216f21ff158523d7b", 157696),
+	ENTRY0("kindergarten", "231030", "1d522d1c09fbb34a8268d2bfcd8a3f96", 159744),
 	ENTRY0("kingheartbuildraft", "160401", "de55253ef19b0378ba76e1502da2936a", 158720),
 	ENTRY0("kingheartdangerous", "160401", "b00dbe2fd8c07167a38a9e57d96f3802", 160768),
 	ENTRY0("kingdomofamphibia", "??????", "462ba394189cb5c806b9d7f0dffe3720", 402432),
 	ENTRY1("lanote", "141006", "59f9e03b7228a1a8197b87bcee6dc594", 176640, Common::FR_FRA),
 	ENTRY1("laboratoriodetalf", "190103", "41d834206975031543e92e2e6b5be108", 226816, Common::ES_ESP),
 	ENTRY0("laboratory321", "120406", "99756a98e5002ebf5d3490eeebd8d433", 162304),
+	ENTRY0("lacrimosa", "240420", "eabb8982007c2e634332359822c900e3", 200192),
 	ENTRY0("lamia", "120504", "a893f08245a6438d71c3f2fefa2e23c7", 175104),
 	ENTRY1("laska", "130224", "e0d7673b2142956fa984af87674a1db0", 163840, Common::CS_CZE),
 	ENTRY0("lastnight", "130426", "ffa59db9de020687b3512693762339f2", 158208),
@@ -7338,13 +7730,16 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY1("lesgaleriemaudites", "140123", "e09668ea2bc2c17d111b09e3f44d4f79", 204800, Common::FR_FRA),
 	ENTRY0("lieblingshause", "190418", "c336a470e777c3714934027ea3a08f73", 175104),
 	ENTRY0("lifeaftertesting", "121220", "e1b840667e7ed5cfc3138b10204ba8ed", 168448),
+	ENTRY0("lifecat", "231019", "d0a479748fd63dacf16e5792b31db200", 161792),
 	ENTRY0("lifegoals", "151217", "5a7fa5b756cf64f0f0e8a5d99e97efc4", 171520),
 	ENTRY0("lifepf", "181011", "7188949d1ee7146d756099be2bc6940e", 156160),
+	ENTRY0("lifesqpv", "231029", "a56cec8f8859b735328bb6d78bdb4ef7", 166400),
 	ENTRY0("limbo", "190915", "1032e246551cf5bc5702efe763bbc7b5", 160768),
 	ENTRY0("lines", "191128", "9562edb6f122bd20a8ae396a854a177c", 168448),
 	ENTRY0("littleharmoniclab", "130831", "1334a82f500bb381a2f388ab153fc6b7", 289792),
 	ENTRY0("littlered", "140413", "b6771652982f3306981c60f0274240b5", 161280),
 	ENTRY0("littleredplumbboy", "150623", "46134a27b83ef84dad5fe0d002f14699", 163840),
+	ENTRY0("livesoundadv", "231130", "b46c755efd130d8c50d0ce8c6c90bb4b", 161280),
 	ENTRY0("ljsawesomeadvent", "120424", "9afc9d33a6867e4adecfe15863bfaeba", 171520),
 	ENTRY0("locategoldendonut", "140628", "5535ecd439085f2814cda0667fc8cc0f", 167424),
 	ENTRY0("locategoldendonut", "161004", "50fb1bcc5a601071de4b60aae7e8b9a9", 167424),
@@ -7358,8 +7753,10 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("lostintheforest", "140610", "1ed934ecb82473007222221d2fc165bf", 160768),
 	ENTRY0("lostinthejungle", "221101", "fdb73034cabab6f1e0df015fd7f56a3a", 164352),
 	ENTRY0("lostinthewoods", "121016", "9c8622f85093acdcc0b07ea5c7e2f089", 159744),
+	ENTRY0("lostkeys", "231207", "fd0f2e72bf08011921e79f316c8bfabe", 160768),
 	ENTRY0("lostsoul", "151212", "dd5458a4fbbfa2cf0db38ba8afbd82da", 175616),
 	ENTRY0("lozlanternshadows", "121022", "64529c5de9fccad50c4bd671bb68699d", 157184),
+	ENTRY0("lukefeverdream", "231108", "9bad3f88e676efa204779c3ef0846dc8", 168448),
 	ENTRY0("lunchbreak", "031010", "81d9b98e6e4cb380d2e263646ec50d89", 182784),
 	ENTRY0("macandcheese", "191108", "fbbb25211458d0613d889279e08d135c", 157184),
 	ENTRY0("machineprojectadv", "160311", "b5896c5de9aa82ba12be45f7d1690c7b", 161280),
@@ -7371,6 +7768,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("manicomio", "140115", "1bbc71d39aed711b6ec53441e5b05cf3", 187392),
 	ENTRY0("manor", "120301", "65f31bee337b8d04eeea0665dddeec0f", 163328),
 	ENTRY0("mansionmath", "130521", "acc63ca7c8cc1836c45e2bbbd7ca30c4", 160256),
+	ENTRY0("maxcrazymom", "231026", "e191c9bd330b7813ca9ba5ba6e7d5c31", 158208),
 	ENTRY0("mayantempleescape", "230413", "60856857c8bbd90c149f1dc43d8d3abe", 172544),
 	ENTRY0("mcmansion", "230411", "83be8e34b4774189edddafeb780ddf82", 177664),
 	ENTRY0("medievaljailbreak", "150915", "bccac2cba92d49388c5d8cc767cb79d8", 159232),
@@ -7397,14 +7795,19 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("moonriver", "150411", "0b0a9cb95567d4164f3c7c879efbc96a", 174080),
 	ENTRY0("moonriver", "150427", "edef266c05036c71c867a18d3b1ec105", 179712),
 	ENTRY0("moonriver", "190425", "f0c66d0bc4e73075017dc23a2d1f6483", 174080),
+	ENTRY0("mossybricks", "240412", "9f812c4cc56f52537a51b7857e5054ca", 331264),
 	ENTRY0("motel6", "170823", "3ecd8b28b533761658b42eb0fa9277ec", 162816),
+	ENTRY0("mrmoore", "231129", "1b5b375143bef8e71c3370cf4ab0f341", 158208),
 	ENTRY0("multimodalproject", "150814", "2501e24dca0dfdc52a6a7efe2d85d1e8", 162304),
 	ENTRY0("mummiesroom", "130301", "ba225b0b865c5cc60f4d1d1d7b49dee5", 157696),
 	ENTRY0("murderinbigapple", "190321", "c2ae16adee4d149eb5ac159e8014fd21", 200192),
 	ENTRY0("murderincourtyard", "120314", "0705dd7f52c08eb8c2efba7022d3effd", 159232),
+	ENTRY0("murdermansion", "231208", "e388bc206d0f197ea7508e315c459984", 158720),
 	ENTRY0("murdermystery", "150813", "18fb3cf3aa776772c1f0728185906b93", 177152),
 	ENTRY0("murderspicemansion", "230411", "3ea2c835dca441097f22c1f0fced41b8", 186368),
+	ENTRY0("mushrooms", "231029", "c397209e16419987dbcaa00ec2650c3f", 156160),
 	ENTRY0("mushrooms", "231031", "a18cc0235f22e16ef78d3ecd61af5daa", 157696),
+	ENTRY0("mushrooms", "231101", "65385f5e377d0a1e80c3e4cedc5bd2ce", 164352),
 	ENTRY0("myjapanesemyth", "131203", "888127aa7c62b2ecc5cc05dd7cc24a31", 175104),
 	ENTRY0("mysterymanorpf", "150223", "8c35e34e246eaf9c69c02a76008b7977", 162304),
 	ENTRY0("mysteriousadv", "150622", "bd84375b82ccc0f7d4311a146fe917c9", 159744),
@@ -7414,14 +7817,19 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("needingawee", "071229", "7a6efd20402d9e138512dc9dfad8e1cf", 158720),
 	ENTRY0("neithersense", "030412", "b51d0138b51430238a39ac436239aab3", 164864),
 	ENTRY0("newdealhitman", "160311", "22c8c6bc8eebbfdc8a9f66faa5b64b1d", 161792),
+	ENTRY0("newsheriff", "230927", "d92919097c16d35ded2ad23f7aadbeb8", 164352),
+	ENTRY0("nickeldrophalley", "231127", "83d888f930833c2780796c2ce9dc0e69", 225792),
+	ENTRY0("nigthbeforedusk", "240411", "1e4feecf258d639e086b9d28f3cd9bb7", 188416),
 	ENTRY0("nightshiftz", "141107", "b950c5885139a4bf0b9cfc68b26c8a9e", 160256),
 	ENTRY0("notalone", "120506", "dcca5b8db16197993528b77b1294c392", 169472),
 	ENTRY0("nowlookwhatyoudone", "131213", "ce8ee36bfbb76cb126e83177f54c9bbf", 158720),
 	ENTRY0("october17th", "181015", "deb227e33ba0dc77b2d73fc784a3539f", 217600),
 	ENTRY0("odiasvirtreality", "150420", "8945baaa5acbd1a7a0ebe40afecd053a", 228352),
 	ENTRY0("odiasvirtreality", "150425", "7288b80a05f8b35b3c3fb697354e18c7", 248832),
+	ENTRY0("oneday", "231109", "7931d8d61351c53ee739cf38cebdb393", 157184),
 	ENTRY0("onelostraena", "220406", "c828169b2d1321bfb8d8cc27a1cd4ef5", 175616),
 	ENTRY0("oneroomandafish", "220518", "1f295e56f2669a7745fd2c4a93066507", 164352),
+	ENTRY0("onewayhome", "231106", "7c5971fff05461675b6c421a9262d5d2", 163840),
 	ENTRY0("operblackcobra", "160608", "70d15f0d71a6cacb0fd5b8a121e8425e", 171520),
 	ENTRY0("opto", "120313", "72fe9c1b474a9c4df8ca7a8e046cb228", 157184),
 	ENTRY0("overpoweringdark", "150515", "a60d87786da303f049bc728217a43939", 214016),
@@ -7430,6 +7838,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("passiveaggrdragon", "200909", "1f55494a9e4b93093eca7237ee38344e", 163840),
 	ENTRY0("peasantscreed", "151207", "89cf68dde5a7a3666ffc79293dbde230", 166400),
 	ENTRY0("pedaltothemedal", "200325", "0f1a129e50d18487a153042c9f52923c", 178688),
+	ENTRY0("persecution", "231026", "8c0f89da634df8027a1e39cfedcc63de", 162304),
 	ENTRY0("piecethingtogether", "150314", "6fd44748805a28aa5d3b3ec8cd0614bf", 158720),
 	ENTRY0("piratesofhighseas", "160425", "ca25ee09cf7c09a3db10f2b5b6559473", 196608),
 	ENTRY0("pitchblack", "191031", "3db4c5d69f94c259d5e882c9ead0636b", 163840),
@@ -7445,6 +7854,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("prisonbreakpf", "190321", "eabd81867affbcb89cc36f181fbba538", 163328),
 	ENTRY0("prisonescape", "150812", "58076ba2217fa52b1b8248c2d88c1e9e", 160256),
 	ENTRY0("prisonerdrunkenera", "230411", "02a286d926945b4e212e82b33464b57a", 206848),
+	ENTRY0("projectalfa", "231103", "149e806742e1393b16f489a19f6226fb", 172032),
 	ENTRY1("projetinform", "140601", "7b3882ea3dd7757a39fd402559a28716", 165888, Common::FR_FRA),
 	ENTRY0("puzzleescaperoom", "190116", "efc38b573496f59e489030a5a7a67f7f", 158208),
 	ENTRY0("quarantine", "141026", "5689ba9cc75722bd645cd084b0637094", 159744),
@@ -7490,6 +7900,9 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("r33disenchantbay11", "120215", "ccf8590de17242e14a815eaec24d0f83", 160256),
 	ENTRY0("r34brown", "120216", "e208ef74076233766b7ad52f8908165e", 158208),
 	ENTRY0("r35disenchantbay12", "120224", "07d4bfd1c2a19927a326b43d9f965527", 175616),
+	ENTRY0("rabbitchase", "230502", "e346051fa378993110fd01b9d24ae70c", 157696),
+	ENTRY0("reallylatest", "230809", "b804693c726d764a6dd2f4954fc374bf", 237568),
+	ENTRY0("redsea", "240403", "29ab2fc64f479b0f732b0e1ec7989ae2", 162816),
 	ENTRY0("refuge", "130911", "0d203646c88ca0b769ad2f06c61fde61", 158720),
 	ENTRY0("reign", "191030", "551b3583ce7c48f76a40e8a9b47bc04f", 160768),
 	ENTRY0("retribution", "180405", "f23829c0c26719f004a80e8b52b2ba23", 350720),
@@ -7498,23 +7911,30 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("roadstoroam", "130502", "fd930e867b9875a823ea1e9936de7f6b", 172544),
 	ENTRY0("romanadventure", "130214", "265bac7efefffd226d09dddabaedd8a6", 175616),
 	ENTRY0("romancolosseum", "120305", "c388b54ecf9909b3af728cab56c0b4c6", 159232),
+	ENTRY0("ronswoodshop", "231029", "a53662f7cff56c08895f39e964979252", 157184),
 	ENTRY0("rooms", "221103", "69f3d4b871c7a4f0abb0919cd28be027", 170496),
 	ENTRY0("safadventurev1", "130228", "165617f1aa1f4a27bc55c451b217a1c4", 158720),
 	ENTRY0("safeskies", "190304", "14b16dbd5ede8bd0c2aa12c78bbc1eb1", 163840),
+	ENTRY0("samsonrobots", "230405", "fbae6b823d659ce0dcecd0f27d1591c7", 157184),
 	ENTRY0("scatterbrain", "170328", "bf7b6231a13181673bb604508c336989", 163328),
 	ENTRY0("schooltingz", "191025", "15d03d5ff6c7cb77ebf388cf9cce6e06", 158208),
 	ENTRY0("scifistorynewmedia", "190515", "42b6a624d3bcd13d5bbdc53ebe355c43", 179200),
 	ENTRY0("scp173", "120517", "d5e5ada0d18345da6a0cbdbc1e80fa0d", 158720),
+	ENTRY0("seadeep", "231029", "8f65a7dab4d27ea2ff89c92c0037c865", 161792),
 	ENTRY0("searchmagicalbox", "150511", "1596bc9b3daeee73bd24ea451f7a62c7", 157184),
 	ENTRY0("secretdoors", "180112", "0d498d4abf701a59eb4138673e697456", 160256),
+	ENTRY0("secretswithin", "231103/Demo", "66ae27709841a85b9acd4b92fc15e9f2", 167424),
+	ENTRY0("segradocorazon", "230428", "21a25d5bda7499dc9c8ea548196306ce", 158208),
 	ENTRY0("selkiesnacks", "210723", "13f2c778f82bc1e753f4cdba15e5e6e0", 181760),
 	ENTRY0("sepiadreams", "170129", "cae0c8724f505a98011b4792e27ffd0a", 174592),
+	ENTRY0("sequencevents", "240421", "a1f34321821f9489e23247cea20b49c6", 205312),
 	ENTRY0("shadowsflight", "190221", "b9da2c1d9853b8bee321b78867ddd94a", 190464),
 	ENTRY0("sheepandshamans", "160410", "2dc5d09f91e47e03877312331b6b40eb", 177664),
 	ENTRY0("sherlockic", "120218", "5303a2095cfdb68c7a1728f0293a23a9", 178176),
 	ENTRY0("sherylcrowadvent", "140509", "8d5743c9558e87c333e99655574459ec", 157184),
 	ENTRY0("shootingstarfinder", "180305", "dba33527b923b5e25ea3560f4e6bdec7", 160256),
 	ENTRY0("simulation", "230131", "526b3d92b74b4c7d18149d38e929cc0d", 156672),
+	ENTRY0("sleepingpearl", "231101", "24dc69d392fe180243edfb5104e88da9", 176128),
 	ENTRY0("slenderforest", "130704", "ea9c7bc28a3df3446f9f10a863a2ce6f", 165376),
 	ENTRY0("smallgaim", "200802", "af383adf85389c7696a22432278717bc", 163840),
 	ENTRY0("snufflewhereareyou", "151208", "c5acf0ec396fc463ffd04f56a7e5d60c", 161792),
@@ -7534,6 +7954,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("startergame", "191209", "a4e9ace3b9b6a45b5b44aed9a2c1ccd2", 173568),
 	ENTRY0("stealingthestolen", "120927", "6cbfbfa897ab53c52fff536245990c47", 186368),
 	ENTRY0("stealingthestolen", "161222", "6daa42b7ae7f933fcf2fa441e702ea70", 424914),
+	ENTRY0("steph", "231031", "3b42bb40df3325521d91e123bc3121c9", 158208),
+	ENTRY0("stolengem", "231104", "0e5574b3da23d14b6aea63549ca0e603", 157184),
 	ENTRY0("storything", "190821", "d3f239f244e24a8ae29b3abadeccbc65", 156672),
 	ENTRY0("strandedspcemonkst", "180625", "ce807be7d8784bd039219bbf40d93cc6", 164864),
 	ENTRY0("strangertheseparts", "120820", "c5a736a93771bccd55e4b7daa45a9f00", 195584),
@@ -7554,10 +7976,12 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("swordsstory", "201130", "f89bbd11289a6c4170db043cbc72e85c", 218112),
 	ENTRY0("takeyourmedicine", "150317", "669364549586c429f706d9d26ecdf6c5", 158720),
 	ENTRY0("takingcareyourself", "191121", "f6661de1f80dc2dd4826e8962371ca87", 171520),
+	ENTRY0("teamvoyager", "230316", "f9382be2707e0bb235996a2c4da6121f", 158720),
 	ENTRY0("tearoom", "120508", "419307765ef0388c24b62e72b07c9f05", 189952),
 	ENTRY0("templeescape", "230407", "afafbc39b458675e35e1ead187ad4e1a", 169984),
 	ENTRY0("terrorblood", "160929", "0342e7d97bc78e0a727ce1e6c8d49852", 220672),
 	ENTRY0("textadventinnyc", "190401", "c2f84e49ded3f03004219d73d5538eb5", 168448),
+	ENTRY0("thanksgiving", "240410", "e9cadc401f9719c1dc03108c7326aa06", 173056),
 	ENTRY0("thatdarnleprechaun", "181004", "cef4cf60d71f060c4c9082fddd2c2acd", 165888),
 	ENTRY0("theabandonedmint", "200722", "05fcd7a1c5c275139e726a9151479438", 167424),
 	ENTRY0("theanniversary", "120227", "78680dba1af856050b1a02b13389caf3", 165376),
@@ -7567,6 +7991,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("thebasement", "200315", "97edd51d25faa6e63bf7667354ff1d0d", 207872),
 	ENTRY0("thebieberfevprob", "120425", "92e4bccf43fdcf7ec50e4b9a5f4c4b12", 157184),
 	ENTRY0("thebiter", "120925", "a99a2717d5546d6a4c6d99320241b08a", 158208),
+	ENTRY0("theblue", "230106", "89e59284145fadefdedcb391b5d7e763", 158720),
 	ENTRY0("thebumblebeeband", "180531", "10017c03974bb82ce3f8d73bec3672fd", 162816),
 	ENTRY0("thecage", "160220", "a3eafd5967a972fe21db533d9943e30a", 177152),
 	ENTRY0("thecellar", "120621", "eb7a7bb9ce6b7546882e6d786f85b992", 159744),
@@ -7577,6 +8002,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("thecursedfieldtrip", "201006", "abebd4bc5bcda827ebb9c08da55cefa8", 177664),
 	ENTRY0("thedeathquentcomp", "230522", "8e50c454a08f801d84b04e65066e133d", 194048),
 	ENTRY0("thediabolocontrapt", "140607", "9e97ace8fadb4adc78d1f7db035adfc4", 168960),
+	ENTRY0("thedream", "221116", "ae1eca05c35c5d831df07c501353c19e", 157184),
 	ENTRY0("thedreamterminal", "161016", "e539e3eace13b6691aa8974423fd5f7e", 158720),
 	ENTRY0("thedungdismember", "180323", "f1bb5e8c6bd2bd8a511b51e0e8d13b7f", 259584),
 	ENTRY0("theelements", "200324", "c4b7287c1d594c5b37f738420d45b0e5", 267264),
@@ -7587,6 +8013,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("thehardestdecision", "190703", "2fcbd4ee6f4a41332ca1c6fff923e98e", 159744),
 	ENTRY0("theheist", "191028", "930c36631680725299453b77ca3f264e", 239104),
 	ENTRY0("thehideworldmathew", "210902", "7f8b4d95a4a8ffbd99b6b54a857836cc", 161280),
+	ENTRY0("thehospital", "231012", "3795347154bbf9be83e1bcb69a640a7c", 156160),
+	ENTRY0("thehospital", "231030", "c1125f8e9850eb0a1a05816056614bd9", 182272),
 	ENTRY0("theinnermostproj", "140517", "97df221f413f8e252251a3e9697c31ec", 157184),
 	ENTRY0("theislandpf", "130225", "d18108dd62f934e665f0fc3b4d96ef28", 303104),
 	ENTRY0("thejewelheist", "220406", "1d7dd786ac76983235dc8941c4a5e00c", 167936),
@@ -7594,6 +8022,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("thelabyrinthpf", "130513", "4400524c81a8590aa289058580c064e5", 169472),
 	ENTRY0("thelibrarypf", "150317", "6675119f9a464d075fab555365505596", 161280),
 	ENTRY0("thelightprince", "200731", "6f9ed5f14288217d88dada7314e597e3", 276480),
+	ENTRY0("thelostbook", "231101", "9d15c79c8b808220a275c4088a14ac75", 158720),
 	ENTRY0("themachine", "201016", "83604cd8e738bb3ba989f51688d2c481", 164352),
 	ENTRY0("themafiagenerator", "130218", "ea7bc006b8ada46dd2cedf764110053e", 222720),
 	ENTRY0("themafiagenerator", "190412", "dc3b48605a272b5234b644af04753994", 218624),
@@ -7605,9 +8034,12 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("themythicalforest", "130426", "36695151ff1870f2fffe89f6243fca18", 164864),
 	ENTRY0("theonlywaytobesure", "120219", "49abcd44c3a6c23dc3a6a11ebce1d6c4", 158208),
 	ENTRY0("thepackage", "161108", "9a48426f5e1409472b0b7563a0093d5d", 164352),
+	ENTRY0("thepilot", "231102", "95668529f255b376ef7eb9c6e723cf08", 163840),
 	ENTRY0("theprogressivexorn", "190301", "f6489c842c579911fde24f353f816c28", 225792),
 	ENTRY0("thequestdragonlord", "230412", "3bcdadaeb413d7b41ed40f5ead94525e", 175616),
 	ENTRY0("theredenglishbind", "150307", "80616df759a4f5fa9545570c50c668a6", 160768),
+	ENTRY0("theschool", "231031", "989e4c571bf6d7a405ea4646f6207f62", 165376),
+	ENTRY0("thesilence", "231026", "fa2889ad479f72d82fb63ec6da5b3eac", 162304),
 	ENTRY0("thesixgatewayhell", "120428", "93522fc855141b48ee12c05369397829", 157184),
 	ENTRY0("thesquawkingdead", "130107", "a2ba056d8e1530a37bc1a640466300db", 163840),
 	ENTRY0("thesunwentdark", "120829", "7cb1f65e63dc807b2f931ed732f1d2f4", 158208),
@@ -7619,6 +8051,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("theultimatum", "190429", "fb639da6d478a4fbf98e7d665898128d", 158720),
 	ENTRY0("theuntoldstory", "200725", "d8be5eb87abdb0fb4f38a02fe51dc5bd", 158208),
 	ENTRY0("thevirtgrandnation", "201103", "d213d8213d5816463fac57157e89c4e7", 175104),
+	ENTRY0("thewallet", "210501", "671b69cc29a54377beaae50f9cd9cd7f", 328704),
 	ENTRY0("thewallet", "210519", "375f70bb3b6451233751446035a18521", 165888),
 	ENTRY0("thewizardcrystal", "150620", "b0a6cd566dce360e5b0ae33c601d9ce0", 164352),
 	ENTRY0("thewizardslair", "150619", "a61b54e81e5b3b3898773546748aa874", 164352),
@@ -7633,6 +8066,10 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("threechoices3ways", "141515", "8aadaca67809b68293a0feaa1799e0bc", 225792),
 	ENTRY0("thydungeonman", "120215", "ab0984441da50146bb0ec5580930ecca", 162816),
 	ENTRY0("tiffanys", "120302", "d3b457d98cfdde50d55e30b691572468", 165888),
+	ENTRY0("timetraveller", "240405", "40a07b59c656003e20d3f26dcf8c67fa", 231424),
+	ENTRY0("timetraveller", "240412", "4078abeaf324d35325d9b25d389faced", 239104),
+	ENTRY0("timmyland", "231026", "e95a0cf68a03c5b24a09ed502d3a70a5", 159744),
+	ENTRY0("tinygardens", "240512", "1f63d03b46955b7d9c9a560f9f46ffe0", 161792),
 	ENTRY0("toavengethestars", "120823", "361e7c9b412ae4c0abd96f3a95fb0940", 168960),
 	ENTRY0("toyourowndevices", "120504", "af094f5f5bb61dfcd30db6a83251cceb", 166400),
 	ENTRY0("todayjustasalways", "131218", "fa05a515c470f30ebbcda6ef0cd54f46", 252416),
@@ -7640,11 +8077,17 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("toxicschool", "151217", "8ab53ae3ca5e34570584674047bb6a62", 163840),
 	ENTRY0("trainhopneworleans", "140927", "25b27df3e5e2c96e395e57540984c74f", 162304),
 	ENTRY0("trainofthought", "120729", "3600a1c77c3a445f83144f7762aafc15", 220160),
+	ENTRY0("trapped", "230412", "204f6ad68af1cb01ce692785d3882d9c", 166912),
+	ENTRY0("trappedcastle", "231027", "718131d6c94f0d8238b0a911aefeeb80", 163328),
+	ENTRY0("treasurehunt", "231101", "3600a1c77c3a445f83144f7762aafc15", 161280),
 	ENTRY0("treasurehunting", "190304", "e632b687be4d8fd1251cfbdbd5034b58", 165888),
+	ENTRY0("ttcrats", "231026", "19d52057f5067dbfbd48b11a58ef1f82", 165376),
 	ENTRY0("tvdream", "190306", "a222e72f2f6bf12694c66abd0f28b3c4", 166912),
 	ENTRY0("twilightmansion", "140702", "ffab730a2aaed3817a9fb3dceb0a7a31", 158720),
 	ENTRY0("un1015lostsoul", "151119", "649faf05912c3339e31b363ec98a7d8f", 165888),
 	ENTRY0("un1015tminus59min", "151205", "665065ef47c80135f01456d0959234ab", 169472),
+	ENTRY0("unchartedisland", "231017", "52bed901470c57d26582e580a184af6c", 171008),
+	ENTRY0("unchartedisland", "231107", "2e5aeb76854ed34f3f65ae0a10764def", 186368),
 	ENTRY0("undercoop", "200303", "dbdc4c4b141f4b4e9c580cdc4d25a6e9", 158720),
 	ENTRY1("unejournecomeautre", "131102", "a88b31c981b09028a9c7a2f7a2eac927", 178688, Common::FR_FRA),
 	ENTRY1("unerebellion", "140120", "71e57e2efc20a28b4c3ab1937712bad7", 202752, Common::FR_FRA),
@@ -7657,6 +8100,8 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("warrant", "120318", "d29223ca77f2a625fe4d8cd0e3100c4a", 169472),
 	ENTRY0("weddinghunt", "230226", "a1b9c712b7148dff595597e43f947c69", 157696),
 	ENTRY0("wednesday", "130724", "273f891a4c001b48908caef9eaf2e805", 248320),
+	ENTRY0("welcomeafterlife", "231024", "cbbcf6d10ada8ea11010bd69d2945672", 158208),
+	ENTRY0("whatswrong", "231024", "fc8edefeecf6765a9284321918006a03", 162816),
 	ENTRY0("whereiseverybody", "140429", "f00d0e7de76c30260f0b9d0373c12f5a", 212480),
 	ENTRY0("whereismrhuman", "221102", "c5d4e31c23e921f8ded68bc79699b5f6", 176640),
 	ENTRY0("whittonavenue", "131228", "ca3358b79057cb31e0a2a2aba7925fde", 185856),
@@ -7671,6 +8116,7 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("yourang", "160607", "8b6145c6bb2ec63830277575a6f9854f", 210944),
 	ENTRY0("yourgovneedsyou", "120504", "4d4557901e048ea8ba90b37762427adf", 185344),
 	ENTRY0("zombiefacuacademy", "210215", "591a0e3bd3a3890406c9d7e4cbe887c1", 165376),
+	ENTRY0("zoocapture", "231105", "7735b520c796a38435647cd58660d529", 159744),
 
 	// ParserComp 2015
 	ENTRY0("pc15_sixgrayrats", "150214", "822ebf1958e10ee5a9ba779a1edb0842", 427520),
@@ -7737,6 +8183,16 @@ const FrotzGameDescription FROTZ_GAMES[] = {
 	ENTRY0("pj3_fantadimension", "230313", "2281e7a74333a7730ac44fd233d4f9b3", 60416),
 	ENTRY0("pj3_fantadimension", "230508/z3", "25455e67bcc64a4343993e8acfbb0b48", 60928),
 	ENTRY0("pj3_fantadimension", "230508/z5", "2eb8729675b9e461b7bbf3449f3538d8", 62464),
+
+	// PunyJam #4
+	ENTRY0("pj4_rop", "240109", "9ca3bd11f6e2c3b6efa60ad3267c3a2d", 102912 ),
+	ENTRY0("pj4_cargobreach", "231217/z3", "b306ae2ae87676c1acff17855d965406", 67584 ),
+	ENTRY0("pj4_cargobreach", "231217/z5", "cf5828552b5e93375b12ff4bb47efc8d", 70144 ),
+	ENTRY0("pj4_shaka", "231217", "1ddfecc4bc43cc23bcce7a424045397b", 49664 ),
+	ENTRY0("pj4_redux", "231217", "f74da4b780850c8b5025050701f0c107", 62976 ),
+	ENTRY0("pj4_minimalgame", "231217", "f74da4b780850c8b5025050701f0c107", 62976 ),
+	ENTRY0("pj4_pharaoh", "231212", "8c747ebe64aafb89b97be50cd8e2fe70", 46592 ),
+	ENTRY0("pj4_pharaoh", "240123", "4893314695a7ce440169db126a77e290", 67072 ),
 
 	// SeedComp! 2023
 	ENTRY0("kingsball", "230301/z3", "d2f342061077926cc7be238a25af016e", 70144),

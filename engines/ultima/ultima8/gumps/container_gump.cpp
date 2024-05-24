@@ -83,19 +83,71 @@ void ContainerGump::InitGump(Gump *newparent, bool take_focus) {
 	// U8 puts a container gump slightly to the left of an object
 }
 
+void ContainerGump::run() {
+	Gump::run();
+
+	Container *c = getContainer(_owner);
+	if (!c) {
+		// Container gone!?
+		Close();
+		return;
+	}
+
+	Std::list<Item *> &contents = c->_contents;
+	Std::list<Item *>::iterator iter;
+	for (iter = contents.begin(); iter != contents.end(); ++iter) {
+		Item *item = *iter;
+
+		int32 itemx, itemy;
+		item->getGumpLocation(itemx, itemy);
+
+		const Shape *sh = item->getShapeObject();
+		assert(sh);
+		const ShapeFrame *fr = sh->getFrame(item->getFrame());
+		assert(fr);
+
+		// Ensure item locations within item area.
+		int32 minx = fr->_xoff;
+		int32 miny = fr->_yoff;
+
+		int32 maxx = _itemArea.width() + fr->_xoff - fr->_width;
+		int32 maxy = _itemArea.height() + fr->_yoff - fr->_height;
+
+		if (itemx == 0xFF && itemy == 0xFF) {
+			// randomize position
+			// TODO: maybe try to put it somewhere where it doesn't overlap others?
+
+			Common::RandomSource &rs = Ultima8Engine::get_instance()->getRandomSource();
+			itemx = rs.getRandomNumberRng(minx, maxx);
+			itemy = rs.getRandomNumberRng(miny, maxy);
+
+			item->setGumpLocation(itemx, itemy);
+		}
+
+		if (itemx < minx) {
+			itemx = minx;
+			item->setGumpLocation(itemx, itemy);
+		}
+
+		if (itemx > maxx) {
+			itemx = maxx;
+			item->setGumpLocation(itemx, itemy);
+		}
+
+		if (itemy < miny) {
+			itemy = miny;
+			item->setGumpLocation(itemx, itemy);
+		}
+
+		if (itemy > maxy) {
+			itemy = maxy;
+			item->setGumpLocation(itemx, itemy);
+		}
+	}
+}
+
 void ContainerGump::getItemCoords(Item *item, int32 &itemx, int32 &itemy) {
 	item->getGumpLocation(itemx, itemy);
-
-	if (itemx == 0xFF && itemy == 0xFF) {
-		// randomize position
-		// TODO: maybe try to put it somewhere where it doesn't overlap others?
-
-		Common::RandomSource &rs = Ultima8Engine::get_instance()->getRandomSource();
-		itemx = rs.getRandomNumber(_itemArea.width() - 1);
-		itemy = rs.getRandomNumber(_itemArea.height() - 1);
-
-		item->setGumpLocation(itemx, itemy);
-	}
 
 	itemx += _itemArea.left;
 	itemy += _itemArea.top;
@@ -221,16 +273,8 @@ void ContainerGump::GetItemLocation(int32 lerp_factor) {
 	}
 
 	int32 gx, gy;
-	Item *topitem = it;
-
-	Container *p = it->getParentAsContainer();
-	if (p) {
-		while (p->getParentAsContainer()) {
-			p = p->getParentAsContainer();
-		}
-
-		topitem = p;
-	}
+	Container *root = it->getRootContainer();
+	Item *topitem = root ? root : it;
 
 	Gump *gump = GetRootGump()->FindGump<GameMapGump>();
 	assert(gump);
@@ -338,13 +382,19 @@ void ContainerGump::onMouseDouble(int button, int32 mx, int32 my) {
 		if (item) {
 			debugC(kDebugObject, "%s", item->dumpInfo().c_str());
 
+			if (objID == _owner) {
+				// call the 'use' event
+				item->use();
+				return;
+			}
+
 			if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
 				debugC(kDebugObject, "Can't use: avatarInStasis");
 				return;
 			}
 
 			MainActor *avatar = getMainActor();
-			if (objID == _owner || avatar->canReach(item, 128)) { // CONSTANT!
+			if (avatar->canReach(item, 128)) { // CONSTANT!
 				// call the 'use' event
 				item->use();
 			} else {

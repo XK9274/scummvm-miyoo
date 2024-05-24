@@ -96,7 +96,7 @@ namespace DBOPL {
 #endif
 
 
-//How much to substract from the base value for the final attenuation
+//How much to subtract from the base value for the final attenuation
 static const Bit8u KslCreateTable[16] = {
 	//0 will always be be lower than 7 * 8
 	64, 32, 24, 19,
@@ -216,7 +216,7 @@ static inline Bits MakeVolume( Bitu wave, Bitu volume ) {
 #if 0
 	//Check if we overflow the 31 shift limit
 	if ( exp >= 32 ) {
-		LOG_MSG( "WTF %d %d", total, exp );
+		LOG_MSG( "Overflow %d %d", total, exp );
 	}
 #endif
 	return (sig >> exp);

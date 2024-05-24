@@ -120,7 +120,7 @@ public:
 	void handleKeyDown(Common::KeyState state) override;
 	void handleKeyUp(Common::KeyState state) override;
 	void handleOtherEvent(const Common::Event &evt) override;
-	bool doGameDetection(const Common::String &path);
+	bool doGameDetection(const Common::Path &path);
 	Common::String getGameConfig(int item, Common::String key);
 protected:
 	EditTextWidget  *_searchWidget;
@@ -164,7 +164,9 @@ protected:
 	 * Fill the list widget with all currently configured targets, and trigger
 	 * a redraw.
 	 */
-	virtual void updateListing() = 0;
+	virtual void updateListing(int selPos = -1) = 0;
+
+	virtual int getNextPos(int item) = 0;
 
 	virtual void updateButtons() = 0;
 

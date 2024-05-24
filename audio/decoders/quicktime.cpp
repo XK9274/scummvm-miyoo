@@ -85,7 +85,7 @@ QuickTimeAudioDecoder::~QuickTimeAudioDecoder() {
 		delete _audioTracks[i];
 }
 
-bool QuickTimeAudioDecoder::loadAudioFile(const Common::String &filename) {
+bool QuickTimeAudioDecoder::loadAudioFile(const Common::Path &filename) {
 	if (!Common::QuickTimeParser::parseFile(filename))
 		return false;
 
@@ -215,7 +215,7 @@ void QuickTimeAudioDecoder::QuickTimeAudioTrack::queueAudio(const Timestamp &len
 			_skipAACPrimer = false;
 			_curChunk++;
 
-			// If we have any samples that we need to skip (ie. we seeked into
+			// If we have any samples that we need to skip (ie. we seek'ed into
 			// the middle of a chunk), skip them here.
 			if (_skipSamples != Timestamp()) {
 				if (_skipSamples > chunkLength) {
@@ -657,7 +657,7 @@ public:
 	QuickTimeAudioStream() {}
 	~QuickTimeAudioStream() {}
 
-	bool openFromFile(const Common::String &filename) {
+	bool openFromFile(const Common::Path &filename) {
 		return QuickTimeAudioDecoder::loadAudioFile(filename) && !_audioTracks.empty();
 	}
 
@@ -687,7 +687,7 @@ public:
 	Timestamp getLength() const override { return _audioTracks[0]->getLength(); }
 };
 
-SeekableAudioStream *makeQuickTimeStream(const Common::String &filename) {
+SeekableAudioStream *makeQuickTimeStream(const Common::Path &filename) {
 	QuickTimeAudioStream *audioStream = new QuickTimeAudioStream();
 
 	if (!audioStream->openFromFile(filename)) {

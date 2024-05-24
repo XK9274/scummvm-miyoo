@@ -24,10 +24,6 @@
 
 #include "graphics/macgui/mactext-canvas.h"
 
-namespace Image {
-class PNGDecoder;
-}
-
 namespace Graphics {
 
 struct SelectedText {
@@ -122,7 +118,7 @@ public:
 	int getMouseLine(int x, int y);
 	Common::U32String getMouseLink(int x, int y);
 
-	void setImageArchive(Common::String name);
+	bool setImageArchive(const Common::Path &name) { return _canvas._imageArchive.setImageArchive(name); }
 
 private:
 	MacFontRun getTextChunks(int start, int end);
@@ -184,7 +180,6 @@ public:
 	// Markdown
 public:
 	void setMarkdownText(const Common::U32String &str);
-	const Surface *getImageSurface(Common::String &fname);
 
 private:
 	void init(uint32 fgcolor, uint32 bgcolor, int maxWidth, TextAlign textAlignment, int interlinear, uint16 textShadow, bool macFontMode);
@@ -197,6 +192,11 @@ private:
 
 	void startMarking(int x, int y);
 	void updateTextSelection(int x, int y);
+
+	/**
+	 * Clears the text of the last chunk.
+	 */
+	void clearChunkInput();
 
 public:
 	int _cursorX, _cursorY;
@@ -236,11 +236,6 @@ private:
 	SelectedText _selectedText;
 
 	MacMenu *_menu;
-
-#ifdef USE_PNG
-	Common::HashMap<Common::String, Image::PNGDecoder *> _imageCache;
-#endif
-	Common::Archive *_imageArchive = nullptr;
 };
 
 int getStringWidth(MacFontRun &format, const Common::U32String &str);

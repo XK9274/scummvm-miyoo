@@ -90,6 +90,7 @@ bool iOS7_fetchEvent(InternalEvent *event) {
 	UITapGestureRecognizer *twoFingerTapGesture;
 	UILongPressGestureRecognizer *oneFingerLongPressGesture;
 	UILongPressGestureRecognizer *twoFingerLongPressGesture;
+	CGPoint touchesBegan;
 #endif
 }
 
@@ -389,7 +390,15 @@ bool iOS7_fetchEvent(InternalEvent *event) {
 
 #if TARGET_OS_IOS
 - (void)triggerTouchModeChanged {
-	if ([self isKeyboardShown]) {
+	BOOL hwKeyboardConnected = NO;
+#ifdef __IPHONE_14_0
+	if (@available(iOS 14.0, *)) {
+		if (GCKeyboard.coalescedKeyboard != nil) {
+			hwKeyboardConnected = YES;
+		}
+	}
+#endif
+	if ([self isKeyboardShown] && !hwKeyboardConnected) {
 		[self hideKeyboard];
 	} else {
 		[self addEvent:InternalEvent(kInputTouchModeChanged, 0, 0)];
@@ -415,6 +424,15 @@ bool iOS7_fetchEvent(InternalEvent *event) {
 	[_toggleTouchModeButton setHidden:!isEnabled];
 	[_menuButton setEnabled:isEnabled];
 	[_menuButton setHidden:!isEnabled];
+}
+
+- (BOOL)isiOSAppOnMac {
+#ifdef __IPHONE_14_0
+	if (@available(iOS 14.0, *)) {
+		return [NSProcessInfo processInfo].isiOSAppOnMac;
+	}
+#endif
+	return NO;
 }
 #endif
 
@@ -464,7 +482,7 @@ bool iOS7_fetchEvent(InternalEvent *event) {
 	if ( @available(iOS 11, tvOS 11, *) ) {
 		CGRect newFrame = self.frame;
 #if TARGET_OS_IOS
-		CGRect screenSize = [[UIScreen mainScreen] bounds];
+		CGRect screenSize = self.window.bounds;
 		UIEdgeInsets inset = [[[UIApplication sharedApplication] keyWindow] safeAreaInsets];
 		UIInterfaceOrientation orientation = [iOS7AppDelegate currentOrientation];
 
@@ -614,6 +632,10 @@ bool iOS7_fetchEvent(InternalEvent *event) {
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+#if TARGET_OS_IOS
+	UITouch *touch = [touches anyObject];
+	touchesBegan = [touch locationInView:self];
+#endif
 	for (GameController *c : _controllers) {
 		if ([c isKindOfClass:TouchController.class]) {
 			[(TouchController *)c touchesBegan:touches withEvent:event];
@@ -623,8 +645,13 @@ bool iOS7_fetchEvent(InternalEvent *event) {
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
 #if TARGET_OS_IOS
-	[oneFingerTapGesture setState:UIGestureRecognizerStateCancelled];
-	[twoFingerTapGesture setState:UIGestureRecognizerStateCancelled];
+	UITouch *touch = [touches anyObject];
+	CGPoint touchesMoved = [touch locationInView:self];
+	if (touchesBegan.x != touchesMoved.x ||
+		touchesBegan.y != touchesMoved.y) {
+		[oneFingerTapGesture setState:UIGestureRecognizerStateCancelled];
+		[twoFingerTapGesture setState:UIGestureRecognizerStateCancelled];
+	}
 #endif
 	for (GameController *c : _controllers) {
 		if ([c isKindOfClass:TouchController.class]) {
@@ -782,11 +809,11 @@ bool iOS7_fetchEvent(InternalEvent *event) {
 	[self addEvent:InternalEvent(kInputTap, kUIViewTapDouble, 2)];
 }
 
-- (void)handleKeyPress:(unichar)c {
+- (void)handleKeyPress:(unichar)c withModifierFlags:(int)f {
 	if (c == '`') {
-		[self addEvent:InternalEvent(kInputKeyPressed, '\033', 0)];
+		[self addEvent:InternalEvent(kInputKeyPressed, '\033', f)];
 	} else {
-		[self addEvent:InternalEvent(kInputKeyPressed, c, 0)];
+		[self addEvent:InternalEvent(kInputKeyPressed, c, f)];
 	}
 }
 

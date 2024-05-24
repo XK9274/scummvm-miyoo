@@ -28,8 +28,6 @@
 #include "common/file.h"
 #include "common/system.h"
 
-#include "graphics/palette.h"
-
 namespace Video {
 
 VideoDecoder::VideoDecoder() {
@@ -375,7 +373,7 @@ bool VideoDecoder::seek(const Audio::Timestamp &time) {
 	if (!isSeekable())
 		return false;
 
-	// Stop all tracks so they can be seeked
+	// Stop all tracks so they can be seek'ed
 	if (isPlaying())
 		stopAudio();
 
@@ -390,7 +388,7 @@ bool VideoDecoder::seek(const Audio::Timestamp &time) {
 
 	_lastTimeChange = time;
 
-	// Now that we've seeked, start all tracks again
+	// Now that we've seek'ed, start all tracks again
 	// Also reset our start time
 	if (isPlaying()) {
 		startAudio();
@@ -496,7 +494,7 @@ void VideoDecoder::setRate(const Common::Rational &rate) {
 	_playbackRate = targetRate;
 	_startTime = g_system->getMillis();
 
-	// Adjust start time if we've seeked to something besides zero time
+	// Adjust start time if we've seek'ed to something besides zero time
 	if (_lastTimeChange != 0)
 		_startTime -= (_lastTimeChange.msecs() / _playbackRate).toInt();
 
@@ -777,7 +775,7 @@ VideoDecoder::StreamFileAudioTrack::~StreamFileAudioTrack() {
 	delete _stream;
 }
 
-bool VideoDecoder::StreamFileAudioTrack::loadFromFile(const Common::String &baseName) {
+bool VideoDecoder::StreamFileAudioTrack::loadFromFile(const Common::Path &baseName) {
 	// TODO: Make sure the stream isn't being played
 	delete _stream;
 	_stream = Audio::SeekableAudioStream::openStreamFile(baseName);
@@ -832,7 +830,7 @@ bool VideoDecoder::addStreamTrack(Audio::SeekableAudioStream *stream) {
 	return true;
 }
 
-bool VideoDecoder::addStreamFileTrack(const Common::String &baseName) {
+bool VideoDecoder::addStreamFileTrack(const Common::Path &baseName) {
 	// Only allow adding external tracks if a video is already loaded
 	if (!isVideoLoaded())
 		return false;

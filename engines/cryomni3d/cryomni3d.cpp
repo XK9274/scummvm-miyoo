@@ -31,7 +31,7 @@
 #include "engines/util.h"
 
 #include "audio/mixer.h"
-#include "graphics/palette.h"
+#include "graphics/paletteman.h"
 
 #include "cryomni3d/cryomni3d.h"
 #include "cryomni3d/datstream.h"
@@ -110,7 +110,7 @@ void CryOmni3DEngine::playHNM(const Common::Path &filepath, Audio::Mixer::SoundT
 	videoDecoder->setSoundType(soundType);
 
 	if (!videoDecoder->loadFile(filepath)) {
-		warning("Failed to open movie file %s", filepath.toString().c_str());
+		warning("Failed to open movie file %s", filepath.toString(Common::Path::kNativeSeparator).c_str());
 		delete videoDecoder;
 		return;
 	}
@@ -167,14 +167,14 @@ Image::ImageDecoder *CryOmni3DEngine::loadHLZ(const Common::Path &filepath) {
 	Common::File file;
 
 	if (!file.open(filepath)) {
-		warning("Failed to open hlz file %s", filepath.toString().c_str());
+		warning("Failed to open hlz file %s", filepath.toString(Common::Path::kNativeSeparator).c_str());
 		return nullptr;
 	}
 
 	Image::ImageDecoder *imageDecoder = new Image::HLZFileDecoder();
 
 	if (!imageDecoder->loadStream(file)) {
-		warning("Failed to load hlz file %s", filepath.toString().c_str());
+		warning("Failed to load hlz file %s", filepath.toString(Common::Path::kNativeSeparator).c_str());
 		delete imageDecoder;
 		imageDecoder = nullptr;
 		return nullptr;
@@ -191,8 +191,7 @@ bool CryOmni3DEngine::displayHLZ(const Common::Path &filepath, uint32 timeout) {
 	}
 
 	if (imageDecoder->hasPalette()) {
-		const byte *palette = imageDecoder->getPalette();
-		setPalette(palette, imageDecoder->getPaletteStartIndex(), imageDecoder->getPaletteColorCount());
+		setPalette(imageDecoder->getPalette(), 0, imageDecoder->getPaletteColorCount());
 	}
 
 	const Graphics::Surface *frame = imageDecoder->getSurface();

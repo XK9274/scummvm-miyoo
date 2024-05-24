@@ -19,12 +19,14 @@
  *
  */
 
+#include "common/config-manager.h"
 #include "common/macresman.h"
 #include "graphics/surface.h"
 #include "graphics/macgui/macwidget.h"
 #include "image/bmp.h"
 #include "image/jpeg.h"
 #include "image/pict.h"
+#include "image/png.h"
 
 #include "director/director.h"
 #include "director/cast.h"
@@ -41,7 +43,7 @@ namespace Director {
 BitmapCastMember::BitmapCastMember(Cast *cast, uint16 castId, Common::SeekableReadStreamEndian &stream, uint32 castTag, uint16 version, uint8 flags1)
 		: CastMember(cast, castId, stream) {
 	_type = kCastBitmap;
-	_picture = nullptr;
+	_picture = new Picture();
 	_ditheredImg = nullptr;
 	_matte = nullptr;
 	_noMatte = false;
@@ -177,6 +179,38 @@ BitmapCastMember::BitmapCastMember(Cast *cast, uint16 castId, Image::ImageDecode
 	_external = false;
 }
 
+BitmapCastMember::BitmapCastMember(Cast *cast, uint16 castId, BitmapCastMember &source)
+	: CastMember(cast, castId) {
+	_type = kCastBitmap;
+	// force a load so we can copy the cast resource information
+	source.load();
+	_loaded = true;
+
+	_initialRect = source._initialRect;
+	_boundingRect = source._boundingRect;
+	_children = source._children;
+
+	_picture = source._picture ? new Picture(*source._picture) : nullptr;
+	_ditheredImg = nullptr;
+	_matte = nullptr;
+
+	_pitch = source._pitch;
+	_regX = source._regX;
+	_regY = source._regY;
+	_flags2 = source._regY;
+	_bytes = source._bytes;
+	_clut = source._clut;
+	_ditheredTargetClut = source._ditheredTargetClut;
+
+	_bitsPerPixel = source._bitsPerPixel;
+
+	_tag = source._tag;
+	_noMatte = source._noMatte;
+	_external = source._external;
+
+	warning("BitmapCastMember(): Duplicating source %d to target %d! This is unlikely to work properly, as the resource loader is based on the cast ID", source._castId, castId);
+}
+
 BitmapCastMember::~BitmapCastMember() {
 	delete _picture;
 
@@ -185,8 +219,10 @@ BitmapCastMember::~BitmapCastMember() {
 		delete _ditheredImg;
 	}
 
-	if (_matte)
+	if (_matte) {
+		_matte->free();
 		delete _matte;
+	}
 }
 
 Graphics::MacWidget *BitmapCastMember::createWidget(Common::Rect &bbox, Channel *channel, SpriteType spriteType) {
@@ -436,21 +472,34 @@ void BitmapCastMember::createMatte(Common::Rect &bbox) {
 	if (!colorFound) {
 		debugC(1, kDebugImages, "BitmapCastMember::createMatte(): No white color for matte image");
 	} else {
-		delete _matte;
+		if (_matte) {
+			_matte->free();
+			delete _matte;
+		}
 
-		_matte = new Graphics::FloodFill(&tmp, whiteColor, 0, true);
+		Graphics::FloodFill matteFill(&tmp, whiteColor, 0, true);
 
 		for (int yy = 0; yy < tmp.h; yy++) {
-			_matte->addSeed(0, yy);
-			_matte->addSeed(tmp.w - 1, yy);
+			matteFill.addSeed(0, yy);
+			matteFill.addSeed(tmp.w - 1, yy);
 		}
 
 		for (int xx = 0; xx < tmp.w; xx++) {
-			_matte->addSeed(xx, 0);
-			_matte->addSeed(xx, tmp.h - 1);
+			matteFill.addSeed(xx, 0);
+			matteFill.addSeed(xx, tmp.h - 1);
 		}
 
-		_matte->fillMask();
+		matteFill.fillMask();
+		Graphics::Surface *matteSurf = matteFill.getMask();
+		// convert the mask to the same surface format used for 1bpp bitmaps.
+		// this uses the director palette scheme, so white is 0x00 and black is 0xff.
+		_matte = new Graphics::Surface();
+		_matte->create(matteSurf->w, matteSurf->h, Graphics::PixelFormat::createFormatCLUT8());
+		for (int y = 0; y < matteSurf->h; y++) {
+			for (int x = 0; x < matteSurf->w; x++) {
+				_matte->setPixel(x, y, matteSurf->getPixel(x, y) ? 0x00 : 0xff);
+			}
+		}
 		_noMatte = false;
 	}
 
@@ -464,12 +513,11 @@ Graphics::Surface *BitmapCastMember::getMatte(Common::Rect &bbox) {
 	}
 
 	// check for the scale matte
-	Graphics::Surface *surface = _matte ? _matte->getMask() : nullptr;
-	if (surface && (surface->w != bbox.width() || surface->h != bbox.height())) {
+	if (_matte && (_matte->w != bbox.width() || _matte->h != bbox.height())) {
 		createMatte(bbox);
 	}
 
-	return _matte ? _matte->getMask() : nullptr;
+	return _matte;
 }
 
 Common::String BitmapCastMember::formatInfo() {
@@ -506,12 +554,11 @@ void BitmapCastMember::load() {
 			}
 		}
 
-		CastMemberInfo *ci = _cast->getCastMemberInfo(_castId);
+		Common::String imageFilename = _cast->getLinkedPath(_castId);
 
 		if ((pic == nullptr || pic->size() == 0)
-				&& ci && !ci->fileName.empty()) {
+				&& !imageFilename.empty()) {
 			// image file is linked, load from the filesystem
-			Common::String imageFilename = ci->directory + g_director->_dirSeparator + ci->fileName;
 			Common::Path location = findPath(imageFilename);
 			Common::SeekableReadStream *file = Common::MacResManager::openFileOrDataFork(location);
 			if (file) {
@@ -547,16 +594,29 @@ void BitmapCastMember::load() {
 					}
 
 					debugC(5, kDebugImages, "BitmapCastMember::load(): Bitmap: id: %d, w: %d, h: %d, flags1: %x, flags2: %x bytes: %x, bpp: %d clut: %s", imgId, surf->w, surf->h, _flags1, _flags2, _bytes, _bitsPerPixel, _clut.asString().c_str());
+
+					if (ConfMan.getBool("dump_scripts")) {
+
+						Common::String prepend = "stream";
+						Common::String filename = Common::String::format("./dumps/%s-%s-%d.png", encodePathForDump(prepend).c_str(), tag2str(tag), imgId);
+						Common::DumpFile bitmapFile;
+
+						bitmapFile.open(Common::Path(filename), true);
+						Image::writePNG(bitmapFile, *decoder->getSurface(), decoder->getPalette());
+
+						bitmapFile.close();
+					}
+
 					delete pic;
 					delete decoder;
 					_loaded = true;
 					return;
 				} else {
 					delete decoder;
-					warning("BUILDBOT: BitmapCastMember::load(): wrong format for external picture '%s'", location.toString().c_str());
+					warning("BUILDBOT: BitmapCastMember::load(): wrong format for external picture '%s'", location.toString(Common::Path::kNativeSeparator).c_str());
 				}
 			} else {
-				warning("BitmapCastMember::load(): cannot open external picture '%s'", location.toString().c_str());
+				warning("BitmapCastMember::load(): cannot open external picture '%s'", location.toString(Common::Path::kNativeSeparator).c_str());
 			}
 		}
 	} else {
@@ -607,6 +667,18 @@ void BitmapCastMember::load() {
 
 	setPicture(*img, true);
 
+	if (ConfMan.getBool("dump_scripts")) {
+
+		Common::String prepend = "stream";
+		Common::String filename = Common::String::format("./dumps/%s-%s-%d.png", encodePathForDump(prepend).c_str(), tag2str(tag), imgId);
+		Common::DumpFile bitmapFile;
+
+		bitmapFile.open(Common::Path(filename), true);
+		Image::writePNG(bitmapFile, *img->getSurface(), img->getPalette());
+
+		bitmapFile.close();
+	}
+
 	delete img;
 	delete pic;
 
@@ -620,7 +692,7 @@ void BitmapCastMember::unload() {
 		return;
 
 	delete _picture;
-	_picture = nullptr;
+	_picture = new Picture();
 
 	delete _ditheredImg;
 	_ditheredImg = nullptr;

@@ -19,6 +19,9 @@
  *
  */
 
+#include "backends/modular-backend.h"
+#include "backends/graphics/graphics.h"
+
 #include "common/config-manager.h"
 #include "common/debug-channels.h"
 #include "common/tokenizer.h"
@@ -28,6 +31,7 @@
 
 #include "director/director.h"
 #include "director/debugger.h"
+#include "director/debugtools.h"
 #include "director/archive.h"
 #include "director/cast.h"
 #include "director/movie.h"
@@ -101,12 +105,14 @@ DirectorEngine::DirectorEngine(OSystem *syst, const DirectorGameDescription *gam
 	_forceDate.tm_mon = -1;
 	_forceDate.tm_year = -1;
 	_forceDate.tm_wday = -1;
+	_loadSlowdownFactor = 0;
+	_loadSlowdownCooldownTime = 0;
 
 	_wm = nullptr;
 
-	_gameDataDir = Common::FSNode(ConfMan.get("path"));
+	_gameDataDir = Common::FSNode(ConfMan.getPath("path"));
 
-	SearchMan.addDirectory(_gameDataDir.getPath(), _gameDataDir, 0, 5);
+	SearchMan.addDirectory(_gameDataDir, 0, 5);
 
 	for (uint i = 0; Director::directoryGlobs[i]; i++) {
 		Common::String directoryGlob = directoryGlobs[i];
@@ -283,6 +289,14 @@ Common::Error DirectorEngine::run() {
 		g_system->updateScreen();
 	}
 
+#ifdef USE_IMGUI
+	ImGuiCallbacks callbacks;
+	callbacks.init = onImGuiInit;
+	callbacks.render = onImGuiRender;
+	callbacks.cleanup = onImGuiCleanup;
+	_system->setImGuiCallbacks(callbacks);
+#endif
+
 	bool loop = true;
 
 	while (loop) {
@@ -390,8 +404,8 @@ StartMovie DirectorEngine::getStartMovie() const {
 	return _options.startMovie;
 }
 
-Common::String DirectorEngine::getStartupPath() const {
-	return _options.startupPath;
+Common::Path DirectorEngine::getStartupPath() const {
+	return Common::Path(_options.startupPath, g_director->_dirSeparator);
 }
 
 bool DirectorEngine::desktopEnabled() {

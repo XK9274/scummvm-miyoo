@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #include "engines/advancedDetector.h"
@@ -96,6 +103,17 @@ static const ADGameDescription gameDescriptions[] = {
 			{"study.svl", 0, "d4aff126ee27be3c3d25e2996369d7cb", 2324368},
 		},
 		Common::RU_RUS, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO1(GUIO_NOMIDI)
+	},
+	{
+		"toon", "",
+		{
+			{"toonfont.caf", 0, "28f3210c901c86cd585d69eda3a2fd37", 30364},
+			{"local.pak", 0, "3290209ef9bc92692108dd2f45df0736", 3237611},
+			{"arcaddbl.svl", 0, "c418478cd2833c7c983799f948af41ac", 7844688},
+			{"study.svl", 0, "281efa3f33f6712c0f641a605f4d40fd", 2511090},
+			AD_LISTEND
+		},
+		Common::HE_ISR, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO1(GUIO_NOMIDI)
 	},
 	{
 		"toon", "Demo",

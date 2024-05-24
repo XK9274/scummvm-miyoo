@@ -90,6 +90,7 @@ public:
 
 	void handleCommand(CommandSender *sender, uint32 cmd, uint32 data) override;
 	void handleMouseDown(int x, int y, int button, int clickCount) override;
+	void handleMouseUp(int x, int y, int button, int clickCount) override;
 	void handleMouseWheel(int x, int y, int direction) override;
 	void handleMouseMoved(int x, int y, int button) override;
 };
@@ -206,6 +207,8 @@ public:
 	void scrollToEntry(int id, bool forceToTop);
 	void assignEntriesToItems();
 
+	int getNextPos(int oldSel);
+	int getNewSel(int index);
 	int getScrollPos() const { return _scrollPos; }
 	int getSelected() const { return ((_selectedEntry == nullptr) ? -1 : _selectedEntry->entryID); }
 	int getThumbnailHeight() const { return _thumbnailHeight; }

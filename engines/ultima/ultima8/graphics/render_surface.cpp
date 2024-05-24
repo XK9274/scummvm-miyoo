@@ -19,21 +19,27 @@
  *
  */
 
-#include "ultima/ultima8/misc/debugger.h"
+#include "ultima/ultima8/graphics/render_surface.h"
 #include "ultima/ultima8/graphics/palette.h"
 #include "ultima/ultima8/graphics/shape.h"
 #include "ultima/ultima8/graphics/shape_frame.h"
 #include "ultima/ultima8/graphics/texture.h"
-#include "ultima/ultima8/ultima8.h"
-#include "common/system.h"
-#include "engines/util.h"
-#include "graphics/screen.h"
+#include "graphics/blit.h"
 
 namespace Ultima {
 namespace Ultima8 {
 
-uint8 RenderSurface::_gamma10toGamma22[256];
-uint8 RenderSurface::_gamma22toGamma10[256];
+RenderSurface::RenderSurface(int width, int height, const Graphics::PixelFormat &format) :
+		_pixels(nullptr), _ox(0), _oy(0), _pitch(0),
+		_flipped(false), _clipWindow(0, 0, 0, 0), _lockCount(0),
+		_disposeAfterUse(DisposeAfterUse::YES) {
+
+	_surface = new Graphics::ManagedSurface(width, height, format);
+	_clipWindow.setWidth(_surface->w);
+	_clipWindow.setHeight(_surface->h);
+
+	SetPixelsPointer();
+}
 
 RenderSurface::RenderSurface(Graphics::ManagedSurface *s, DisposeAfterUse::Flag disposeAfterUse) :
 		_pixels(nullptr), _ox(0), _oy(0), _pitch(0),
@@ -195,6 +201,24 @@ bool RenderSurface::IsFlipped() const {
 	return _flipped;
 }
 
+void RenderSurface::fillRect(const Rect &r, uint32 color) {
+	Common::Rect rect(r.left, r.top, r.right, r.bottom);
+	rect.clip(_clipWindow);
+	rect.translate(_ox, _oy);
+	_surface->fillRect(rect, color);
+}
+
+void RenderSurface::frameRect(const Rect& r, uint32 color) {
+	Common::Rect rect(r.left, r.top, r.right, r.bottom);
+	rect.clip(_clipWindow);
+	rect.translate(_ox, _oy);
+	_surface->frameRect(rect, color);
+}
+
+void RenderSurface::drawLine(int32 sx, int32 sy, int32 ex, int32 ey, uint32 color) {
+	_surface->drawLine(sx + _ox, sy + _oy, ex + _ox, ey + _oy, color);
+}
+
 void RenderSurface::fill32(uint32 rgb, const Rect &r) {
 	Common::Rect rect(r.left, r.top, r.right, r.bottom);
 	rect.clip(_clipWindow);
@@ -287,6 +311,12 @@ void RenderSurface::Blit(const Graphics::ManagedSurface &src, const Common::Rect
 	} else {
 		_surface->blitFrom(src, srcRect, dpoint);
 	}
+}
+
+void RenderSurface::CrossKeyBlitMap(const Graphics::Surface& src, const Common::Rect& srcRect, int32 dx, int32 dy, const uint32* map, const uint32 key) {
+	byte *dstPixels = reinterpret_cast<byte *>(_surface->getBasePtr(_ox + dx, _oy + dy));
+	const byte *srcPixels = reinterpret_cast<const byte *>(src.getBasePtr(srcRect.left, srcRect.top));
+	Graphics::crossKeyBlitMap(dstPixels, srcPixels, _surface->pitch, src.pitch, srcRect.width(), srcRect.height(), _surface->format.bytesPerPixel, map, key);
 }
 
 namespace {
@@ -535,49 +565,6 @@ void RenderSurface::MaskedBlit(const Graphics::ManagedSurface &src, const Common
 	} else {
 		error("MaskedBlit not supported from %d bpp to %d bpp", src.format.bpp(), _surface->format.bpp());
 	}
-}
-
-//
-// RenderSurface::SetVideoMode()
-//
-// Desc: Create a standard RenderSurface
-// Returns: Created RenderSurface or 0
-//
-
-RenderSurface *RenderSurface::SetVideoMode(uint32 width, uint32 height) {
-	Common::List<Graphics::PixelFormat> tryModes = g_system->getSupportedFormats();
-	for (Common::List<Graphics::PixelFormat>::iterator g = tryModes.begin(); g != tryModes.end(); ++g) {
-		if (g->bytesPerPixel != 2 && g->bytesPerPixel != 4) {
-			g = tryModes.reverse_erase(g);
-		}
-	}
-
-	initGraphics(width, height, tryModes);
-
-	Graphics::PixelFormat format = g_system->getScreenFormat();
-	if (format.bytesPerPixel != 2 && format.bytesPerPixel != 4) {
-		error("Only 16 bit and 32 bit video modes supported");
-	}
-
-	// Set up blitting surface
-	Graphics::ManagedSurface *surface = new Graphics::Screen(width, height, format);
-	assert(surface);
-
-	// Initialize gamma correction tables
-	for (int i = 0; i < 256; i++) {
-		_gamma22toGamma10[i] = static_cast<uint8>(0.5 + (pow(i / 255.0, 2.2 / 1.0) * 255.0));
-		_gamma10toGamma22[i] = static_cast<uint8>(0.5 + (pow(i / 255.0, 1.0 / 2.2) * 255.0));
-	}
-
-	return new RenderSurface(surface);
-}
-
-// Create a SecondaryRenderSurface with an associated Texture object
-RenderSurface *RenderSurface::CreateSecondaryRenderSurface(uint32 width, uint32 height) {
-	const Graphics::PixelFormat &format = Ultima8Engine::get_instance()->getScreen()->format;
-
-	Graphics::ManagedSurface *surface = new Graphics::ManagedSurface(width, height, format);
-	return new RenderSurface(surface);
 }
 
 namespace {

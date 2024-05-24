@@ -43,7 +43,8 @@ CruDemoGump::CruDemoGump(Common::SeekableReadStream *bmprs, uint32 flags, int32 
 		: ModalGump(0, 0, 640, 480, 0, flags, layer), _background(nullptr)
 {
 	Image::BitmapDecoder decoder;
-	_background = RenderSurface::CreateSecondaryRenderSurface(640, 480);
+	Graphics::Screen *screen = Ultima8Engine::get_instance()->getScreen();
+	_background = new RenderSurface(640, 480, screen->format);
 
 	uint32 color = TEX32_PACK_RGB(0, 0, 0);
 	_background->fill32(color, 0, 0, 640, 480); // black background
@@ -52,7 +53,7 @@ CruDemoGump::CruDemoGump(Common::SeekableReadStream *bmprs, uint32 flags, int32 
 		// This does an extra copy via the ManagedSurface, but it's a once-off.
 		const Graphics::Surface *bmpsurf = decoder.getSurface();
 		Graphics::ManagedSurface ms(bmpsurf);
-		ms.setPalette(decoder.getPalette(), decoder.getPaletteStartIndex(), decoder.getPaletteColorCount());
+		ms.setPalette(decoder.getPalette(), 0, decoder.getPaletteColorCount());
 		Common::Rect srcRect(640, 480);
 		_background->Blit(ms, srcRect, 0, 0);
 	} else {

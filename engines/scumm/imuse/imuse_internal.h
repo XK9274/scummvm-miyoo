@@ -124,12 +124,15 @@ struct ParameterFader {
 	};
 
 	int param;
-	int start;
-	int end;
-	uint32 total_time;
-	uint32 current_time;
+	int8 dir;
+	int16 incr;
+	uint16 ifrac;
+	uint16 irem;
+	uint16 ttime;
+	uint16 cntdwn;
+	int16 state;
 
-	ParameterFader() { param = 0; }
+	ParameterFader() : param(0), dir(0), incr(0), ifrac(0), irem(0), ttime(0), cntdwn(0), state(0) {}
 	void init() { param = 0; }
 };
 
@@ -196,7 +199,7 @@ protected:
 	byte _volume;
 	int8 _pan;
 	int8 _transpose;
-	int8 _detune;
+	int16 _detune;
 	int _note_offset;
 	byte _vol_eff;
 
@@ -208,6 +211,8 @@ protected:
 	uint _loop_from_tick;
 	byte _speed;
 	bool _abort;
+
+	uint32 _transitionTimer;
 
 	// This does not get used by us! It is only
 	// here for save/load purposes, and gets
@@ -260,7 +265,7 @@ public:
 	void fixAfterLoad();
 	Part *getActivePart(uint8 part);
 	uint getBeatIndex();
-	int8 getDetune() const { return _detune; }
+	int16 getDetune() const { return _detune; }
 	byte getEffectiveVolume() const { return _vol_eff; }
 	int getID() const { return _id; }
 	MidiDriver *getMidiDriver() const { return _midi; }
@@ -319,7 +324,8 @@ struct Part : public Common::Serializable {
 	byte _volControlSensitivity;
 	int8 _transpose, _transpose_eff;
 	byte _vol, _vol_eff;
-	int8 _detune, _detune_eff;
+	int8 _detune;
+	int16 _detune_eff;
 	int8 _pan, _pan_eff;
 	byte _polyphony;
 	bool _on;
@@ -346,6 +352,7 @@ struct Part : public Common::Serializable {
 	void pitchBend(int16 value);
 	void modulationWheel(byte value);
 	void volume(byte value);
+	void volControlSensitivity(byte value);
 	void pitchBendFactor(byte value);
 	void sustain(bool value);
 	void effectLevel(byte value);
@@ -410,8 +417,8 @@ class IMuseInternal : public IMuse {
 
 protected:
 	const bool _native_mt32;
-	const bool _enable_gs;
 	const bool _newSystem;
+	const bool _dynamicChanAllocation;
 	const MidiDriverFlags _soundType;
 	MidiDriver *_midi_adlib;
 	MidiDriver *_midi_native;
@@ -471,7 +478,7 @@ protected:
 	} _rhyState;
 
 protected:
-	IMuseInternal(ScummEngine *vm, MidiDriverFlags sndType, uint32 initFlags);
+	IMuseInternal(ScummEngine *vm, MidiDriverFlags sndType, bool nativeMT32);
 	~IMuseInternal() override;
 
 	int initialize(OSystem *syst, MidiDriver *nativeMidiDriver, MidiDriver *adlibMidiDriver);
@@ -528,10 +535,17 @@ protected:
 	void fix_players_after_load(ScummEngine *scumm);
 	int setImuseMasterVolume(uint vol);
 
+	MidiChannel *allocateChannel(MidiDriver *midi, byte prio);
+	bool reassignChannelAndResumePart(MidiChannel *mc);
+	void suspendPart(Part *part);
+	void removeSuspendedPart(Part *part);
 	void reallocateMidiChannels(MidiDriver *midi);
 	void setGlobalInstrument(byte slot, byte *data);
 	void copyGlobalInstrument(byte slot, Instrument *dest);
 	bool isNativeMT32() { return _native_mt32; }
+
+protected:
+	Common::Array<Part*> _waitingPartsQueue;
 
 protected:
 	// Internal mutex-free versions of the IMuse and MusicEngine methods.
@@ -564,7 +578,7 @@ public:
 
 public:
 	// Factory function
-	static IMuseInternal *create(ScummEngine *vm, MidiDriver *nativeMidiDriver, MidiDriver *adlibMidiDriver, MidiDriverFlags sndType, uint32 initFlags);
+	static IMuseInternal *create(ScummEngine *vm, MidiDriver *nativeMidiDriver, MidiDriver *adlibMidiDriver, MidiDriverFlags sndType, bool nativeMT32);
 };
 
 } // End of namespace Scumm

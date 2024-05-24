@@ -31,7 +31,6 @@
 
 #include "engines/dialogs.h"
 
-#include "graphics/palette.h"
 #include "graphics/scaler.h"
 #include "graphics/managed_surface.h"
 #include "graphics/thumbnail.h"
@@ -139,6 +138,17 @@ Common::KeymapArray MetaEngine::initKeymaps(const char *target) const {
 	return Keymap::arrayOf(engineKeyMap);
 }
 
+Common::AchievementsPlatform MetaEngine::getAchievementsPlatform(const Common::String &target) const {
+	Common::String extra = ConfMan.get("extra", target);
+	if (extra.contains("GOG")) {
+		return Common::GALAXY_ACHIEVEMENTS;
+	}
+	if (extra.contains("Steam")) {
+		return Common::STEAM_ACHIEVEMENTS;
+	}
+	return Common::UNK_ACHIEVEMENTS;
+}
+
 const Common::AchievementsInfo MetaEngine::getAchievementsInfo(const Common::String &target) const {
 	const Common::AchievementDescriptionList* achievementDescriptionList = getAchievementDescriptionList();
 	if (achievementDescriptionList == nullptr) {
@@ -147,13 +157,7 @@ const Common::AchievementsInfo MetaEngine::getAchievementsInfo(const Common::Str
 
 	Common::String gameId = ConfMan.get("gameid", target);
 
-	Common::AchievementsPlatform platform = Common::UNK_ACHIEVEMENTS;
-	Common::String extra = ConfMan.get("extra", target);
-	if (extra.contains("GOG")) {
-		platform = Common::GALAXY_ACHIEVEMENTS;
-	} else if (extra.contains("Steam")) {
-		platform = Common::STEAM_ACHIEVEMENTS;
-	}
+	const Common::AchievementsPlatform platform = getAchievementsPlatform(target);
 
 	// "(gameId, platform) -> result" search
 	Common::AchievementsInfo result;
@@ -404,7 +408,7 @@ SaveStateList MetaEngine::listSaves(const char *target, bool saveMode) const {
 	SaveStateDescriptor desc(this, autosaveSlot, dummyAutosave);
 	desc.setWriteProtectedFlag(true);
 	desc.setDeletableFlag(false);
-	
+
 	saveList.push_back(desc);
 	Common::sort(saveList.begin(), saveList.end(), SaveStateDescriptorSlotComparator());
 

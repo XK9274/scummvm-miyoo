@@ -173,14 +173,14 @@ void FixedSurfaceRenderer::restorePreviousState() {
 
 #if defined(USE_OPENGL_SHADERS)
 
-static const char *boxVertex =
+static const char *const boxVertex =
 	"attribute vec2 position;\n"
 	"attribute vec2 texcoord;\n"
 	"uniform vec2 offsetXY;\n"
 	"uniform vec2 sizeWH;\n"
 	"uniform vec2 texcrop;\n"
 // OGLES2 on AmigaOS doesn't support uniform booleans
-#if defined(AMIGAOS)
+#if defined(__amigaos4__)
 	"uniform mediump int flipY;\n"
 #else
 	"uniform bool flipY;\n"
@@ -191,7 +191,7 @@ static const char *boxVertex =
 		"vec2 pos = offsetXY + position * sizeWH;\n"
 		"pos.x = pos.x * 2.0 - 1.0;\n"
 		"pos.y = pos.y * 2.0 - 1.0;\n"
-#if defined(AMIGAOS)
+#if defined(__amigaos4__)
 		"if (flipY != 0)\n"
 #else
 		"if (flipY)\n"
@@ -200,7 +200,7 @@ static const char *boxVertex =
 		"gl_Position = vec4(pos, 0.0, 1.0);\n"
 	"}\n";
 
-static const char *boxFragment =
+static const char *const boxFragment =
 	"#ifdef GL_ES\n"
 		"#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
 			"precision highp float;\n"

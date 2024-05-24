@@ -23,6 +23,7 @@
 #define GRAPHICS_MACGUI_MACTEXTCANVAS_H
 
 #include "graphics/macgui/macwindowmanager.h"
+#include "graphics/image-archive.h"
 
 namespace Graphics {
 
@@ -122,6 +123,7 @@ public:
 	bool _macFontMode = true;
 	MacText *_macText;
 	MacFontRun _defaultFormatting;
+	ImageArchive _imageArchive;
 
 public:
 	~MacTextCanvas();
@@ -182,7 +184,7 @@ struct MacTextLine {
 	bool wordContinuation = false;
 	int indent = 0; // in units
 	int firstLineIndent = 0; // in pixels
-	Common::String picfname;
+	Common::Path picfname;
 	Common::U32String picalt, pictitle, picext;
 	uint16 picpercent = 50;
 	Common::Array<MacTextTableRow> *table = nullptr;

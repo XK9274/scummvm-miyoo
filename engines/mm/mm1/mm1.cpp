@@ -26,7 +26,7 @@
 #include "common/system.h"
 #include "common/translation.h"
 #include "engines/util.h"
-#include "graphics/palette.h"
+#include "graphics/paletteman.h"
 #include "mm/mm1/mm1.h"
 #include "mm/mm1/console.h"
 #include "mm/mm1/gfx/gfx.h"
@@ -62,16 +62,16 @@ Common::Error MM1Engine::run() {
 	// Initialize graphics mode
 	initGraphics(320, 200);
 
-	// Setup mixer
-	_sound = new Sound(_mixer);
-	syncSoundSettings();
-
 	if (isEnhanced()) {
 		if (!setupEnhanced())
 			return Common::kNoError;
 	} else {
 		setupNormal();
 	}
+
+	// Setup mixer
+	_sound = new Sound(_mixer);
+	syncSoundSettings();
 
 	// Setup console
 	setDebugger(new Console());
@@ -138,7 +138,7 @@ bool MM1Engine::setupEnhanced() {
 	return true;
 }
 
-bool MM1Engine::canSaveGameStateCurrently() {
+bool MM1Engine::canSaveGameStateCurrently(Common::U32String *msg) {
 	if (!g_events)
 		return false;
 
@@ -147,7 +147,7 @@ bool MM1Engine::canSaveGameStateCurrently() {
 		dynamic_cast<ViewsEnh::Game *>(view) != nullptr;
 }
 
-bool MM1Engine::canLoadGameStateCurrently() {
+bool MM1Engine::canLoadGameStateCurrently(Common::U32String *msg) {
 	if (!g_events)
 		return false;
 

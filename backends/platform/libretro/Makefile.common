@@ -22,6 +22,7 @@ USE_LUA           = 1
 LOAD_RULES_MK     = 1
 USE_TINYGL        = 1
 USE_BINK          = 1
+USE_FRIBIDI       = 1
 POSIX             = 1
 USE_RGB_COLOR     = 1
 ENABLE_VKEYBD     = 1
@@ -89,7 +90,7 @@ SCUMMVM_EXTRA_SUBDIR   := extra
 SCUMMVM_THEME_SUBDIR   := theme
 
 INCLUDES += -I$(SCUMMVM_PATH)
-DEFINES  += -D__LIBRETRO__ -DNONSTANDARD_PORT -DUSE_RGB_COLOR -DUSE_OSD -DFRONTEND_SUPPORTS_RGB565 -DUSE_TRANSLATION -DDETECTION_STATIC -DHAVE_CONFIG_H -DUSE_BINK -DUSE_LUA -DUSE_TINYGL -DENABLE_VKEYBD
+DEFINES  += -D__LIBRETRO__ -DNONSTANDARD_PORT -DUSE_RGB_COLOR -DUSE_OSD -DUSE_TRANSLATION -DDETECTION_STATIC -DHAVE_CONFIG_H -DUSE_BINK -DUSE_LUA -DUSE_TINYGL -DENABLE_VKEYBD
 DEFINES  += -DCORE_NAME=\"$(CORE_NAME)\" -DCORE_EXTENSIONS=\"$(CORE_EXTENSIONS)\" -DSCUMMVM_SYSTEM_SUBDIR=\"$(SCUMMVM_SYSTEM_SUBDIR)\" -DSCUMMVM_EXTRA_SUBDIR=\"$(SCUMMVM_EXTRA_SUBDIR)\" -DSCUMMVM_THEME_SUBDIR=\"$(SCUMMVM_THEME_SUBDIR)\"
 CXXFLAGS += -Wno-long-long -Wno-multichar -Wno-unknown-pragmas -Wno-reorder -Wno-undefined-var-template
 
@@ -111,6 +112,23 @@ else
    DEFINES += -DDISABLE_TEXT_CONSOLE -DRELEASE_BUILD
 endif
 
+ifeq ($(or $(HAVE_OPENGL), $(HAVE_OPENGLES2)), 1)
+	USE_OPENGL := 1
+	USE_OPENGL_GAME := 1
+	USE_OPENGL_SHADERS := 1
+	DEFINES += -DUSE_OPENGL -DUSE_GLAD -DUSE_OPENGL_GAME -DUSE_OPENGL_SHADERS
+ifeq ($(HAVE_OPENGL), 1)
+	DEFINES += -DHAVE_OPENGL
+        $(info Support for OpenGL requested)
+else
+	DEFINES += -DHAVE_OPENGLES2
+        $(info Support for OpenGLES2 requested)
+endif
+else
+	UNAVAILABLE_DEPS += opengl_game_shaders
+        $(info No support for OpenGL/OpenGLES2 requested)
+endif
+
 ######################################################################
 # Libretro settings
 ######################################################################
@@ -122,13 +140,14 @@ LIBRETRO_OBJS := $(CORE_PATH)/libretro-core.o \
 	$(CORE_PATH)/libretro-fs.o \
 	$(CORE_PATH)/libretro-fs-factory.o \
 	$(CORE_PATH)/libretro-os-base.o \
-	$(CORE_PATH)/libretro-os-graphics.o \
 	$(CORE_PATH)/libretro-os-events.o \
 	$(CORE_PATH)/libretro-os-inputs.o \
 	$(CORE_PATH)/libretro-os-utils.o \
 	$(CORE_PATH)/libretro-threads.o \
 	$(CORE_PATH)/libretro-timer.o \
-	$(CORE_PATH)/libretro-mapper.o
+	$(CORE_PATH)/libretro-mapper.o \
+	$(CORE_PATH)/libretro-options-widget.o \
+	$(CORE_PATH)/libretro-graphics.o
 
 OBJS += $(LIBRETRO_OBJS)
 

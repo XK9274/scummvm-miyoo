@@ -46,6 +46,11 @@
 #include "image/bmp.h"
 #endif
 
+#ifdef USE_IMGUI
+#include "backends/imgui/backends/imgui_impl_sdl2.h"
+#include "backends/imgui/backends/imgui_impl_opengl3.h"
+#endif
+
 OpenGLSdlGraphics3dManager::OpenGLSdlGraphics3dManager(SdlEventSource *eventSource, SdlWindow *window, bool supportsFrameBuffer)
 	: SdlGraphicsManager(eventSource, window),
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -307,7 +312,7 @@ void OpenGLSdlGraphics3dManager::setupScreen() {
 		int currentSamples = 0;
 
 		#if defined(__EMSCRIPTEN__)
-		// SDL_GL_MULTISAMPLESAMPLES isn't available on a  WebGL 1.0 context 
+		// SDL_GL_MULTISAMPLESAMPLES isn't available on a  WebGL 1.0 context
 		// (or not bridged in Emscripten?). This forces a windows reset.
 		currentSamples = -1;
 		#else
@@ -322,9 +327,7 @@ void OpenGLSdlGraphics3dManager::setupScreen() {
 		}
 	}
 
-	// Clear the GL context when going from / to the launcher
-	SDL_GL_DeleteContext(_glContext);
-	_glContext = nullptr;
+	deinitializeRenderer();
 
 	if (needsWindowReset) {
 		_window->destroyWindow();
@@ -553,6 +556,21 @@ bool OpenGLSdlGraphics3dManager::createOrUpdateGLContext(uint gameWidth, uint ga
 				_glContext = SDL_GL_CreateContext(_window->getSDLWindow());
 				if (_glContext) {
 					clear = true;
+
+#ifdef USE_IMGUI
+					// Setup Dear ImGui
+					IMGUI_CHECKVERSION();
+					ImGui::CreateContext();
+					ImGui_ImplSDL2_InitForOpenGL(_window->getSDLWindow(), _glContext);
+					ImGui_ImplOpenGL3_Init("#version 110");
+					ImGui::StyleColorsDark();
+					ImGuiIO &io = ImGui::GetIO();
+					io.IniFilename = nullptr;
+					if (_callbacks.init) {
+						_imguiInitCalled = true;
+						_callbacks.init();
+					}
+#endif
 				}
 			}
 
@@ -632,6 +650,7 @@ OpenGL::FrameBuffer *OpenGLSdlGraphics3dManager::createFramebuffer(uint width, u
 }
 
 void OpenGLSdlGraphics3dManager::updateScreen() {
+
 	GLint prevStateViewport[4];
 	glGetIntegerv(GL_VIEWPORT, prevStateViewport);
 	if (_frameBuffer) {
@@ -653,6 +672,33 @@ void OpenGLSdlGraphics3dManager::updateScreen() {
 
 		drawOverlay();
 	}
+
+#ifdef EMSCRIPTEN
+	if (_queuedScreenshot) {
+		SdlGraphicsManager::saveScreenshot();
+		_queuedScreenshot = false;
+	}
+#endif
+
+#if defined(USE_IMGUI) && SDL_VERSION_ATLEAST(2, 0, 0)
+	if (_callbacks.render) {
+		if (!_imguiRenderCalled && _callbacks.init) {
+			_imguiRenderCalled = true;
+			if (!_imguiInitCalled) {
+				_imguiInitCalled = true;
+				_callbacks.init();
+			}
+		}
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+
+		ImGui::NewFrame();
+		_callbacks.render();
+		ImGui::Render();
+
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+#endif
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	SDL_GL_SwapWindow(_window->getSDLWindow());
@@ -784,18 +830,39 @@ void OpenGLSdlGraphics3dManager::showSystemMouseCursor(bool visible) {
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 void OpenGLSdlGraphics3dManager::deinitializeRenderer() {
+#ifdef USE_IMGUI
+	if (_glContext) {
+		if (_callbacks.cleanup) {
+			_callbacks.cleanup();
+		}
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplSDL2_Shutdown();
+		ImGui::DestroyContext();
+	}
+#endif
+
 	SDL_GL_DeleteContext(_glContext);
 	_glContext = nullptr;
 }
 #endif // SDL_VERSION_ATLEAST(2, 0, 0)
 
-bool OpenGLSdlGraphics3dManager::saveScreenshot(const Common::String &filename) const {
+#ifdef EMSCRIPTEN
+void OpenGLSdlGraphics3dManager::saveScreenshot() {
+	_queuedScreenshot = true;
+}
+#endif
+
+bool OpenGLSdlGraphics3dManager::saveScreenshot(const Common::Path &filename) const {
 	// Largely based on the implementation from ScummVM
 	uint width = _overlayScreen->getWidth();
 	uint height = _overlayScreen->getHeight();
 
+#ifdef EMSCRIPTEN
+	const uint lineSize        = width * 4; // RGBA (see comment below)
+#else
 	uint linePaddingSize = width % 4;
 	uint lineSize = width * 3 + linePaddingSize;
+#endif
 
 	Common::DumpFile out;
 	if (!out.open(filename)) {
@@ -804,6 +871,14 @@ bool OpenGLSdlGraphics3dManager::saveScreenshot(const Common::String &filename) 
 
 	Common::Array<uint8> pixels;
 	pixels.resize(lineSize * height);
+#ifdef EMSCRIPTEN
+	// WebGL doesn't support GL_RGB, see https://registry.khronos.org/webgl/specs/latest/1.0/#5.14.12:
+	// "Only two combinations of format and type are accepted. The first is format RGBA and type UNSIGNED_BYTE.
+	// The second is an implementation-chosen format. " and the implementation-chosen formats are buggy:
+	// https://github.com/KhronosGroup/WebGL/issues/2747
+	glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels.front());
+	const Graphics::PixelFormat format(4, 8, 8, 8, 8, 0, 8, 16, 24);
+#else
 
 	if (_frameBuffer) {
 		_frameBuffer->detach();
@@ -818,6 +893,8 @@ bool OpenGLSdlGraphics3dManager::saveScreenshot(const Common::String &filename) 
 #else
 	const Graphics::PixelFormat format(3, 8, 8, 8, 0, 16, 8, 0, 0);
 #endif
+#endif
+
 	Graphics::Surface data;
 	data.init(width, height, lineSize, &pixels.front(), format);
 	data.flipVertical(Common::Rect(width, height));

@@ -205,7 +205,7 @@ void AgiEngine::setVarSecondsTrigger(byte newSeconds) {
 
 // This is called, when one of the timer variables is read
 // We calculate the latest variables, according to current official playtime
-// This is also called in the main loop, because the game needs to be sync'd to 20 cycles per second
+// This is also called in the main loop, because the game needs to be sync'd to 40 cycles per second
 void AgiEngine::inGameTimerUpdate() {
 	uint32 curPlayTimeMilliseconds = inGameTimerGet();
 	uint32 curPlayTimeCycles = curPlayTimeMilliseconds / 25;
@@ -287,13 +287,9 @@ void AgiEngine::inGameTimerUpdate() {
 }
 
 void AgiEngine::decrypt(uint8 *mem, int len) {
-	const uint8 *key;
-	int i;
-
-	key = (getFeatures() & GF_AGDS) ? (const uint8 *)CRYPT_KEY_AGDS
-	                                : (const uint8 *)CRYPT_KEY_SIERRA;
-
-	for (i = 0; i < len; i++)
+	const uint8 *key = (getFeatures() & GF_AGDS) ? (const uint8 *)CRYPT_KEY_AGDS
+	                                             : (const uint8 *)CRYPT_KEY_SIERRA;
+	for (int i = 0; i < len; i++)
 		*(mem + i) ^= *(key + (i % 11));
 }
 

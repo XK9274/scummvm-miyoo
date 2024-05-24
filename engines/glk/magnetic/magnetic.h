@@ -1385,16 +1385,12 @@ public:
 	/**
 	 * The Magnetic engine currently doesn't support loading savegames from the GMM
 	 */
-	bool canLoadGameStateCurrently() override {
-		return false;
-	}
+	bool canLoadGameStateCurrently(Common::U32String *msg = nullptr) override;
 
 	/**
 	 * The Magnetic engine currently doesn't support saving games from the GMM
 	 */
-	bool canSaveGameStateCurrently() override {
-		return false;
-	}
+	bool canSaveGameStateCurrently(Common::U32String *msg = nullptr) override;
 
 	/**
 	 * Load a savegame from the passed Quetzal file chunk stream

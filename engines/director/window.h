@@ -118,7 +118,7 @@ public:
 	// transitions.cpp
 	void exitTransition(TransParams &t, int step, Graphics::ManagedSurface *nextFrame, Common::Rect clipRect);
 	void stepTransition(TransParams &t, int step);
-	void playTransition(uint frame, uint16 transDuration, uint8 transArea, uint8 transChunkSize, TransitionType transType, CastMemberID paletteId);
+	void playTransition(uint frame, RenderMode mode, uint16 transDuration, uint8 transArea, uint8 transChunkSize, TransitionType transType, CastMemberID paletteId);
 	void initTransParams(TransParams &t, Common::Rect &clipRect);
 	void dissolveTrans(TransParams &t, Common::Rect &clipRect, Graphics::ManagedSurface *tmpSurface);
 	void dissolvePatternsTrans(TransParams &t, Common::Rect &clipRect, Graphics::ManagedSurface *tmpSurface);
@@ -137,6 +137,8 @@ public:
 	void setVisible(bool visible, bool silent = false) override;
 	bool setNextMovie(Common::String &movieFilenameRaw);
 
+	void ensureMovieIsLoaded();
+
 	void setWindowType(int type) { _windowType = type; updateBorderType(); }
 	int getWindowType() const { return _windowType; }
 	void setTitleVisible(bool titleVisible) override;
@@ -145,7 +147,7 @@ public:
 	void setModal(bool modal);
 	bool getModal() { return _isModal; };
 	void setFileName(Common::String filename);
-	Common::String getFileName() { return getName(); }
+	Common::String getFileName() { return _fileName.toString(g_director->_dirSeparator); }
 
 	void updateBorderType();
 
@@ -159,13 +161,14 @@ public:
 	uint32 frozenLingoStateCount() { return _frozenLingoStates.size(); };
 	void freezeLingoState();
 	void thawLingoState();
+	LingoState *getLastFrozenLingoState() { return _frozenLingoStates.empty() ? nullptr : _frozenLingoStates[_frozenLingoStates.size() - 1]; }
 	int recursiveEnterFrameCount();
 
 	// events.cpp
 	bool processEvent(Common::Event &event) override;
 
 	// tests.cpp
-	Common::HashMap<Common::String, Movie *> *scanMovies(const Common::String &folder);
+	Common::HashMap<Common::String, Movie *> *scanMovies(const Common::Path &folder);
 	void testFontScaling();
 	void testFonts();
 	void enqueueAllMovies();
@@ -182,10 +185,12 @@ public:
 	Common::String asString() override;
 	bool hasProp(const Common::String &propName) override;
 	Datum getProp(const Common::String &propName) override;
-	bool setProp(const Common::String &propName, const Datum &value) override;
+	bool setProp(const Common::String &propName, const Datum &value, bool force = false) override;
 	bool hasField(int field) override;
 	Datum getField(int field) override;
 	bool setField(int field, const Datum &value) override;
+
+	Common::Path _fileName;
 
 public:
 	Common::List<Channel *> _dirtyChannels;

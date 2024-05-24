@@ -17,12 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 /* Detection tables for Adi 5 / Addy 5 series. */
+/* This Game uses the DEV7 Engine, more Information can be found here: https://wiki.scummvm.org/index.php?title=DEV7_Information */
 
 #ifndef GOB_DETECTION_TABLES_ADI5_H
 #define GOB_DETECTION_TABLES_ADI5_H
+
+//#include "common/translation.h"  // Make release checker happy
 
 // -- French: Adi 5 --
 
@@ -37,8 +46,7 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
-	kFeatures640x480,
+	kFeatures800x600,
 	0,0,0
 },
 
@@ -53,12 +61,26 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
-	kFeatures640x480,
+	kFeatures800x600,
 	0,0,0
 },
 
 // -- German: Addy 5 --
+
+{
+	{
+
+		"adi5",
+		_s("Missing game code"), // Addy 5 5.01 (Engine: DEV7 version unknown)
+		AD_ENTRY1s("adi5.stk", "ec2d6a05d13bec1b4dcfa18d88e317c6", 627942),
+		DE_DEU,
+		kPlatformWindows,
+		ADGF_UNSUPPORTED,
+		GUIO0()
+	},
+	kFeatures800x600,
+	0,0,0
+},
 
 {
 	{
@@ -71,8 +93,21 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
-	kFeatures640x480,
+	kFeatures800x600,
+	0,0,0
+},
+{
+	{
+
+		"adi5",
+		_s("Missing game code"), // Addy 5 Mathe Demo (Engine: DEV7 version unknown)
+		AD_ENTRY1s("adi5.stk", "72fb3c7807845e414d107aa4612f95df", 141858),
+		DE_DEU,
+		kPlatformWindows,
+		ADGF_UNSUPPORTED | ADGF_DEMO,
+		GUIO0()
+	},
+	kFeatures800x600,
 	0,0,0
 },
 

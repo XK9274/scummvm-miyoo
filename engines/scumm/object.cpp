@@ -148,8 +148,8 @@ void ScummEngine::setOwnerOf(int obj, int owner) {
 		// For now we follow a more defensive route: We perform the check
 		// if ss->number is small enough.
 
-		ss = &vm.slot[_currentScript];
-		if (ss->where == WIO_INVENTORY) {
+		ss = (_currentScript != 0xFF) ? &vm.slot[_currentScript] : nullptr;
+		if (ss != nullptr && ss->where == WIO_INVENTORY) {
 			if (ss->number < _numInventory && _inventory[ss->number] == obj) {
 				error("Odd setOwnerOf case #1: Please report to Fingolfin where you encountered this");
 				putOwner(obj, 0);
@@ -569,7 +569,7 @@ int ScummEngine::findObject(int x, int y) {
 			if (b == 0) {
 #ifdef ENABLE_HE
 				if (_game.heversion >= 71) {
-					if (((ScummEngine_v71he *)this)->_wiz->polygonHit(_objs[i].obj_nr, x, y))
+					if (((ScummEngine_v71he *)this)->_wiz->testForObjectPolygon(_objs[i].obj_nr, x, y))
 						return _objs[i].obj_nr;
 				}
 #endif
@@ -1213,7 +1213,7 @@ void ScummEngine_v6::clearDrawQueues() {
 void ScummEngine_v71he::clearDrawQueues() {
 	ScummEngine_v6::clearDrawQueues();
 
-	_wiz->polygonClear();
+	_wiz->deleteLocalPolygons();
 }
 
 void ScummEngine_v80he::clearDrawQueues() {

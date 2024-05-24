@@ -341,12 +341,12 @@ uint OpenGLGraphicsManager::getScaleFactor() const {
 #endif
 
 #if !USE_FORCED_GLES
-bool OpenGLGraphicsManager::setShader(const Common::String &fileName) {
+bool OpenGLGraphicsManager::setShader(const Common::Path &fileName) {
 	assert(_transactionMode != kTransactionNone);
 
 	// Special case for the 'default' shader
-	if (fileName == "default")
-		_currentState.shader = "";
+	if (fileName == Common::Path("default", Common::Path::kNoSeparator))
+		_currentState.shader.clear();
 	else
 		_currentState.shader = fileName;
 
@@ -354,7 +354,7 @@ bool OpenGLGraphicsManager::setShader(const Common::String &fileName) {
 }
 #endif
 
-bool OpenGLGraphicsManager::loadShader(const Common::String &fileName) {
+bool OpenGLGraphicsManager::loadShader(const Common::Path &fileName) {
 #if !USE_FORCED_GLES
 	if (!_libretroPipeline) {
 		warning("Libretro is not supported");
@@ -368,7 +368,7 @@ bool OpenGLGraphicsManager::loadShader(const Common::String &fileName) {
 	// Load selected shader preset
 	if (!fileName.empty()) {
 		if (!_libretroPipeline->open(fileName, shaderSet)) {
-			warning("Failed to load shader %s", fileName.c_str());
+			warning("Failed to load shader %s", fileName.toString().c_str());
 			return false;
 		}
 	} else {
@@ -489,7 +489,7 @@ OSystem::TransactionError OpenGLGraphicsManager::endGFXTransaction() {
 				}
 				// If the shader failed and we had not a valid old state, try to unset the shader and do it again
 				if (!shaderOK && !_currentState.shader.empty()) {
-					_currentState.shader = "";
+					_currentState.shader.clear();
 					_transactionMode = kTransactionRollback;
 					continue;
 				}
@@ -633,7 +633,7 @@ void OpenGLGraphicsManager::renderCursor() {
 }
 
 void OpenGLGraphicsManager::updateScreen() {
-	if (!_gameScreen) {
+	if (!_gameScreen || !_pipeline) {
 		return;
 	}
 
@@ -700,7 +700,7 @@ void OpenGLGraphicsManager::updateScreen() {
 	bool drawCursor = _cursorVisible && _cursor;
 
 	// Alpha blending is disabled when drawing the screen
-	_targetBuffer->enableBlend(Framebuffer::kBlendModeDisabled);
+	_targetBuffer->enableBlend(Framebuffer::kBlendModeOpaque);
 
 	// First step: Draw the (virtual) game screen.
 	_pipeline->drawTexture(_gameScreen->getGLTexture(), _gameDrawRect.left, _gameDrawRect.top, _gameDrawRect.width(), _gameDrawRect.height());
@@ -1739,14 +1739,18 @@ const Graphics::Font *OpenGLGraphicsManager::getFontOSD() const {
 }
 #endif
 
-bool OpenGLGraphicsManager::saveScreenshot(const Common::String &filename) const {
+bool OpenGLGraphicsManager::saveScreenshot(const Common::Path &filename) const {
 	const uint width  = _windowWidth;
 	const uint height = _windowHeight;
 
 	// GL_PACK_ALIGNMENT is 4 so each row must be aligned to 4 bytes boundary
 	// A line of a BMP image must also have a size divisible by 4.
 	// Calculate lineSize as the next multiple of 4 after the real line size
+#ifdef EMSCRIPTEN
+	const uint lineSize        = width * 4; // RGBA (see comment below)
+#else
 	const uint lineSize        = (width * 3 + 3) & ~3;
+#endif
 
 	Common::DumpFile out;
 	if (!out.open(filename)) {
@@ -1755,12 +1759,21 @@ bool OpenGLGraphicsManager::saveScreenshot(const Common::String &filename) const
 
 	Common::Array<uint8> pixels;
 	pixels.resize(lineSize * height);
+#ifdef EMSCRIPTEN
+	// WebGL doesn't support GL_RGB, see https://registry.khronos.org/webgl/specs/latest/1.0/#5.14.12:
+	// "Only two combinations of format and type are accepted. The first is format RGBA and type UNSIGNED_BYTE.
+	// The second is an implementation-chosen format. " and the implementation-chosen formats are buggy:
+	// https://github.com/KhronosGroup/WebGL/issues/2747
+	GL_CALL(glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels.front()));
+	const Graphics::PixelFormat format(4, 8, 8, 8, 8, 0, 8, 16, 24);
+#else
 	GL_CALL(glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &pixels.front()));
 
 #ifdef SCUMM_LITTLE_ENDIAN
 	const Graphics::PixelFormat format(3, 8, 8, 8, 0, 0, 8, 16, 0);
 #else
 	const Graphics::PixelFormat format(3, 8, 8, 8, 0, 16, 8, 0, 0);
+#endif
 #endif
 	Graphics::Surface data;
 	data.init(width, height, lineSize, &pixels.front(), format);

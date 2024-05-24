@@ -60,7 +60,7 @@ void InventoryBox::init() {
 	moveTo(bootSummary->inventoryBoxScreenPosition);
 	g_nancy->_resource->loadImage(_inventoryData->inventoryBoxIconsImageName, _iconsSurface);
 
-	_fullInventorySurface.create(_screenPosition.width(), _screenPosition.height() * ((g_nancy->getStaticData().numItems / 4) + 1), g_nancy->_graphicsManager->getScreenPixelFormat());
+	_fullInventorySurface.create(_screenPosition.width(), _screenPosition.height() * ((g_nancy->getStaticData().numItems / 4) + 1), g_nancy->_graphics->getScreenPixelFormat());
 	Common::Rect sourceRect = _screenPosition;
 	sourceRect.moveTo(0, 0);
 	_drawSurface.create(_fullInventorySurface, sourceRect);
@@ -112,13 +112,13 @@ void InventoryBox::handleInput(NancyInput &input) {
 	for (uint i = 0; i < 4; ++i) {
 		if (_itemHotspots[i].hotspot.contains(input.mousePos)) {
 			if (NancySceneState.getHeldItem() != -1) {
-				g_nancy->_cursorManager->setCursorType(CursorManager::kHotspotArrow);
+				g_nancy->_cursor->setCursorType(CursorManager::kHotspotArrow);
 				if (input.input & NancyInput::kLeftMouseButtonUp) {
 					NancySceneState.addItemToInventory(NancySceneState.getHeldItem());
 					g_nancy->_sound->playSound("BULS");
 				}
 			} else if (_itemHotspots[i].itemID != -1) {
-				g_nancy->_cursorManager->setCursorType(CursorManager::kHotspotArrow);
+				g_nancy->_cursor->setCursorType(CursorManager::kHotspotArrow);
 
 				hoveredHotspot = i;
 
@@ -250,6 +250,13 @@ void InventoryBox::onScrollbarMove() {
 	_needsRedraw = true;
 }
 
+InventoryBox::Curtains::Curtains() :
+	RenderObject(10),
+	_soundTriggered(false),
+	_areOpen(false),
+	_curFrame(0),
+	_numFrames(g_nancy->getGameType() == kGameTypeVampire ? 10 : 7) {}
+
 void InventoryBox::Curtains::init() {
 	auto *inventoryData = GetEngineData(INV);
 	assert(inventoryData);
@@ -257,11 +264,11 @@ void InventoryBox::Curtains::init() {
 	moveTo(inventoryData->curtainsScreenPosition);
 	Common::Rect bounds = _screenPosition;
 	bounds.moveTo(0, 0);
-	_drawSurface.create(bounds.width(), bounds.height(), g_nancy->_graphicsManager->getInputPixelFormat());
+	_drawSurface.create(bounds.width(), bounds.height(), g_nancy->_graphics->getInputPixelFormat());
 
 	if (g_nancy->getGameType() == kGameTypeVampire) {
 		uint8 palette[256 * 3];
-		g_nancy->_graphicsManager->_object0.grabPalette(palette, 0, 256);
+		g_nancy->_graphics->_object0.grabPalette(palette, 0, 256);
 		_drawSurface.setPalette(palette, 0, 256);
 	}
 
@@ -276,7 +283,7 @@ void InventoryBox::Curtains::init() {
 void InventoryBox::Curtains::updateGraphics() {
 	Time time = g_nancy->getTotalPlayTime();
 	if (_areOpen) {
-		if (_curFrame < g_nancy->getStaticData().numCurtainAnimationFrames && time > _nextFrameTime) {
+		if (_curFrame < _numFrames && time > _nextFrameTime) {
 			auto *inventoryData = GetEngineData(INV);
 			assert(inventoryData);
 
@@ -303,17 +310,17 @@ void InventoryBox::Curtains::updateGraphics() {
 		}
 	}
 
-	if (_curFrame == 0 || _curFrame == g_nancy->getStaticData().numCurtainAnimationFrames) {
+	if (_curFrame == 0 || _curFrame == _numFrames) {
 		_soundTriggered = false;
 	}
 }
 
 void InventoryBox::Curtains::setAnimationFrame(uint frame) {
-	Graphics::ManagedSurface &_object0 = g_nancy->_graphicsManager->_object0;
+	Graphics::ManagedSurface &_object0 = g_nancy->_graphics->_object0;
 	Common::Rect srcRect;
 	Common::Point destPoint;
 
-	if (frame > (uint)(g_nancy->getStaticData().numCurtainAnimationFrames - 1)) {
+	if (frame > (uint)(_numFrames - 1)) {
 		// TVD keeps the last frame visible
 		if (g_nancy->getGameType() > kGameTypeVampire) {
 			setVisible(false);
@@ -327,7 +334,7 @@ void InventoryBox::Curtains::setAnimationFrame(uint frame) {
 	auto *inventoryData = GetEngineData(INV);
 	assert(inventoryData);
 
-	_drawSurface.clear(g_nancy->_graphicsManager->getTransColor());
+	_drawSurface.clear(g_nancy->_graphics->getTransColor());
 
 	// Draw left curtain
 	srcRect = inventoryData->curtainAnimationSrcs[frame * 2];

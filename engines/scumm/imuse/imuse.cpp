@@ -43,10 +43,10 @@ namespace Scumm {
 //
 ////////////////////////////////////////
 
-IMuseInternal::IMuseInternal(ScummEngine *vm, MidiDriverFlags sndType, uint32 initFlags) :
-	_native_mt32((initFlags & kFlagNativeMT32) || (initFlags & kFlagRolandGS)), // GS Mode emulates MT-32 on a GS device, so _native_mt32 should always be true
-	_enable_gs(initFlags & kFlagRolandGS),
-	_newSystem(initFlags & kFlagNewSystem),
+IMuseInternal::IMuseInternal(ScummEngine *vm, MidiDriverFlags sndType, bool nativeMT32) :
+	_native_mt32(nativeMT32),
+	_newSystem(vm && vm->_game.id == GID_SAMNMAX),
+	_dynamicChanAllocation(vm && (vm->_game.id != GID_MONKEY2 && vm->_game.id != GID_INDY4)), // For the non-iMuse games that (unfortunately) run on this player we need to pretend we're on the more modern version
 	_midi_adlib(nullptr),
 	_midi_native(nullptr),
 	_sysex(nullptr),
@@ -705,6 +705,18 @@ int IMuseInternal::stopAllSounds_internal() {
 }
 
 int IMuseInternal::getSoundStatus_internal(int sound, bool ignoreFadeouts) const {
+	if (_game_id != GID_MONKEY2) {
+		// The whole fadeout checking / ignoring is not present in any of the original
+		// drivers, but necessary as a WORKAROUND for a bug in Monkey Island 2 that also
+		// happens with the original interpreter (bug no. 385: "No music if room
+		// transition is too fast"). The bug is caused by sloppy scripting, but probably
+		// wouldn't ever be seen on machines of that era, when the loading time for a
+		// room change would take longer than the fadeout time.
+		// Since the code is objectively wrong and the workaround is not known to be
+		// needed elsewhere, we restrict it to Monkey Island 2.
+		ignoreFadeouts = false;
+	}
+
 	const Player *player = _players;
 	for (int i = ARRAYSIZE(_players); i; i--, player++) {
 		if (player->isActive() && (!ignoreFadeouts || !player->isFadingOut())) {
@@ -853,14 +865,20 @@ int32 IMuseInternal::doCommand_internal(int numargs, int a[]) {
 			error("doCommand(%d [%d/%d], %d, %d, %d, %d, %d, %d, %d) unsupported", a[0], param, cmd, a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
 		}
 	} else if (param == 1) {
+		Part *part = nullptr;
 		if ((1 << cmd) & 0x783FFF) {
 			player = findActivePlayer(a[1]);
 			if (!player)
 				return -1;
-			if ((1 << cmd) & (1 << 11 | 1 << 22)) {
+			if (_newSystem && cmd == 5) {
+				assert(a[3] >= 0 && a[3] <= 15);
+				part = player->getPart(a[2]);
+				if (!part)
+					return -1;
+			} else if (((1 << cmd) & (1 << 11 | 1 << 22))) {
 				assert(a[2] >= 0 && a[2] <= 15);
-				player = (Player *)player->getPart(a[2]);
-				if (!player)
+				part = player->getPart(a[2]);
+				if (!part)
 					return -1;
 			}
 		}
@@ -910,12 +928,20 @@ int32 IMuseInternal::doCommand_internal(int numargs, int a[]) {
 		case 2:
 			return player->setVolume(a[2]);
 		case 3:
-			player->setPan(a[2]);
+			if (_newSystem)
+				player->setSpeed(a[3]);
+			else
+				player->setPan(a[2]);
 			return 0;
 		case 4:
 			return player->setTranspose(a[2], a[3]);
 		case 5:
-			player->setDetune(a[2]);
+			if (_newSystem) {
+				assert(part);
+				part->volControlSensitivity(a[4]);
+			} else {
+				player->setDetune(a[2]);
+			}
 			return 0;
 		case 6:
 			// WORKAROUND for bug #2242. When playing the
@@ -946,7 +972,8 @@ int32 IMuseInternal::doCommand_internal(int numargs, int a[]) {
 			player->clearLoop();
 			return 0;
 		case 11:
-			((Part *)player)->set_onoff(a[3] != 0);
+			assert(part);
+			part->set_onoff(a[3] != 0);
 			return 0;
 		case 12:
 			return player->setHook(a[2], a[3], a[4]);
@@ -965,7 +992,8 @@ int32 IMuseInternal::doCommand_internal(int numargs, int a[]) {
 		case 21:
 			return -1;
 		case 22:
-			((Part *)player)->volume(a[3]);
+			assert(part);
+			part->volume(a[3]);
 			return 0;
 		case 23:
 			return query_queue(a[1]);
@@ -1098,10 +1126,10 @@ int IMuseInternal::set_volchan(int sound, int volchan) {
 		}
 		if (sameid == nullptr)
 			return -1;
-		if (num >= r)
+		if (best != nullptr && num >= r)
 			best->clear();
-		player->_vol_chan = volchan;
-		player->setVolume(player->getVolume());
+		sameid->_vol_chan = volchan;
+		sameid->setVolume(sameid->getVolume());
 		return 0;
 	}
 }
@@ -1398,8 +1426,8 @@ int IMuseInternal::get_volchan_entry(uint a) {
 	return -1;
 }
 
-IMuseInternal *IMuseInternal::create(ScummEngine *vm, MidiDriver *nativeMidiDriver, MidiDriver *adlibMidiDriver, MidiDriverFlags sndType, uint32 initFlags) {
-	IMuseInternal *i = new IMuseInternal(vm, sndType, initFlags);
+IMuseInternal *IMuseInternal::create(ScummEngine *vm, MidiDriver *nativeMidiDriver, MidiDriver *adlibMidiDriver, MidiDriverFlags sndType, bool nativeMT32) {
+	IMuseInternal *i = new IMuseInternal(vm, sndType, nativeMT32);
 	i->initialize(vm->_system, nativeMidiDriver, adlibMidiDriver);
 	return i;
 }
@@ -1526,11 +1554,72 @@ void IMuseInternal::midiTimerCallback(void *data) {
 	info->imuse->on_timer(info->driver);
 }
 
+MidiChannel *IMuseInternal::allocateChannel(MidiDriver *midi, byte prio) {
+	MidiChannel *mc = midi->allocateChannel();
+	if (mc)
+		return mc;
+
+	Part *best = nullptr;
+	for (Part *part = _parts; part < &_parts[ARRAYSIZE(_parts)]; ++part) {
+		if (!part->_percussion && part->_mc && part->_mc->device() == midi && part->_pri_eff <= prio) {
+			prio = part->_pri_eff;
+			best = part;
+		}
+	}
+
+	if (best) {
+		best->off();
+		suspendPart(best);
+		mc = midi->allocateChannel();
+	}
+
+	return mc;
+}
+
+bool IMuseInternal::reassignChannelAndResumePart(MidiChannel *mc) {
+	while (!_waitingPartsQueue.empty()) {
+		Part *part = _waitingPartsQueue.remove_at(0);
+		if (part->_player) {
+			part->_mc = mc;
+			part->sendAll();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void IMuseInternal::suspendPart(Part *part) {
+	if (_waitingPartsQueue.empty()) {
+		_waitingPartsQueue.push_back(part);
+		return;
+	}
+
+	for (Common::Array<Part*>::iterator it = _waitingPartsQueue.begin(); it != _waitingPartsQueue.end(); ++it) {
+		if ((*it)->_pri_eff > part->_pri_eff)
+			continue;
+		_waitingPartsQueue.insert(it, part);
+		return;
+	}
+}
+
+void IMuseInternal::removeSuspendedPart(Part *part) {
+	for (Common::Array<Part*>::iterator it = _waitingPartsQueue.begin(); it != _waitingPartsQueue.end(); ++it) {
+		if (*it != part)
+			continue;
+		_waitingPartsQueue.erase(it);
+		return;
+	}
+}
+
 void IMuseInternal::reallocateMidiChannels(MidiDriver *midi) {
 	Part *part, *hipart;
 	int i;
 	byte hipri, lopri;
 	Part *lopart;
+
+	if (!_dynamicChanAllocation)
+		return;
 
 	while (true) {
 		hipri = 0;
@@ -1610,8 +1699,8 @@ void IMuseInternal::copyGlobalInstrument(byte slot, Instrument *dest) {
  * of the implementation to be changed and updated
  * without requiring a recompile of the client code.
  */
-IMuse *IMuse::create(ScummEngine *vm, MidiDriver *nativeMidiDriver, MidiDriver *adlibMidiDriver, MidiDriverFlags sndType, uint32 flags) {
-	IMuseInternal *engine = IMuseInternal::create(vm, nativeMidiDriver, adlibMidiDriver, sndType, flags);
+IMuse *IMuse::create(ScummEngine *vm, MidiDriver *nativeMidiDriver, MidiDriver *adlibMidiDriver, MidiDriverFlags sndType, bool nativeMT32) {
+	IMuseInternal *engine = IMuseInternal::create(vm, nativeMidiDriver, adlibMidiDriver, sndType, nativeMT32);
 	return engine;
 }
 

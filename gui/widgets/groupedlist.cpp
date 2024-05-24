@@ -210,7 +210,7 @@ void GroupedListWidget::setSelected(int item) {
 		return;
 
 	// We only have to do something if the widget is enabled and the selection actually changes
-	if (isEnabled() && (_selectedItem == -1 || _listIndex[_selectedItem] != item)) {
+	if (isEnabled() && (_selectedItem == -1 || _selectedItem >= (int)_list.size() || _listIndex[_selectedItem] != item)) {
 		if (_editMode)
 			abortEditMode();
 
@@ -291,6 +291,44 @@ void GroupedListWidget::handleCommand(CommandSender *sender, uint32 cmd, uint32 
 		break;
 	default:
 		break;
+	}
+}
+
+int GroupedListWidget::getNextPos(int oldSel) {
+	int pos = 0;
+
+	// Find the position of the new selection in the list. 
+	for (uint i = 0; i < _listIndex.size(); i++) {
+		if (_listIndex[i] == oldSel) {
+			return pos;
+		} else if (_listIndex[i] > 0) {
+			pos++;
+		}
+	}
+
+	return -1;
+}
+
+int GroupedListWidget::getNewSel(int index) {   
+	// If the list is empty, return -1
+	if (_listIndex.size() == 1){
+		return -1;
+	}
+
+	// Find the index-th item in the list
+	for (uint i = 0; i < _listIndex.size(); i++) {
+		if (index == 0 && _listIndex[i] >= 0) {
+			return _listIndex[i];
+		} else if (_listIndex[i] >= 0) {
+			index--;
+		}
+	}
+
+	// If we are at the end of the list, return the last item.
+	if (index == 0) {
+		return _listIndex[_listIndex.size() - 1];
+	} else {
+		return -1;
 	}
 }
 

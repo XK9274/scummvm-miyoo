@@ -55,7 +55,7 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-void FEIMasksXObj::open(int type) {
+void FEIMasksXObj::open(ObjectType type, const Common::Path &path) {
    if (type == kXObj) {
 		FEIMasksXObject::initMethods(xlibMethods);
 		FEIMasksXObject *xobj = new FEIMasksXObject(kXObj);
@@ -63,14 +63,14 @@ void FEIMasksXObj::open(int type) {
    }
 }
 
-void FEIMasksXObj::close(int type) {
+void FEIMasksXObj::close(ObjectType type) {
    if (type == kXObj) {
 		FEIMasksXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
    }
 }
 
-FEIMasksXObject::FEIMasksXObject(ObjectType ObjectType) : Object<FEIMasksXObject>("FEIMasksXObj") {
+FEIMasksXObject::FEIMasksXObject(ObjectType ObjectType) : Object<FEIMasksXObject>("FEIMasks") {
 	_objType = ObjectType;
 }
 

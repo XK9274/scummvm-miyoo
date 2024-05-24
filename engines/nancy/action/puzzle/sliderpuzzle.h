@@ -43,20 +43,22 @@ public:
 	void execute() override;
 	void handleInput(NancyInput &input) override;
 
-	const SPUZ *_spuzData = nullptr;
 	SliderPuzzleData *_puzzleState = nullptr;
 
-	Common::String _imageName;
+	Common::Path _imageName;
 	uint16 _width = 0;
 	uint16 _height = 0;
 	Common::Array<Common::Array<Common::Rect>> _srcRects;
 	Common::Array<Common::Array<Common::Rect>> _destRects;
+	Common::Array<Common::Array<int16>> _startTileOrder;
 	Common::Array<Common::Array<int16>> _correctTileOrder;
 	SoundDescription _clickSound;
 	SceneChangeWithFlag _solveExitScene;
 	SoundDescription _solveSound;
 	SceneChangeWithFlag _exitScene;
 	Common::Rect _exitHotspot;
+
+	bool _retainState = true;
 
 	SolveState _solveState = kNotSolved;
 	Graphics::ManagedSurface _image;

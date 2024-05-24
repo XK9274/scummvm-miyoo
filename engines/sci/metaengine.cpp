@@ -181,8 +181,8 @@ static bool isSierraDemo(const Common::String &sierraId, uint32 resourceCount) {
 }
 
 /**
- * Converts the builtin Sierra game IDs to the ones we use in ScummVM
- * @param[in] sierraId		The internal game ID
+ * Converts the builtin Sierra game object name to the ID we use in ScummVM
+ * @param[in] sierraId		The internal `Game` object's name
  * @param[in] sciVersion    The detected SCI version
  * @param[in] resMan		The resource manager
  * @param[in] isDemo        Returns a flag if it's a demo
@@ -261,7 +261,8 @@ static Common::String convertSierraGameId(Common::String sierraId, SciVersion sc
 		return "qfg3";
 	}
 
-	return sierraId;
+	// We don't recognize the game object name; assume it's a fan game.
+	return "sci-fanmade";
 }
 
 } // End of namespace Sci
@@ -449,7 +450,7 @@ Common::Error SciEngine::saveGameState(int slot, const Common::String &desc, boo
 	return res ? Common::kNoError : Common::kWritingFailed;
 }
 
-bool SciEngine::canLoadGameStateCurrently() {
+bool SciEngine::canLoadGameStateCurrently(Common::U32String *msg) {
 #ifdef ENABLE_SCI32
 	const Common::String &guiOptions = ConfMan.get("guioptions");
 	if (getSciVersion() >= SCI_VERSION_2) {
@@ -464,7 +465,7 @@ bool SciEngine::canLoadGameStateCurrently() {
 	return !_gamestate->executionStackBase;
 }
 
-bool SciEngine::canSaveGameStateCurrently() {
+bool SciEngine::canSaveGameStateCurrently(Common::U32String *msg) {
 	return
 		_features->canSaveFromGMM() &&
 		!_gamestate->executionStackBase &&
@@ -678,7 +679,7 @@ ADDetectedGame SciMetaEngine::fallbackDetectExtern(uint md5Bytes, const FileMap 
 		platform = Common::kPlatformAmiga;
 
 	// Determine the game id
-	const Common::String sierraGameId = resMan.findSierraGameId(platform == Common::kPlatformMacintosh);
+	const Common::String sierraGameId = resMan.findSierraGameId();
 
 	// If we don't have a game id, the game is not SCI
 	if (sierraGameId.empty())

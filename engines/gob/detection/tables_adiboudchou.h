@@ -17,12 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 /* Detection tables for Adiboud'chou / Addy Buschu series. */
+/* This Game uses the DEV7 Engine, more Information can be found here: https://wiki.scummvm.org/index.php?title=DEV7_Information */
 
 #ifndef GOB_DETECTION_TABLES_ADIBOUDCHOU_H
 #define GOB_DETECTION_TABLES_ADIBOUDCHOU_H
+
+//#include "common/translation.h"  // Make release checker happy
 
 // -- French: Adiboud'chou series --
 
@@ -38,8 +47,7 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
-	kFeatures640x480,
+	kFeatures800x600,
 	0, 0, 0
 },
 
@@ -54,8 +62,7 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
-	kFeatures640x480,
+	kFeatures800x600,
 	0,0,0
 },
 {
@@ -68,8 +75,7 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
-	kFeatures640x480,
+	kFeatures800x600,
 	0,0,0
 },
 {
@@ -82,8 +88,7 @@
 		ADGF_UNSUPPORTED,
 		GUIO0()
 	},
-	kGameTypeNone,
-	kFeatures640x480,
+	kFeatures800x600,
 	0,0,0
 },
 

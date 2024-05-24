@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #ifndef TOON_TEXT_H
@@ -31,7 +38,7 @@ public:
 	TextResource(ToonEngine *vm);
 	~TextResource(void);
 
-	bool loadTextResource(const Common::String &fileName);
+	bool loadTextResource(const Common::Path &fileName);
 	char *getText(int32 id);
 	int32 getId(int32 offset);
 	int32 getNext(int32 offset);

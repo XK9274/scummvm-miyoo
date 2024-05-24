@@ -91,7 +91,7 @@ void SetupMenu::registerGraphics() {
 
 const Common::String SetupMenu::getToggleConfManKey(uint id) {
 	GameType gameType = g_nancy->getGameType();
-			
+
 	if (gameType == kGameTypeVampire) {
 		// Note that toggle id 1 (interlaced video) is ignored since we don't support that option
 		switch (id) {
@@ -134,14 +134,14 @@ void SetupMenu::init() {
 	if (g_nancy->getGameType() == kGameTypeVampire) {
 		// There is a setup.bmp an the top directory of the first disk,
 		// which we need to avoid
-		_background.init("ART/" + _setupData->_imageName);
+		_background.init(Common::Path("ART/").joinInPlace(_setupData->_imageName));
 	} else {
 		_background.init(_setupData->_imageName);
 	}
 
 	_background.registerGraphics();
 
-	g_nancy->_cursorManager->setCursorType(CursorManager::kNormalArrow);
+	g_nancy->_cursor->setCursorType(CursorManager::kNormalArrow);
 	g_nancy->setMouseEnabled(true);
 
 	g_nancy->_sound->stopSound("MSND");
@@ -156,7 +156,7 @@ void SetupMenu::init() {
 	for (uint i = 0; i < _setupData->_buttonDests.size() - 1; ++i) {
 		_toggles.push_back(new UI::Toggle(5, _background._drawSurface,
 			_setupData->_buttonDownSrcs[i], _setupData->_buttonDests[i]));
-		
+
 		_toggles.back()->init();
 	}
 
@@ -216,7 +216,7 @@ void SetupMenu::run() {
 			default:
 				break;
 			}
-			
+
 			g_system->getMixer()->setVolumeForSoundType(type, endPos * 255);
 		}
 	}
@@ -242,7 +242,7 @@ void SetupMenu::run() {
 		}
 	}
 
-	g_nancy->_cursorManager->setCursorType(CursorManager::kNormalArrow);
+	g_nancy->_cursor->setCursorType(CursorManager::kNormalArrow);
 }
 
 void SetupMenu::stop() {

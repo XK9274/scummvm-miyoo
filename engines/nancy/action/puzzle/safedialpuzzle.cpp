@@ -41,8 +41,8 @@ void SafeDialPuzzle::init() {
 	g_nancy->_resource->loadImage(_resetImageName, _resetImage);
 
 	Common::Rect screenBounds = NancySceneState.getViewport().getBounds();
-	_drawSurface.create(screenBounds.width(), screenBounds.height(), g_nancy->_graphicsManager->getInputPixelFormat());
-	_drawSurface.clear(g_nancy->_graphicsManager->getTransColor());
+	_drawSurface.create(screenBounds.width(), screenBounds.height(), g_nancy->_graphics->getInputPixelFormat());
+	_drawSurface.clear(g_nancy->_graphics->getTransColor());
 	setTransparent(true);
 	setVisible(true);
 	moveTo(screenBounds);
@@ -63,7 +63,7 @@ void SafeDialPuzzle::updateGraphics() {
 	}
 
 	if (_animState == kReset && _nextAnim < g_nancy->getTotalPlayTime()) {
-		if (_resetImageName.size()) {
+		if (!_resetImageName.empty()) {
 			_animState = kResetAnim;
 		} else {
 			_animState = kNone;
@@ -92,7 +92,7 @@ void SafeDialPuzzle::readData(Common::SeekableReadStream &stream) {
 	readFilename(stream, _imageName2);
 	readFilename(stream, _resetImageName);
 
-	_numInbetweens = (_imageName2.size() ? 1 : 0);
+	_numInbetweens = (!_imageName2.empty() ? 1 : 0);
 
 	uint16 num = 10;
 	if (g_nancy->getGameType() >= kGameTypeNancy4) {
@@ -195,7 +195,7 @@ void SafeDialPuzzle::execute() {
 		g_nancy->_sound->stopSound(_resetSound);
 
 		finishExecution();
-		
+
 		break;
 	}
 }
@@ -206,7 +206,7 @@ void SafeDialPuzzle::handleInput(NancyInput &input) {
 	}
 
 	if (NancySceneState.getViewport().convertViewportToScreen(_exitHotspot).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(g_nancy->_cursorManager->_puzzleExitCursor);
+		g_nancy->_cursor->setCursorType(g_nancy->_cursor->_puzzleExitCursor);
 
 		if (input.input & NancyInput::kLeftMouseButtonUp) {
 			_state = kActionTrigger;
@@ -218,7 +218,7 @@ void SafeDialPuzzle::handleInput(NancyInput &input) {
 			return;
 		}
 
-		g_nancy->_cursorManager->setCursorType(_useMoveArrows ? CursorManager::kMoveLeft : CursorManager::kRotateCCW);
+		g_nancy->_cursor->setCursorType(_useMoveArrows ? CursorManager::kMoveLeft : CursorManager::kRotateCCW);
 
 		if (!g_nancy->_sound->isSoundPlaying(_spinSound) && input.input & NancyInput::kLeftMouseButtonUp && _nextAnim < g_nancy->getTotalPlayTime() &&
 				_animState != kReset && _animState != kResetAnim) {
@@ -241,7 +241,7 @@ void SafeDialPuzzle::handleInput(NancyInput &input) {
 			return;
 		}
 
-		g_nancy->_cursorManager->setCursorType(_useMoveArrows ? CursorManager::kMoveRight : CursorManager::kRotateCW);
+		g_nancy->_cursor->setCursorType(_useMoveArrows ? CursorManager::kMoveRight : CursorManager::kRotateCW);
 
 		if (!g_nancy->_sound->isSoundPlaying(_spinSound) && input.input & NancyInput::kLeftMouseButtonUp && _nextAnim < g_nancy->getTotalPlayTime() &&
 				_animState != kReset && _animState != kResetAnim) {
@@ -264,9 +264,9 @@ void SafeDialPuzzle::handleInput(NancyInput &input) {
 	if (g_nancy->_sound->isSoundPlaying(_selectSound) || _animState == kReset || _animState == kResetAnim || _nextAnim > g_nancy->getTotalPlayTime()) {
 		return;
 	}
-	
+
 	if (NancySceneState.getViewport().convertViewportToScreen(_arrowDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+		g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 		if (!g_nancy->_sound->isSoundPlaying(_selectSound) && input.input & NancyInput::kLeftMouseButtonUp) {
 			g_nancy->_sound->playSound(_selectSound);
@@ -279,7 +279,7 @@ void SafeDialPuzzle::handleInput(NancyInput &input) {
 
 		return;
 	} else if (NancySceneState.getViewport().convertViewportToScreen(_resetDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+		g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 		if (!g_nancy->_sound->isSoundPlaying(_resetSound) && input.input & NancyInput::kLeftMouseButtonUp) {
 			_drawSurface.blitFrom(_image1, _resetSrc, _resetDest);
@@ -292,12 +292,12 @@ void SafeDialPuzzle::handleInput(NancyInput &input) {
 		}
 
 		return;
-	}	
+	}
 }
 
 void SafeDialPuzzle::drawDialFrame(uint frame) {
 	debug("%u", frame);
-	if (frame >= _dialSrcs.size() / 2 && _imageName2.size()) {
+	if (frame >= _dialSrcs.size() / 2 && !_imageName2.empty()) {
 		_drawSurface.blitFrom(_image2, _dialSrcs[frame], _dialDest);
 	} else {
 		_drawSurface.blitFrom(_image1, _dialSrcs[frame], _dialDest);

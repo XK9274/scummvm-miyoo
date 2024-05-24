@@ -17,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, MojoTouch has
+ * exclusively licensed this code on March 23th, 2024, to be used in
+ * closed-source products.
+ * Therefore, any contributions (commits) to it will also be dual-licensed.
+ *
  */
 
 #ifndef TOON_RESOURCE_H
@@ -36,10 +43,10 @@ public:
 	PakFile();
 	~PakFile();
 
-	void open(Common::SeekableReadStream *rs, const Common::String &packName);
-	uint8 *getFileData(const Common::String &fileName, uint32 *fileSize);
-	Common::String getPackName() { return _packName; }
-	Common::SeekableReadStream *createReadStream(const Common::String &fileName);
+	void open(Common::SeekableReadStream *rs, const Common::Path &packName);
+	uint8 *getFileData(const Common::Path &fileName, uint32 *fileSize);
+	Common::Path getPackName() { return _packName; }
+	Common::SeekableReadStream *createReadStream(const Common::Path &fileName);
 	void close();
 
 protected:
@@ -48,7 +55,7 @@ protected:
 		int32 _offset;
 		int32 _size;
 	};
-	Common::String _packName;
+	Common::Path _packName;
 
 	uint32 _numFiles;
 	Common::Array<File> _files;
@@ -63,8 +70,8 @@ public:
 		free(_data);
 	}
 
-	Common::String _packName;
-	Common::String _fileName;
+	Common::Path _packName;
+	Common::Path _fileName;
 	uint32 _age;
 	uint32 _size;
 	uint8 *_data;
@@ -74,10 +81,10 @@ class Resources {
 public:
 	Resources(ToonEngine *vm);
 	~Resources();
-	bool openPackage(const Common::String &file);
-	void closePackage(const Common::String &fileName);
-	Common::SeekableReadStream *openFile(const Common::String &file);
-	uint8 *getFileData(const Common::String &fileName, uint32 *fileSize); // this memory must be copied to your own structures!
+	bool openPackage(const Common::Path &file);
+	void closePackage(const Common::Path &fileName);
+	Common::SeekableReadStream *openFile(const Common::Path &file);
+	uint8 *getFileData(const Common::Path &fileName, uint32 *fileSize); // this memory must be copied to your own structures!
 	void purgeFileData();
 
 protected:
@@ -87,9 +94,9 @@ protected:
 	uint32 _cacheSize;
 	Common::Array<CacheEntry *> _resourceCache;
 
-	void removePackageFromCache(const Common::String &packName);
-	bool getFromCache(const Common::String &fileName, uint32 *fileSize, uint8 **fileData);
-	void addToCache(const Common::String &packName, const Common::String &fileName, uint32 fileSize, uint8 *fileData);
+	void removePackageFromCache(const Common::Path &packName);
+	bool getFromCache(const Common::Path &fileName, uint32 *fileSize, uint8 **fileData);
+	void addToCache(const Common::Path &packName, const Common::Path &fileName, uint32 fileSize, uint8 *fileData);
 };
 
 } // End of namespace Toon

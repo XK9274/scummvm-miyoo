@@ -40,18 +40,18 @@ public:
 		Scrollbar(zOrder, srcBounds, srcSurf, topPosition, scrollDistance, isVertical) {}
 	virtual ~ViewportScrollbar() = default;
 
-    bool handleInput(NancyInput &input) {
-        if (_screenPosition.contains(input.mousePos)) {
-        	input.input &= (~NancyInput::kRightMouseButtonUp);
+	bool handleInput(NancyInput &input) {
+		if (_screenPosition.contains(input.mousePos)) {
+			input.input &= (~NancyInput::kRightMouseButtonUp);
 
-        	Scrollbar::handleInput(input);
+			Scrollbar::handleInput(input);
 
-		    g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+			g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 			return true;
-        }
+		}
 
 		return false;
-    }
+	}
 };
 
 SoundEqualizerPuzzle::~SoundEqualizerPuzzle() {
@@ -62,8 +62,8 @@ SoundEqualizerPuzzle::~SoundEqualizerPuzzle() {
 
 void SoundEqualizerPuzzle::init() {
 	Common::Rect screenBounds = NancySceneState.getViewport().getBounds();
-	_drawSurface.create(screenBounds.width(), screenBounds.height(), g_nancy->_graphicsManager->getInputPixelFormat());
-	_drawSurface.clear(g_nancy->_graphicsManager->getTransColor());
+	_drawSurface.create(screenBounds.width(), screenBounds.height(), g_nancy->_graphics->getInputPixelFormat());
+	_drawSurface.clear(g_nancy->_graphics->getTransColor());
 	setTransparent(true);
 	setVisible(true);
 	moveTo(screenBounds);
@@ -226,14 +226,14 @@ void SoundEqualizerPuzzle::execute() {
 
 void SoundEqualizerPuzzle::handleInput(NancyInput &input) {
 	if (_state == kActionTrigger) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+		g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 		return;
 	} else if (_state == kBegin) {
 		return;
 	}
 
 	if (NancySceneState.getViewport().convertViewportToScreen(_buttonDest).contains(input.mousePos)) {
-		g_nancy->_cursorManager->setCursorType(CursorManager::kHotspot);
+		g_nancy->_cursor->setCursorType(CursorManager::kHotspot);
 
 		if (input.input & NancyInput::kLeftMouseButtonUp) {
 			// Exit button pressed

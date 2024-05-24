@@ -45,7 +45,7 @@
 namespace Director {
 
 
-const char *WidgetXObj::xlibName = "widget";
+const char *WidgetXObj::xlibName = "Widget";
 const char *WidgetXObj::fileNames[] = {
 	"widget",
 	nullptr
@@ -59,7 +59,7 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-void WidgetXObj::open(int type) {
+void WidgetXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		WidgetXObject::initMethods(xlibMethods);
 		WidgetXObject *xobj = new WidgetXObject(kXObj);
@@ -67,14 +67,14 @@ void WidgetXObj::open(int type) {
 	}
 }
 
-void WidgetXObj::close(int type) {
+void WidgetXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		WidgetXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
 	}
 }
 
-WidgetXObject::WidgetXObject(ObjectType ObjectType) :Object<WidgetXObject>("WidgetXObj") {
+WidgetXObject::WidgetXObject(ObjectType ObjectType) :Object<WidgetXObject>("Widget") {
 	_objType = ObjectType;
 }
 

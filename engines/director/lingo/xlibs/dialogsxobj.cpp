@@ -70,7 +70,7 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-void DialogsXObj::open(int type) {
+void DialogsXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		DialogsXObject::initMethods(xlibMethods);
 		DialogsXObject *xobj = new DialogsXObject(kXObj);
@@ -80,7 +80,7 @@ void DialogsXObj::open(int type) {
 	}
 }
 
-void DialogsXObj::close(int type) {
+void DialogsXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		DialogsXObject::cleanupMethods();
 		for (uint i = 0; xlibNames[i]; i++) {
@@ -102,7 +102,7 @@ void DialogsXObj::m_putFile(int nargs) {
 	Common::String name = g_lingo->pop().asString();
 	Common::String title = g_lingo->pop().asString();
 
-	Common::String prefix = g_director->getTargetName() + '-';
+	Common::String prefix = savePrefix();
 	Common::String mask = prefix + "*." + extn + ".txt";
 	Common::String filename = name;
 
@@ -126,7 +126,7 @@ void DialogsXObj::m_getFile(int nargs) {
 	Common::String name = g_lingo->pop().asString();
 	Common::String title = g_lingo->pop().asString();
 
-	Common::String prefix = g_director->getTargetName() + '-';
+	Common::String prefix = savePrefix();
 	Common::String mask = prefix + "*." + extn + ".txt";
 	Common::String fileName = name;
 

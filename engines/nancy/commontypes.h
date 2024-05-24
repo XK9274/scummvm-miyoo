@@ -117,6 +117,12 @@ static const byte kPlayOverlayNoHotspot				= 2;
 static const byte kNoChangeTableValue				= 0;
 static const byte kIncrementTableValue				= 1;
 static const byte kDecrementTableValue				= 2;
+static const uint16 kNoTableIndex					= 99;
+static const int16 kNoTableValue					= 9999;
+
+// Autotext ordering info
+static const uint16 kListLIFO						= 0;
+static const uint16 kListFIFO						= 1;
 
 // 3D sound rotation
 static const byte kRotateAroundX					= 0;
@@ -149,7 +155,7 @@ struct SceneChangeDescription {
 
 	int8 paletteID = -1; // TVD only
 
-	Math::Vector3d listenerFrontVector;
+	Math::Vector3d listenerFrontVector = Math::Vector3d(0, 0, 1);
 	uint16 frontVectorFrameID = 0;
 
 	void readData(Common::SeekableReadStream &stream, bool longFormat = false);
@@ -248,8 +254,8 @@ struct SoundDescription {
 	Common::String name = "NO SOUND";
 	uint16 channelID = 0;
 	uint16 playCommands = 1;
-	uint16 numLoops = 0;
-	uint16 volume = 0;
+	uint16 numLoops = 1;
+	uint16 volume = 50;
 	uint16 panAnchorFrame = 0;
 	uint32 samplesPerSec = 0;
 	bool isPanning = false;
@@ -307,7 +313,7 @@ struct SoundChannelInfo {
 	Common::Array<byte> speechChannels;
 	Common::Array<byte> musicChannels;
 	Common::Array<byte> sfxChannels;
-	
+
 	void readData(Common::SeekableReadStream &stream);
 };
 
@@ -317,9 +323,9 @@ struct StaticData {
 	uint16 numEventFlags = 168;
 	Common::Array<uint16> mapAccessSceneIDs;
 	Common::Array<uint16> genericEventFlags;
-	uint16 numNonItemCursors = 12;
-	uint16 numCurtainAnimationFrames = 7;
+	uint16 numCursorTypes = 4;
 	uint32 logoEndAfter = 7000;
+	int16 wonGameFlagID = -1;
 
 	// Data for sound channels
 	SoundChannelInfo soundChannelInfo;
@@ -338,7 +344,7 @@ struct StaticData {
 	// Debug strings
 	Common::Array<Common::String> eventFlagNames;
 
-	void readData(Common::SeekableReadStream &stream, Common::Language language, uint32 endPos);
+	void readData(Common::SeekableReadStream &stream, Common::Language language, uint32 endPos, int8 majorVersion, int8 minorVersion);
 };
 
 } // End of namespace Nancy

@@ -90,7 +90,7 @@ Token::Type FCLInstruction::getType() {
 }
 
 bool FreescapeEngine::executeObjectConditions(GeometricObject *obj, bool shot, bool collided, bool activated) {
-	bool executed = false;;
+	bool executed = false;
 	assert(obj != nullptr);
 	if (!obj->_conditionSource.empty()) {
 		_firstSound = true;
@@ -112,8 +112,6 @@ bool FreescapeEngine::executeObjectConditions(GeometricObject *obj, bool shot, b
 }
 
 void FreescapeEngine::executeLocalGlobalConditions(bool shot, bool collided, bool timer) {
-	if (isCastle())
-		return;
 	debugC(1, kFreescapeDebugCode, "Executing room conditions");
 	Common::Array<FCLInstructionVector> conditions = _currentArea->_conditions;
 	Common::Array<Common::String> conditionSources = _currentArea->_conditionSources;
@@ -363,6 +361,8 @@ bool FreescapeEngine::executeEndIfVisibilityIsEqual(FCLInstruction &instruction)
 	Object *obj = nullptr;
 	if (additional == 0) {
 		obj = _currentArea->objectWithID(source);
+		if (!obj && isCastle())
+			return false; // The value is not important
 		assert(obj);
 		debugC(1, kFreescapeDebugCode, "End condition if visibility of obj with id %d is %d!", source, value);
 	} else {
@@ -498,6 +498,8 @@ void FreescapeEngine::executeMakeInvisible(FCLInstruction &instruction) {
 	debugC(1, kFreescapeDebugCode, "Making obj %d invisible in area %d!", objectID, areaID);
 	if (_areaMap.contains(areaID)) {
 		Object *obj = _areaMap[areaID]->objectWithID(objectID);
+		if (!obj && isCastle())
+			return; // No side effects
 		assert(obj); // We assume the object was there
 		obj->makeInvisible();
 	} else {
@@ -522,12 +524,17 @@ void FreescapeEngine::executeMakeVisible(FCLInstruction &instruction) {
 	debugC(1, kFreescapeDebugCode, "Making obj %d visible in area %d!", objectID, areaID);
 	if (_areaMap.contains(areaID)) {
 		Object *obj = _areaMap[areaID]->objectWithID(objectID);
+		if (!obj && isCastle())
+			return; // No side effects
 		assert(obj); // We assume an object should be there
 		obj->makeVisible();
 		if (!isDriller()) {
 			Math::AABB boundingBox = createPlayerAABB(_position, _playerHeight);
 			if (obj->_boundingBox.collides(boundingBox)) {
 				_playerWasCrushed = true;
+				_avoidRenderingFrames = 60 * 3;
+				if (isEclipse())
+					playSoundFx(2, true);
 				_shootingFrames = 0;
 			}
 		}

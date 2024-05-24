@@ -45,7 +45,7 @@ SSSS   mWinInfo, file, section, entry      --Returns Windows information item
 
 namespace Director {
 
-const char *WinInfoXObj::xlibName = "wininfo";
+const char *WinInfoXObj::xlibName = "Wininfo";
 const char *WinInfoXObj::fileNames[] = {
 	"wininfo",
 	nullptr
@@ -59,34 +59,28 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-WinInfoXObject::WinInfoXObject(ObjectType ObjectType) : Object<WinInfoXObject>("WinInfoXObj") {
+WinInfoXObject::WinInfoXObject(ObjectType ObjectType) : Object<WinInfoXObject>("Wininfo") {
 	_objType = ObjectType;
 }
 
-void WinInfoXObj::open(int type) {
+void WinInfoXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		WinInfoXObject::initMethods(xlibMethods);
 		WinInfoXObject *xobj = new WinInfoXObject(kXObj);
 		g_lingo->exposeXObject(xlibName, xobj);
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
-void WinInfoXObj::close(int type) {
+void WinInfoXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		WinInfoXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
 void WinInfoXObj::m_new(int nargs) {
-	if (nargs != 0) {
-		warning("WinInfoXObj::m_new: expected 0 arguments");
-		g_lingo->dropStack(nargs);
-	}
+	g_lingo->printSTUBWithArglist("WinInfoXObj::m_new", nargs);
+	g_lingo->dropStack(nargs);
 	g_lingo->push(g_lingo->_state->me);
 }
 

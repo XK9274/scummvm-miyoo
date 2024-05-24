@@ -31,6 +31,8 @@ class VideoDecoder;
 namespace Nancy {
 namespace Action {
 
+class InteractiveVideo;
+
 // Plays an AVF or Bink video. Optionally supports:
 // - playing a sound;
 // - reverse playback;
@@ -40,6 +42,7 @@ namespace Action {
 // - changing the scene after playback ends
 // Mostly used for cinematics, with some occasional uses for background animations
 class PlaySecondaryMovie : public RenderActionRecord {
+	friend class InteractiveVideo;
 public:
 	static const byte kMovieSceneChange			= 5;
 	static const byte kMovieNoSceneChange		= 6;
@@ -64,9 +67,9 @@ public:
 	void readData(Common::SeekableReadStream &stream) override;
 	void execute() override;
 
-	Common::String _videoName;
-	Common::String _paletteName;
-	Common::String _bitmapOverlayName;
+	Common::Path _videoName;
+	Common::Path _paletteName;
+	Common::Path _bitmapOverlayName;
 
 	uint16 _videoType = kVideoPlaytypeAVF;
 	uint16 _videoFormat = kLargeVideoFormat;

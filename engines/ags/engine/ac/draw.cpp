@@ -131,15 +131,13 @@ Bitmap *convert_32_to_32bgr(Bitmap *tempbl) {
 	return tempbl;
 }
 
-// NOTE: Some of these conversions are required  even when using
+// NOTE: Some of these conversions are required even when using
 // D3D and OpenGL rendering, for two reasons:
 // 1) certain raw drawing operations are still performed by software
 // Allegro methods, hence bitmaps should be kept compatible to any native
 // software operations, such as blitting two bitmaps of different formats.
-// 2) mobile ports feature an OpenGL renderer built in Allegro library,
-// that assumes native bitmaps are in OpenGL-compatible format, so that it
-// could copy them to texture without additional changes.
-// AGS own OpenGL renderer tries to sync its behavior with the former one.
+// 2) OpenGL renderer assumes native bitmaps are in OpenGL-compatible format,
+// so that it could copy them to texture without additional changes.
 //
 // TODO: make _G(gfxDriver)->GetCompatibleBitmapFormat describe all necessary
 // conversions, so that we did not have to guess.
@@ -162,7 +160,7 @@ Bitmap *AdjustBitmapForUseWithDisplayMode(Bitmap *bitmap, bool has_alpha) {
 	// to match graphics driver expectation about pixel format.
 	// TODO: make GetCompatibleBitmapFormat tell this somehow
 #if defined (AGS_INVERTED_COLOR_ORDER)
-	const int sys_col_depth = System_GetColorDepth();
+	const int sys_col_depth = _G(gfxDriver)->GetDisplayMode().ColorDepth;
 	if (sys_col_depth > 16 && bmp_col_depth == 32) {
 		// Convert RGB to BGR.
 		new_bitmap = convert_32_to_32bgr(bitmap);
@@ -936,6 +934,7 @@ Bitmap *recycle_bitmap(Bitmap *bimp, int coldep, int wid, int hit, bool make_tra
 		// same colour depth, width and height -> reuse
 		if ((bimp->GetColorDepth() == coldep) && (bimp->GetWidth() == wid)
 		        && (bimp->GetHeight() == hit)) {
+			bimp->ResetClip();
 			if (make_transparent) {
 				bimp->ClearTransparent();
 			}
@@ -1419,7 +1418,7 @@ void tint_image(Bitmap *ds, Bitmap *srcimg, int red, int grn, int blu, int light
 
 	// Some games have incorrect data that result in a negative luminance.
 	// Do the same as the accelerated drivers that use 255 luminance for that case.
-	if (luminance <= 0)
+	if (luminance < 0)
 		luminance = 255;
 
 	// For performance reasons, we have a separate blender for
@@ -1874,7 +1873,7 @@ void draw_fps(const Rect &viewport) {
 
 // Draw GUI controls as separate sprites
 void draw_gui_controls(GUIMain &gui) {
-	if (_G(all_buttons_disabled) && (GUI::Options.DisabledStyle == kGuiDis_Blackout))
+	if (_G(all_buttons_disabled >= 0) && (GUI::Options.DisabledStyle == kGuiDis_Blackout))
 		return; // don't draw GUI controls
 
 	int draw_index = _GP(guiobjddbref)[gui.ID];
@@ -1994,7 +1993,7 @@ void draw_gui_and_overlays() {
 
 	// If not adding gui controls as textures, simply move the resulting sprlist to render
 	if (!draw_controls_as_textures ||
-		(_G(all_buttons_disabled) && (GUI::Options.DisabledStyle == kGuiDis_Blackout))) {
+		(_G(all_buttons_disabled >= 0) && (GUI::Options.DisabledStyle == kGuiDis_Blackout))) {
 		draw_sprite_list(false);
 		put_sprite_list_on_screen(false);
 		return;

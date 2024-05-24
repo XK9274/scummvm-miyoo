@@ -45,7 +45,7 @@ class SoundManager {
 	friend class NancyConsole;
 public:
 	// Settings for playing a sound, used in nancy3 and up
-	// Older versions had a different, non-bitflag enum, but testing 
+	// Older versions had a different, non-bitflag enum, but testing
 	// indicates those were never actually implemented
 	enum PlayCommandFlags {
 		kPlaySequential				= 0x0001, 		// Play normally
@@ -59,7 +59,7 @@ public:
 		kPlayMoveCircular			= 0x0300,	// Move sound position in a circular direction (see SoundRotationAxis)
 		kPlayRandomMove				= 0x0500	// Move along random vector. Does not combine with kPlayMoveCircular
 	};
-	
+
 	SoundManager();
 	~SoundManager();
 
@@ -67,7 +67,7 @@ public:
 	void initSoundChannels();
 
 	// Load a sound into a channel without starting it
-	void loadSound(const SoundDescription &description, SoundEffectDescription **effectData = nullptr);
+	void loadSound(const SoundDescription &description, SoundEffectDescription **effectData = nullptr, bool forceReload = false);
 
 	void playSound(uint16 channelID);
 	void playSound(const SoundDescription &description);

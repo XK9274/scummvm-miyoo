@@ -64,7 +64,7 @@ void Map::loadMazeData() {
 
 void Map::loadOverlay() {
 	Common::File f;
-	if (!f.open(Common::String::format("%s.ovr", _name.c_str())))
+	if (!f.open(Common::Path(Common::String::format("%s.ovr", _name.c_str()))))
 		error("Could not open %s.ovr overlay", _name.c_str());
 
 	int magicId = f.readUint16LE();
@@ -75,7 +75,7 @@ void Map::loadOverlay() {
 	f.readUint16LE();	// extras size
 	f.readUint16LE();	// code entry-point
 
-	if (magicId != 0xF2 || codePtr != 0xF48F)
+	if (magicId != 0xF2 || (codePtr != 0xF48F && codePtr != 0xF47C))
 		error("Invalid map overlay header");
 
 	// Skip over code segment, since each map's

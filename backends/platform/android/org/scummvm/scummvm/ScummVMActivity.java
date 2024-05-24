@@ -13,17 +13,18 @@ import android.content.UriPermission;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.os.Process;
 import android.os.SystemClock;
 import android.provider.DocumentsContract;
 import android.text.TextUtils;
@@ -123,6 +124,7 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 	FrameLayout _videoLayout = null;
 
 	private EditableSurfaceView _main_surface = null;
+	private LinearLayout _buttonLayout = null;
 	private ImageView _toggleTouchModeKeyboardBtnIcon = null;
 	private ImageView _openMenuBtnIcon = null;
 
@@ -153,6 +155,8 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		if (hwKeyboard) {
 			hideScreenKeyboard();
 		}
+
+		layoutButtonLayout(newConfig.orientation, false);
 	}
 
 	private boolean isHWKeyboardConnected() {
@@ -180,7 +184,8 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 							//_inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 							//_inputManager.showSoftInput(_main_surface, InputMethodManager.SHOW_FORCED);
 
-							_inputManager.toggleSoftInputFromWindow(_main_surface.getWindowToken(), InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+							// This is deprecated and we show the keyboard just below
+							//_inputManager.toggleSoftInputFromWindow(_main_surface.getWindowToken(), InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
 							_inputManager.showSoftInput(_main_surface, InputMethodManager.SHOW_IMPLICIT);
 							getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 						} else {
@@ -506,8 +511,7 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 						// _inputManager.hideSoftInputFromWindow(_main_surface.getWindowToken(), 0);
 						_inputManager.hideSoftInputFromWindow(_main_surface.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
 
-						DimSystemStatusBar.get().dim(_videoLayout);
-						//DimSystemStatusBar.get().dim(_main_surface);
+						CompatHelpers.HideSystemStatusBar.hide(getWindow());
 						//Log.d(ScummVM.LOG_TAG, "showScreenKeyboardWithoutTextInputField - captureMouse(true)");
 						_main_surface.captureMouse(true);
 						//_main_surface.showSystemMouseCursor(false);
@@ -516,6 +520,28 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 				});
 			}
 //			_main_surface.nativeScreenKeyboardShown( keyboardWithoutTextInputShown ? 1 : 0 );
+		}
+	}
+
+	private void layoutButtonLayout(int orientation, boolean force) {
+		int newOrientation = orientation == Configuration.ORIENTATION_LANDSCAPE ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL;
+
+		if (!force && newOrientation == _buttonLayout.getOrientation()) {
+			return;
+		}
+
+		_buttonLayout.setOrientation(newOrientation);
+		_buttonLayout.removeAllViews();
+		if (newOrientation == LinearLayout.VERTICAL) {
+			_buttonLayout.addView(_openMenuBtnIcon, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+			_buttonLayout.bringChildToFront(_openMenuBtnIcon);
+			_buttonLayout.addView(_toggleTouchModeKeyboardBtnIcon, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+			_buttonLayout.bringChildToFront(_toggleTouchModeKeyboardBtnIcon);
+		} else {
+			_buttonLayout.addView(_toggleTouchModeKeyboardBtnIcon, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+			_buttonLayout.bringChildToFront(_toggleTouchModeKeyboardBtnIcon);
+			_buttonLayout.addView(_openMenuBtnIcon, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+			_buttonLayout.bringChildToFront(_openMenuBtnIcon);
 		}
 	}
 
@@ -660,11 +686,21 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 
 		@Override
 		protected void getDPI(float[] values) {
-			DisplayMetrics metrics = new DisplayMetrics();
-			getWindowManager().getDefaultDisplay().getMetrics(metrics);
+			Resources resources = getResources();
+
+			DisplayMetrics metrics = resources.getDisplayMetrics();
+			Configuration config = resources.getConfiguration();
 
 			values[0] = metrics.xdpi;
 			values[1] = metrics.ydpi;
+			// "On a medium-density screen, DisplayMetrics.density equals 1.0; on a high-density
+			//  screen it equals 1.5; on an extra-high-density screen, it equals 2.0; and on a
+			//  low-density screen, it equals 0.75. This figure is the factor by which you should
+			//  multiply the dp units in order to get the actual pixel count for the current screen."
+			//  In addition, take into account the fontScale setting set by the user.
+			//  We are not supposed to take this value directly because of non-linear scaling but
+			//  as we are doing our own rendering there is not much choice
+			values[2] = metrics.density * config.fontScale;
 		}
 
 		@Override
@@ -715,13 +751,8 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 
 		@Override
 		protected boolean isConnectionLimited() {
-			// The WIFI Service must be looked up on the Application Context or memory will leak on devices < Android N (According to Android Studio warning)
-			WifiManager wifiMgr = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-			if (wifiMgr != null && wifiMgr.isWifiEnabled()) {
-				WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
-				return (wifiInfo == null || wifiInfo.getNetworkId() == -1); //WiFi is on, but it's not connected to any network
-			}
-			return true;
+			ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+			return cm == null || cm.isActiveNetworkMetered();
 		}
 
 		@Override
@@ -748,10 +779,10 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		}
 
 		@Override
-		protected void showKeyboardControl(final boolean enable) {
+		protected void showOnScreenControls(final int enableMask) {
 			runOnUiThread(new Runnable() {
 				public void run() {
-					showToggleKeyboardBtnIcon(enable);
+					showToggleOnScreenBtnIcons(enableMask);
 				}
 			});
 		}
@@ -894,10 +925,8 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 
 		safSyncObject = new Object();
 
-		hideSystemUI();
-
 		_videoLayout = new FrameLayout(this);
-		SetLayerType.get().setLayerType(_videoLayout);
+		_videoLayout.setLayerType(android.view.View.LAYER_TYPE_NONE, null);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(_videoLayout);
 		_videoLayout.setFocusable(true);
@@ -905,26 +934,25 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		_videoLayout.requestFocus();
 
 		_main_surface = new EditableSurfaceView(this);
-		SetLayerType.get().setLayerType(_main_surface);
+		_main_surface.setLayerType(android.view.View.LAYER_TYPE_NONE, null);
 
 		_videoLayout.addView(_main_surface, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
-		LinearLayout buttonLayout = new LinearLayout(this);
-		buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+		_buttonLayout = new LinearLayout(this);
 		FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.RIGHT);
 		buttonLayoutParams.topMargin = 5;
 		buttonLayoutParams.rightMargin = 5;
-		_videoLayout.addView(buttonLayout, buttonLayoutParams);
-		_videoLayout.bringChildToFront(buttonLayout);
-
-		_toggleTouchModeKeyboardBtnIcon = new ImageView(this);
-		buttonLayout.addView(_toggleTouchModeKeyboardBtnIcon, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-		buttonLayout.bringChildToFront(_toggleTouchModeKeyboardBtnIcon);
+		_videoLayout.addView(_buttonLayout, buttonLayoutParams);
+		_videoLayout.bringChildToFront(_buttonLayout);
 
 		_openMenuBtnIcon = new ImageView(this);
 		_openMenuBtnIcon.setImageResource(R.drawable.ic_action_menu);
-		buttonLayout.addView(_openMenuBtnIcon, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-		buttonLayout.bringChildToFront(_openMenuBtnIcon);
+
+		_toggleTouchModeKeyboardBtnIcon = new ImageView(this);
+
+		// Hide by default all buttons, they will be shown when native code will start
+		showToggleOnScreenBtnIcons(0);
+		layoutButtonLayout(getResources().getConfiguration().orientation, true);
 
 		_main_surface.setFocusable(true);
 		_main_surface.setFocusableInTouchMode(true);
@@ -933,9 +961,6 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		//Log.d(ScummVM.LOG_TAG, "onCreate - captureMouse(true)");
 		//_main_surface.captureMouse(true, true);
 		//_main_surface.showSystemMouseCursor(false);
-
-		// TODO is this redundant since we call hideSystemUI() ?
-		DimSystemStatusBar.get().dim(_videoLayout);
 
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -973,9 +998,9 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		                                                        }
 		                                                    });
 
-		float[] dpiValues = new float[] { 0.0f, 0.0f };
+		float[] dpiValues = new float[] { 0.0f, 0.0f, 0.0f };
 		_scummvm.getDPI(dpiValues);
-		Log.d(ScummVM.LOG_TAG, "Current xdpi: " + dpiValues[0] + " and ydpi: " + dpiValues[1]);
+		Log.d(ScummVM.LOG_TAG, "Current xdpi: " + dpiValues[0] + ", ydpi: " + dpiValues[1] + " and density: " + dpiValues[2]);
 
 		// Currently in release builds version string does not contain the revision info
 		// but in debug builds (daily builds) this should be there (see base/internal_version_h)
@@ -1046,6 +1071,8 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 
 		super.onResume();
 
+		CompatHelpers.HideSystemStatusBar.hide(getWindow());
+
 		if (_scummvm != null)
 			_scummvm.setPause(false);
 		//_main_surface.showSystemMouseCursor(false);
@@ -1093,9 +1120,14 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 			_scummvm.setPause(false);
 			try {
 				// 1s timeout
-				_scummvm_thread.join(1000);
+				_scummvm_thread.join(2000);
 			} catch (InterruptedException e) {
 				Log.i(ScummVM.LOG_TAG, "Error while joining ScummVM thread", e);
+			}
+
+			// Our join failed: kill ourselves to not have two ScummVM running at the same time
+			if (_scummvm_thread.isAlive()) {
+				Process.killProcess(Process.myPid());
 			}
 
 			_finishing = false;
@@ -1105,7 +1137,7 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 		if (isScreenKeyboardShown()) {
 			hideScreenKeyboard();
 		}
-		showToggleKeyboardBtnIcon(false);
+		showToggleOnScreenBtnIcons(0);
 	}
 
 
@@ -1174,7 +1206,7 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
-			hideSystemUI();
+			CompatHelpers.HideSystemStatusBar.hide(getWindow());
 		}
 //			showSystemMouseCursor(false);
 //		} else {
@@ -1208,30 +1240,6 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 				.show();
 			return;
 		}
-	}
-
-	// TODO setSystemUiVisibility is introduced in API 11 and deprecated in API 30 - When we move to API 30 we will have to replace this code
-	//	https://developer.android.com/training/system-ui/immersive.html#java
-	//
-	//  The code sample in the url below contains code to switch between immersive and default mode
-	//	https://github.com/android/user-interface-samples/tree/master/AdvancedImmersiveMode
-	//  We could do something similar by making it a Global UI option.
-	@TargetApi(Build.VERSION_CODES.KITKAT)
-	private void hideSystemUI() {
-		// Enables regular immersive mode.
-		// For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-		// Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-		View decorView = getWindow().getDecorView();
-		decorView.setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-				// Set the content to appear under the system bars so that the
-				// content doesn't resize when the system bars hide and show.
-				| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-				| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-				// Hide the nav bar and status bar
-				| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-				| View.SYSTEM_UI_FLAG_FULLSCREEN);
 	}
 
 //	// Shows the system bars by removing all the flags
@@ -1279,14 +1287,14 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 //	}
 
 	// Show or hide the semi-transparent onscreen controls
-	// Called by the override of showKeyboardControl()
-	private void showToggleKeyboardBtnIcon(boolean show) {
+	// Called by the override of showOnScreenControls()
+	private void showToggleOnScreenBtnIcons(int enableMask) {
 		if (_openMenuBtnIcon != null ) {
-			_openMenuBtnIcon.setVisibility(show ? View.VISIBLE : View.GONE);
+			_openMenuBtnIcon.setVisibility((enableMask & ScummVM.SHOW_ON_SCREEN_MENU) != 0 ? View.VISIBLE : View.GONE);
 		}
 
 		if (_toggleTouchModeKeyboardBtnIcon != null ) {
-			_toggleTouchModeKeyboardBtnIcon.setVisibility(show ? View.VISIBLE : View.GONE);
+			_toggleTouchModeKeyboardBtnIcon.setVisibility((enableMask & ScummVM.SHOW_ON_SCREEN_INPUT_MODE) != 0 ? View.VISIBLE : View.GONE);
 		}
 	}
 
@@ -1324,7 +1332,7 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 	@Override
 	public void onVisibilityChanged(boolean visible) {
 //		Toast.makeText(HomeActivity.this, visible ? "Keyboard is active" : "Keyboard is Inactive", Toast.LENGTH_SHORT).show();
-		hideSystemUI();
+		CompatHelpers.HideSystemStatusBar.hide(getWindow());
 	}
 
 	@SuppressWarnings("deprecation")
@@ -2124,80 +2132,7 @@ public class ScummVMActivity extends Activity implements OnKeyboardVisibilityLis
 	// End of SAF enabled code
 	// -------------------------------------------------------------------------------------------
 
-
 } // end of ScummVMActivity
-
-// *** HONEYCOMB / ICS FIX FOR FULLSCREEN MODE, by lmak ***
-// TODO DimSystemStatusBar may be redundant for us
-abstract class DimSystemStatusBar {
-
-	final boolean bGlobalsImmersiveMode = true;
-
-	public static DimSystemStatusBar get() {
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-			return DimSystemStatusBarHoneycomb.Holder.sInstance;
-		} else {
-			return DimSystemStatusBarDummy.Holder.sInstance;
-		}
-	}
-
-	public abstract void dim(final View view);
-
-	private static class DimSystemStatusBarHoneycomb extends DimSystemStatusBar {
-		private static class Holder {
-			private static final DimSystemStatusBarHoneycomb sInstance = new DimSystemStatusBarHoneycomb();
-		}
-
-		public void dim(final View view) {
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT && bGlobalsImmersiveMode) {
-				// Immersive mode, I already hear curses when system bar reappears mid-game from the slightest swipe at the bottom of the screen
-				view.setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | android.view.View.SYSTEM_UI_FLAG_FULLSCREEN);
-			} else {
-				view.setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_LOW_PROFILE);
-			}
-		}
-	}
-
-	private static class DimSystemStatusBarDummy extends DimSystemStatusBar {
-		private static class Holder {
-			private static final DimSystemStatusBarDummy sInstance = new DimSystemStatusBarDummy();
-		}
-
-		public void dim(final View view) { }
-	}
-}
-
-abstract class SetLayerType {
-
-	public static SetLayerType get() {
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-			return SetLayerTypeHoneycomb.Holder.sInstance;
-		} else {
-			return SetLayerTypeDummy.Holder.sInstance;
-		}
-	}
-
-	public abstract void setLayerType(final View view);
-
-	private static class SetLayerTypeHoneycomb extends SetLayerType {
-		private static class Holder {
-			private static final SetLayerTypeHoneycomb sInstance = new SetLayerTypeHoneycomb();
-		}
-
-		public void setLayerType(final View view) {
-			view.setLayerType(android.view.View.LAYER_TYPE_NONE, null);
-			//view.setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null);
-		}
-	}
-
-	private static class SetLayerTypeDummy extends SetLayerType {
-		private static class Holder {
-			private static final SetLayerTypeDummy sInstance = new SetLayerTypeDummy();
-		}
-
-		public void setLayerType(final View view) { }
-	}
-}
 
 // Used to define the interface for a callback after ScummVM thread has finished
 interface MyScummVMDestroyedCallback {

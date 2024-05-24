@@ -75,9 +75,15 @@ public:
 	static void detachThread();
 
 	static void setReadyForEvents(bool ready);
+	static void wakeupForQuit();
 
 	static void setWindowCaption(const Common::U32String &caption);
-	static void getDPI(float *values);
+
+	/**
+	 * Array members of DPIValues are xdpi, ydpi, density
+	 **/
+	typedef float DPIValues[3];
+	static void getDPI(DPIValues &values);
 	static void displayMessageOnOSD(const Common::U32String &msg);
 	static bool openUrl(const Common::String &url);
 	static bool hasTextInClipboard();
@@ -85,7 +91,7 @@ public:
 	static bool setTextInClipboard(const Common::U32String &text);
 	static bool isConnectionLimited();
 	static void showVirtualKeyboard(bool enable);
-	static void showKeyboardControl(bool enable);
+	static void showOnScreenControls(int enableMask);
 	static Graphics::Surface *getBitmapResource(BitmapResources resource);
 	static void setTouchMode(int touchMode);
 	static int getTouchMode();
@@ -147,7 +153,7 @@ private:
 	static jmethodID _MID_isConnectionLimited;
 	static jmethodID _MID_setWindowCaption;
 	static jmethodID _MID_showVirtualKeyboard;
-	static jmethodID _MID_showKeyboardControl;
+	static jmethodID _MID_showOnScreenControls;
 	static jmethodID _MID_getBitmapResource;
 	static jmethodID _MID_setTouchMode;
 	static jmethodID _MID_getTouchMode;

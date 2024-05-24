@@ -24,6 +24,7 @@
  * USED IN:
  * Gahan Wilson's Ultimate Haunted House
  * Momi no Ki no Shita de: The Day of St. Claus
+ * Virtual Nightclub
  *
  *************************************/
 
@@ -120,7 +121,7 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-void MovUtilsXObj::open(int type) {
+void MovUtilsXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		MovieUtilsXObject::initMethods(xlibMethods);
 		MovieUtilsXObject *xobj = new MovieUtilsXObject(kXObj);
@@ -130,7 +131,7 @@ void MovUtilsXObj::open(int type) {
 	}
 }
 
-void MovUtilsXObj::close(int type) {
+void MovUtilsXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		MovieUtilsXObject::cleanupMethods();
 		for (uint i = 0; xlibNames[i]; i++) {
@@ -139,7 +140,7 @@ void MovUtilsXObj::close(int type) {
 	}
 }
 
-MovieUtilsXObject::MovieUtilsXObject(ObjectType ObjectType) :Object<MovieUtilsXObject>("MovUtilsXObj") {
+MovieUtilsXObject::MovieUtilsXObject(ObjectType ObjectType) :Object<MovieUtilsXObject>("MovUtils") {
 	_objType = ObjectType;
 }
 

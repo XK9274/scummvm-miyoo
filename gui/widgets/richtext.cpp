@@ -34,6 +34,14 @@
 
 namespace GUI {
 
+const Graphics::TTFMap ttfFamily[] = {
+	{"NotoSans-Regular.ttf", Graphics::kMacFontRegular},
+	{"NotoSans-Bold.ttf", Graphics::kMacFontBold},
+	{"NotoSerif-Italic.ttf", Graphics::kMacFontItalic},
+	{"NotoSerif-Bold-Italic.ttf", Graphics::kMacFontBold | Graphics::kMacFontItalic},
+	{nullptr, 0}
+};
+
 RichTextWidget::RichTextWidget(GuiObject *boss, int x, int y, int w, int h, bool scale, const Common::U32String &text, const Common::U32String &tooltip)
 	: Widget(boss, x, y, w, h, scale, tooltip), CommandSender(nullptr)  {
 
@@ -59,14 +67,16 @@ void RichTextWidget::init() {
 
 	_type = kRichTextWidget;
 
-	_verticalScroll = new ScrollBarWidget(this, _w, 0, 16, _h);
+	_verticalScroll = new ScrollBarWidget(this, _w - 16, 0, 16, _h);
 	_verticalScroll->setTarget(this);
 	_scrolledX = 0;
 	_scrolledY = 0;
 
+	_innerMargin = g_gui.xmlEval()->getVar("Globals.RichTextWidget.InnerMargin", 0);
 	_scrollbarWidth = g_gui.xmlEval()->getVar("Globals.Scrollbar.Width", 0);
 
-	_textWidth = _w - _scrollbarWidth - _x;
+	_textWidth = MAX(1, _w - _scrollbarWidth - 2 * _innerMargin);
+	_textHeight = MAX(1, _h - 2 * _innerMargin);
 
 	_limitH = 140;
 }
@@ -99,7 +109,7 @@ void RichTextWidget::handleMouseUp(int x, int y, int button, int clickCount) {
 
 	_mouseDownY = _mouseDownStartY = 0;
 
-	Common::String link = _txtWnd->getMouseLink(x + _x + _scrolledX, y + _y + _scrolledY).encode();
+	Common::String link = _txtWnd->getMouseLink(x - _innerMargin + _scrolledX, y - _innerMargin + _scrolledY).encode();
 
 	if (link.hasPrefixIgnoreCase("http"))
 		g_system->openUrl(link);
@@ -125,7 +135,7 @@ void RichTextWidget::handleMouseMoved(int x, int y, int button) {
 }
 
 void RichTextWidget::handleTooltipUpdate(int x, int y) {
-	_tooltip = _txtWnd->getMouseLink(x + _x + _scrolledX, y + _y + _scrolledY);
+	_tooltip = _txtWnd->getMouseLink(x - _innerMargin + _scrolledX, y - _innerMargin + _scrolledY);
 }
 
 void RichTextWidget::handleCommand(CommandSender *sender, uint32 cmd, uint32 data) {
@@ -142,9 +152,28 @@ void RichTextWidget::handleCommand(CommandSender *sender, uint32 cmd, uint32 dat
 }
 
 void RichTextWidget::recalc() {
+	_innerMargin = g_gui.xmlEval()->getVar("Globals.RichTextWidget.InnerMargin", 0);
 	_scrollbarWidth = g_gui.xmlEval()->getVar("Globals.Scrollbar.Width", 0);
-	_limitH = _h;
-	_textWidth = _w - _scrollbarWidth - _x;
+	_textWidth = MAX(1, _w - _scrollbarWidth - 2 * _innerMargin);
+	_textHeight = MAX(1, _h - 2 * _innerMargin);
+	_limitH = _textHeight;
+
+	// Workaround: Currently Graphics::MacText::setMaxWidth does not work well.
+	// There is a known limitation that the size is skipped when the text contains table,
+	// and there is also an issue with the font.
+	// So for now we recreate the widget.
+//	if (_txtWnd) {
+//		_txtWnd->setMaxWidth(_textWidth);
+//		if (_surface->w != _textWidth || _surface->h != _textHeight)
+//			_surface->create(_textWidth, _textHeight, g_gui.getWM()->_pixelformat);
+//	} else {
+//		createWidget();
+//	}
+	if (!_surface || _surface->w != _textWidth) {
+		delete _txtWnd;
+		createWidget();
+	} else if (_surface->h != _textHeight)
+		_surface->create(_textWidth, _textHeight, g_gui.getWM()->_pixelformat);
 
 	int h = _txtWnd->getTextHeight();
 
@@ -155,10 +184,8 @@ void RichTextWidget::recalc() {
 	_verticalScroll->_currentPos = _scrolledY;
 	_verticalScroll->_entriesPerPage = _limitH;
 	_verticalScroll->_singleStep = _h / 4;
-	_verticalScroll->setPos(_textWidth, 0);
-	_verticalScroll->setSize(_scrollbarWidth, _limitH-1);
-
-	_txtWnd->setMaxWidth(_textWidth);
+	_verticalScroll->setPos(_w - _scrollbarWidth, 0);
+	_verticalScroll->setSize(_scrollbarWidth, _h - 1);
 }
 
 void RichTextWidget::createWidget() {
@@ -170,7 +197,13 @@ void RichTextWidget::createWidget() {
 
 	const int fontHeight = g_gui.xmlEval()->getVar("Globals.Font.Height", 25);
 
+#if 1
 	Graphics::MacFont macFont(Graphics::kMacFontNewYork, fontHeight, Graphics::kMacFontRegular);
+	(void)ttfFamily;
+#else
+	int newId = wm->_fontMan->registerTTFFont(ttfFamily);
+	Graphics::MacFont macFont(newId, fontHeight, Graphics::kMacFontRegular);
+#endif
 
 	_txtWnd = new Graphics::MacText(Common::U32String(), wm, &macFont, fg, bg, _textWidth, Graphics::kTextAlignLeft);
 
@@ -179,16 +212,14 @@ void RichTextWidget::createWidget() {
 
 	_txtWnd->setMarkdownText(_text);
 
-	_surface = new Graphics::ManagedSurface(_w, _h, wm->_pixelformat);
-
-	recalc();
+	if (_surface)
+		_surface->create(_textWidth, _textHeight, g_gui.getWM()->_pixelformat);
+	else
+		_surface = new Graphics::ManagedSurface(_textWidth, _textHeight, wm->_pixelformat);
 }
 
 void RichTextWidget::reflowLayout() {
 	Widget::reflowLayout();
-
-	if (!_txtWnd)
-		createWidget();
 
 	recalc();
 
@@ -198,15 +229,15 @@ void RichTextWidget::reflowLayout() {
 
 void RichTextWidget::drawWidget() {
 	if (!_txtWnd)
-		createWidget();
+		recalc();
 
 	g_gui.theme()->drawWidgetBackground(Common::Rect(_x, _y, _x + _w, _y + _h), ThemeEngine::kWidgetBackgroundPlain);
 
 	_surface->clear(g_gui.getWM()->_pixelformat.ARGBToColor(0, 0xff, 0xff, 0xff)); // transparent
 
-	_txtWnd->draw(_surface, 0, _scrolledY, _w - _scrollbarWidth, _h, 0, 0);
+	_txtWnd->draw(_surface, 0, _scrolledY, _textWidth, _textHeight, 0, 0);
 
-	g_gui.theme()->drawManagedSurface(Common::Point(_x, _y), *_surface);
+	g_gui.theme()->drawManagedSurface(Common::Point(_x + _innerMargin, _y + _innerMargin), *_surface);
 }
 
 void RichTextWidget::draw() {
@@ -232,7 +263,7 @@ bool RichTextWidget::containsWidget(Widget *w) const {
 }
 
 Widget *RichTextWidget::findWidget(int x, int y) {
-	if (_verticalScroll->isVisible() && x >= _w - _scrollbarWidth - _x)
+	if (_verticalScroll->isVisible() && x >= _w - _scrollbarWidth)
 		return _verticalScroll;
 
 	return this;

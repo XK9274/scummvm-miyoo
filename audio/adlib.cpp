@@ -86,7 +86,7 @@ protected:
 	byte _pitchBendFactor;
 	int8 _transposeEff;
 	byte _volEff;
-	int8 _detuneEff;
+	int16 _detuneEff;
 	byte _modWheel;
 	bool _pedal;
 	byte _program;
@@ -147,7 +147,7 @@ public:
 	void volume(byte value) override;
 	void panPosition(byte value) override;
 	void pitchBendFactor(byte value) override;
-	void detune(byte value) override;
+	void detune(int16 value) override;
 	void transpose(int8 value) override;
 	void priority(byte value) override;
 	void sustain(bool value) override;
@@ -180,7 +180,7 @@ public:
 	// Control Change messages
 	void modulationWheel(byte value) override { }
 	void pitchBendFactor(byte value) override { }
-	void detune(byte value) override { }
+	void detune(int16 value) override { }
 	void priority(byte value) override { }
 	void sustain(bool value) override { }
 
@@ -463,7 +463,7 @@ static const AdLibInstrument g_gmInstruments[128] = {
 	{ 0x00, 0x3F, 0x4C, 0xFB, 0x00, 0x00, 0x3F, 0x0A, 0xE9, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x05 }
 };
 
-static AdLibInstrument g_gmPercussionInstruments[39] = {
+static const AdLibInstrument g_gmPercussionInstruments[39] = {
 	{ 0x1A, 0x3F, 0x15, 0x05, 0x7C, 0x02, 0x21, 0x2B, 0xE4, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x06 },
 	{ 0x11, 0x12, 0x04, 0x07, 0x7C, 0x02, 0x23, 0x0B, 0xE5, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x05 },
 	{ 0x0A, 0x3F, 0x0B, 0x01, 0x7C, 0x1F, 0x1C, 0x46, 0xD0, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x01 },
@@ -1094,7 +1094,7 @@ void AdLibPart::pitchBend(int16 bend) {
 								  (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
 #ifdef ENABLE_OPL3
 		} else {
-			_owner->adlibNoteOn(voice->_channel, voice->_note + _transposeEff, (_pitchBend * _pitchBendFactor) >> 5);
+			_owner->adlibNoteOn(voice->_channel, voice->_note + _transposeEff, ((_pitchBend * _pitchBendFactor) >> 5) + _detuneEff);
 		}
 #endif
 	}
@@ -1206,39 +1206,37 @@ void AdLibPart::pitchBendFactor(byte value) {
 							  (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
 #ifdef ENABLE_OPL3
 		} else {
-			_owner->adlibNoteOn(voice->_channel, voice->_note + _transposeEff, (_pitchBend * _pitchBendFactor) >> 5);
+			_owner->adlibNoteOn(voice->_channel, voice->_note + _transposeEff, ((_pitchBend * _pitchBendFactor) >> 5) + _detuneEff);
 		}
 #endif
 	}
 }
 
-void AdLibPart::detune(byte value) {
-	// Sam&Max's OPL3 driver uses this for a completly different purpose. It
-	// is related to voice allocation. We ignore this for now.
-	// TODO: We probably need to look how the interpreter side of Sam&Max's
-	// iMuse version handles all this too. Implementing the driver side here
-	// would be not that hard.
+void AdLibPart::detune(int16 value) {
+	int shr = 6;
 #ifdef ENABLE_OPL3
-	if (_owner->_opl3Mode) {
-		//_maxNotes = value;
-		return;
-	}
+	if (_owner->_opl3Mode)
+		shr = 5;
 #endif
-
 	AdLibVoice *voice;
 
 	_detuneEff = value;
 	for (voice = _voice; voice; voice = voice->_next) {
 		_owner->adlibNoteOn(voice->_channel, voice->_note + _transposeEff,
-							  (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
+							((_pitchBend * _pitchBendFactor) >> shr) + _detuneEff);
 	}
 }
 
 void AdLibPart::transpose(int8 value) {
+	int shr = 6;
+#ifdef ENABLE_OPL3
+	if (_owner->_opl3Mode)
+		shr = 5;
+#endif
 	_transposeEff = value;
 	for (AdLibVoice *voice = _voice; voice; voice = voice->_next) {
 		_owner->adlibNoteOn(voice->_channel, voice->_note + _transposeEff,
-			(_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
+			(_pitchBend * _pitchBendFactor >> shr) + _detuneEff);
 	}
 }
 
@@ -1582,7 +1580,7 @@ void MidiDriver_ADLIB::setPitchBendRange(byte channel, uint range) {
 						(part->_pitchBend * part->_pitchBendFactor >> 6) + part->_detuneEff);
 #ifdef ENABLE_OPL3
 		} else {
-			adlibNoteOn(voice->_channel, voice->_note + part->_transposeEff, (part->_pitchBend * part->_pitchBendFactor) >> 5);
+			adlibNoteOn(voice->_channel, voice->_note + part->_transposeEff, ((part->_pitchBend * part->_pitchBendFactor) >> 5) + part->_detuneEff);
 		}
 #endif
 	}
@@ -2101,7 +2099,7 @@ void MidiDriver_ADLIB::mcKeyOn(AdLibVoice *voice, const AdLibInstrument *instr, 
 #ifdef ENABLE_OPL3
 	} else {
 		adlibSetupChannelSecondary(voice->_channel, second, secVol1, secVol2, pan);
-		adlibNoteOnEx(voice->_channel, note + part->_transposeEff, (part->_pitchBend * part->_pitchBendFactor) >> 5);
+		adlibNoteOnEx(voice->_channel, note + part->_transposeEff, ((part->_pitchBend * part->_pitchBendFactor) >> 5) + part->_detuneEff);
 	}
 #endif
 }

@@ -30,8 +30,8 @@
 #include "scumm/charset.h"
 #include "scumm/he/intern_he.h"
 #include "scumm/object.h"
-#include "scumm/gfx_mac.h"
 #include "scumm/he/resource_he.h"
+#include "scumm/macgui/macgui.h"
 #include "scumm/scumm.h"
 #include "scumm/scumm_v2.h"
 #include "scumm/scumm_v5.h"
@@ -551,7 +551,7 @@ void ScummEngine_v80he::setDefaultCursor() {
 				if (_bytesPerPixel == 2)
 					WRITE_UINT16(_grabbedCursor + (y * _cursor.width + x) * 2, get16BitColor(palette[pixel * 3], palette[pixel * 3 + 1], palette[pixel * 3 + 2]));
 				else
-					_grabbedCursor[y * _cursor.width + x] = (pixel == 0) ? 0xfd : 0xfe;
+					_grabbedCursor[y * _cursor.width + x] = pixel + 0xfd;
 			}
 		}
 	}

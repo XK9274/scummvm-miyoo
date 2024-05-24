@@ -62,7 +62,7 @@
 #define SDL_FULLSCREEN  0x40000000
 #endif
 
-static OSystem::GraphicsMode s_supportedGraphicsModes[] = {
+static const OSystem::GraphicsMode s_supportedGraphicsModes[] = {
 	{"surfacesdl", _s("SDL Surface"), GFX_SURFACESDL},
 	{nullptr, nullptr, 0}
 };
@@ -254,7 +254,7 @@ void SurfaceSdlGraphicsManager::setFeatureState(OSystem::Feature f, bool enable)
 
 bool SurfaceSdlGraphicsManager::getFeatureState(OSystem::Feature f) const {
 	// We need to allow this to be called from within a transaction, since we
-	// currently use it to retreive the graphics state, when switching from
+	// currently use it to retrieve the graphics state, when switching from
 	// SDL->OpenGL mode for example.
 	//assert(_transactionMode == kTransactionNone);
 
@@ -683,6 +683,11 @@ void SurfaceSdlGraphicsManager::setGraphicsModeIntern() {
 
 		_scalerPlugin = &_scalerPlugins[_videoMode.scalerIndex]->get<ScalerPluginObject>();
 		_scaler = _scalerPlugin->createInstance(format);
+
+		if (_mouseScaler != nullptr) {
+			delete _mouseScaler;
+			_mouseScaler = _scalerPlugin->createInstance(_cursorFormat);
+		}
 	}
 
 	_scaler->setFactor(_videoMode.scaleFactor);
@@ -1515,7 +1520,8 @@ void SurfaceSdlGraphicsManager::internUpdateScreen() {
 	}
 
 	// Set up the old scale factor
-	_scaler->setFactor(oldScaleFactor);
+	if (_scaler)
+		_scaler->setFactor(oldScaleFactor);
 
 	_numDirtyRects = 0;
 	_forceRedraw = false;
@@ -1526,7 +1532,7 @@ void SurfaceSdlGraphicsManager::internUpdateScreen() {
 #endif
 }
 
-bool SurfaceSdlGraphicsManager::saveScreenshot(const Common::String &filename) const {
+bool SurfaceSdlGraphicsManager::saveScreenshot(const Common::Path &filename) const {
 	assert(_hwScreen != nullptr);
 
 	Common::StackLock lock(_graphicsMutex);
@@ -2235,10 +2241,6 @@ void SurfaceSdlGraphicsManager::blitCursor() {
 	const int h = _mouseCurState.h;
 
 	if (!w || !h || !_mouseOrigSurface) {
-		return;
-	}
-
-	if (!_mouseOrigSurface) {
 		return;
 	}
 

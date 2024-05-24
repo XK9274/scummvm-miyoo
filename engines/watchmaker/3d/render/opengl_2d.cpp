@@ -100,7 +100,7 @@ void rGetExtends(int *x1, int *y1, int *x2, int *y2) {
 }
 
 //************************************************************************************************************************
-void rResetExtends(void) {
+void rResetExtends() {
 	gBlitterExtends.left = 99999999;
 	gBlitterExtends.top = 99999999;
 	gBlitterExtends.right = -99999999;
@@ -227,7 +227,7 @@ void rBlitter(WGame &game, int dst, int src, int dposx, int dposy,
 	int dwWidth, dwHeight;
 
 	dwWidth = game._renderer->_viewport.width();
-	dwHeight = game._renderer->_viewport.height();;
+	dwHeight = game._renderer->_viewport.height();
 
 	if ((sdimx <= 0)) {
 		sdimx = bitmapList[src].DimX;

@@ -49,7 +49,7 @@ protected:
 	Common::String getRecordTypeName() const override { return "BulPuzzle"; }
 	bool isViewportRelative() const override { return true; }
 
-	Common::String _imageName;
+	Common::Path _imageName;
 
 	uint16 _numCells = 0;
 	uint16 _numPieces = 0;
@@ -60,12 +60,12 @@ protected:
 
 	Common::Array<Common::Rect> _diceDestsPlayer;
 	Common::Array<Common::Rect> _diceDestsEnemy;
-	
+
 	Common::Array<Common::Rect> _cellDests;
-	
+
 	Common::Array<Common::Rect> _playerBarracksDests;
 	Common::Array<Common::Rect> _playerJailDests;
-	
+
 	Common::Array<Common::Rect> _enemyBarracksDests;
 	Common::Array<Common::Rect> _enemyJailDests;
 

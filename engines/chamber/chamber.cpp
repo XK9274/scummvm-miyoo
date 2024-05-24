@@ -42,13 +42,21 @@ ChamberEngine::ChamberEngine(OSystem *syst, const ADGameDescription *desc)
 	g_vm = this;
 	_gameDescription = desc;
 
-	const Common::FSNode gameDataDir(ConfMan.get("path"));
+	const Common::FSNode gameDataDir(ConfMan.getPath("path"));
 
 	// Don't forget to register your random source
 	_rnd = new Common::RandomSource("chamber");
 
 	_shouldQuit = false;
+	_shouldRestart = false;
+	_prioritycommand_1 = false;
+	_prioritycommand_2 = false;
 	_pxiData = NULL;
+	_videoMode = Common::kRenderCGA;
+	_screenH = _screenW = _screenBits = _screenBPL = _screenPPB = 0;
+	_line_offset = _line_offset2 = _fontHeight = _fontWidth = 0;
+
+
 
 	_speakerHandle = NULL;
 	_speakerStream = NULL;

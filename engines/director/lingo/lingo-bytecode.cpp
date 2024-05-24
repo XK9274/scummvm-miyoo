@@ -22,10 +22,10 @@
 #include "common/config-manager.h"
 #include "common/file.h"
 #include "common/substream.h"
-#include "common/xpfloat.h"
 
 #include "director/director.h"
 #include "director/cast.h"
+#include "director/debugger.h"
 #include "director/movie.h"
 #include "director/window.h"
 #include "director/castmember/castmember.h"
@@ -211,7 +211,7 @@ static LingoV4TheEntity lingoV4TheEntity[] = {
 	{ 0x06, 0x20, kTheSprite,			kTheScoreColor,		true, kTEAItemId },
 	{ 0x06, 0x21, kTheSprite,			kTheLoc,			true, kTEAItemId },
 	{ 0x06, 0x22, kTheSprite,			kTheRect,			true, kTEAItemId },
-	{ 0x06, 0x23, kTheSprite,			kTheMemberNum,		true, kTEAItemId },
+	{ 0x06, 0x23, kTheSprite,			kTheMemberNum,		true, kTEAItemId }, // D5
 
 	{ 0x07, 0x01, kTheBeepOn,			kTheNOField,		true, kTEANOArgs },
 	{ 0x07, 0x02, kTheButtonStyle,		kTheNOField,		true, kTEANOArgs },
@@ -427,7 +427,7 @@ void LC::cb_localcall() {
 	if ((nargs.type == ARGC) || (nargs.type == ARGCNORET)) {
 		Common::String name = g_lingo->_state->context->_functionNames[functionId];
 		if (debugChannelSet(3, kDebugLingoExec))
-			printWithArgList(name.c_str(), nargs.u.i, "localcall:");
+			g_lingo->printArgs(name.c_str(), nargs.u.i, "localcall:");
 
 		LC::call(name, nargs.u.i, nargs.type == ARGC);
 
@@ -595,6 +595,7 @@ void LC::cb_theassign() {
 	if (g_lingo->_state->me.type == OBJECT) {
 		// Don't bother checking if the property is defined, leave that to the object.
 		// For D3-style anonymous objects/factories, you are allowed to define whatever properties you like.
+		g_debugger->propWriteHook(name);
 		g_lingo->_state->me.u.obj->setProp(name, value);
 	} else {
 		warning("cb_theassign: no me object");
@@ -622,6 +623,7 @@ void LC::cb_thepush() {
 	if (g_lingo->_state->me.type == OBJECT) {
 		if (g_lingo->_state->me.u.obj->hasProp(name)) {
 			g_lingo->push(g_lingo->_state->me.u.obj->getProp(name));
+			g_debugger->propReadHook(name);
 			return;
 		}
 
@@ -1112,7 +1114,7 @@ ScriptContext *LingoCompiler::compileLingoV4(Common::SeekableReadStreamEndian &s
 		} else if (0 <= index && index < (int16)archive->names.size()) {
 			const char *name = archive->names[index].c_str();
 			debugC(5, kDebugLoading, "%d: %s", i, name);
-			_assemblyContext->_properties[name] = Datum();
+			_assemblyContext->setProp(name, Datum(), true);
 		} else {
 			warning("Property %d has unknown name id %d, skipping define", i, index);
 		}
@@ -1239,10 +1241,7 @@ ScriptContext *LingoCompiler::compileLingoV4(Common::SeekableReadStreamEndian &s
 					// Floats are stored as an "80 bit IEEE Standard 754 floating
 					// point number (Standard Apple Numeric Environment [SANE] data type
 					// Extended).
-					uint16 signAndExponent = READ_BE_UINT16(&constsStore[pointer]);
-					uint64 mantissa = READ_BE_UINT64(&constsStore[pointer+2]);
-
-					constant.u.f = Common::XPFloat(signAndExponent, mantissa).toDouble(Common::XPFloat::kSemanticsSANE);
+					constant.u.f = readAppleFloat80(&constsStore[pointer]);
 				} else if (length == 8) {
 					constant.u.f = READ_BE_FLOAT64(&constsStore[pointer]);
 				} else {
@@ -1277,7 +1276,7 @@ ScriptContext *LingoCompiler::compileLingoV4(Common::SeekableReadStreamEndian &s
 	bool skipdump = false;
 
 	if (ConfMan.getBool("dump_scripts")) {
-		Common::String buf;
+		Common::Path buf;
 		if (scriptFlags & kScriptFlagFactoryDef) {
 			buf = dumpFactoryName(encodePathForDump(archName).c_str(), factoryName.c_str(), "lscr");
 		} else {
@@ -1285,10 +1284,10 @@ ScriptContext *LingoCompiler::compileLingoV4(Common::SeekableReadStreamEndian &s
 		}
 
 		if (!out.open(buf, true)) {
-			warning("Lingo::addCodeV4(): Can not open dump file %s", buf.c_str());
+			warning("Lingo::addCodeV4(): Can not open dump file %s", buf.toString(Common::Path::kNativeSeparator).c_str());
 			skipdump = true;
 		} else {
-			warning("Lingo::addCodeV4(): Dumping Lscr to %s", buf.c_str());
+			warning("Lingo::addCodeV4(): Dumping Lscr to %s", buf.toString(Common::Path::kNativeSeparator).c_str());
 		}
 	}
 

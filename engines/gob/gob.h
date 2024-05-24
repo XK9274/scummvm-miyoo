@@ -17,6 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 #ifndef GOB_GOB_H
@@ -44,16 +50,32 @@
  * - Adibou 1
  * - Adibou 2
  * - Adibou 3
+ * - Adibou présente Cuisine
+ * - Adibou présente Dessin
+ * - Adibou présente Magie
+ * - Adiboud'chou a la mer
+ * - Adiboud'chou sur la banquise
+ * - Adiboud'chou a la campagne
+ * - Adiboud'chou dans la jungle et la savane
  * - Gobliiins
  * - Gobliins 2
  * - Goblins 3
  * - Ween: The Prophecy
  * - Bargon Attack
+ * - Le pays des Pierres Magiques
  * - Lost in Time
  * - The Bizarre Adventures of Woodruff and the Schnibble
  * - Fascination
  * - Urban Runner
  * - Bambou le sauveur de la jungle
+ * - Playtoons 1 Uncle Archibald
+ * - Playtoons 2 The Case of the Counterfeit Collaborator (Spirou)
+ * - Playtoons 3 The Secret of the Castle
+ * - Playtoons 4 The Mandarin Prince
+ * - Playtoons 5 The Stone of Wakan
+ * - Playtoons Construction Kit 1 Monsters
+ * - Playtoons Construction Kit 2 Knights
+ * - Playtoons Construction Kit 3 The Far West
  * - Geisha
  * - Once Upon A Time: Little Red Riding Hood
  * - Croustibat
@@ -229,6 +251,7 @@ public:
 	~GobEngine() override;
 
 	void initGame(const GOBGameDescription *gd);
+	GameType getGameType(const char *gameId) const;
 };
 
 } // End of namespace Gob

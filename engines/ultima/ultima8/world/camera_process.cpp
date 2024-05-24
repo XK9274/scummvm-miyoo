@@ -66,10 +66,12 @@ void CameraProcess::ResetCameraProcess() {
 void CameraProcess::moveToLocation(int32 x, int32 y, int32 z) {
 	if (_itemNum) {
 		Item *item = getItem(_itemNum);
-		if (item) item->clearExtFlag(Item::EXT_CAMERA);
+		if (item)
+			item->clearExtFlag(Item::EXT_CAMERA);
+		_itemNum = 0;
 	}
 
-	_sx = _sy = _sz = _time = _elapsed = _lastFrameNum = _itemNum = 0;
+	_sx = _sy = _sz = _time = _elapsed = _lastFrameNum = 0;
 	_eqX = _eqY = _earthquake = 0;
 	_ex = x;
 	_ey = y;
@@ -148,7 +150,9 @@ CameraProcess::CameraProcess(int32 x, int32 y, int32 z, int32 time) :
 void CameraProcess::terminate() {
 	if (_itemNum) {
 		Item *item = getItem(_itemNum);
-		if (item) item->clearExtFlag(Item::EXT_CAMERA);
+		if (item)
+			item->clearExtFlag(Item::EXT_CAMERA);
+		_itemNum = 0;
 	}
 
 	Process::terminate();
@@ -220,6 +224,7 @@ void CameraProcess::GetLerped(int32 &x, int32 &y, int32 &z, int32 factor, bool n
 					Item *item = getItem(_itemNum);
 					// Got it
 					if (item) {
+						item->setExtFlag(Item::EXT_CAMERA);
 						_sx = _ex;
 						_sy = _ey;
 						_sz = _ez;
@@ -283,8 +288,10 @@ uint16 CameraProcess::findRoof(int32 factor) {
 	_earthquake = 0;
 	GetLerped(x, y, z, factor);
 	_earthquake = earthquake_old;
- 
-	Box target(x, y, z, 32, 32, 0);
+
+	// Default camera box based on 1x1x1 footpad,
+	// which is the minimal size to avoid floor detected as roof
+	Box target(x, y, z, 32, 32, 8);
 
 	// Should _itemNum be used when not focused on main actor?
 	Item *item = getItem(1);

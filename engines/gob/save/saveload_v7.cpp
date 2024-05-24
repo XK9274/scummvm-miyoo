@@ -17,6 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 #include "gob/save/saveload.h"
@@ -853,7 +859,7 @@ int32 SaveLoad_v7::SpriteHandler::getSize() {
 	Common::String fileName = _file.build();
 
 	if (fileName.empty())
-		return -1;;
+		return -1;
 
 	SaveReader reader(1, 0, fileName);
 	SaveHeader header;

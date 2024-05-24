@@ -47,11 +47,11 @@ class ScriptContext;
 class DirectorEngine;
 class Frame;
 class LingoCompiler;
+struct Breakpoint;
 
 typedef void (*inst)(void);
 #define	STOP (inst)0
 #define ENTITY_INDEX(t,id) ((t) * 100000 + (id))
-#define printWithArgList g_lingo->printSTUBWithArglist
 
 int calcStringAlignment(const char *s);
 int calcCodeAlignment(int l);
@@ -103,6 +103,7 @@ struct Symbol {	/* symbol table entry */
 	Symbol();
 	Symbol(const Symbol &s);
 	Symbol& operator=(const Symbol &s);
+	bool operator==(Symbol &s) const;
 	void reset();
 	~Symbol();
 };
@@ -154,6 +155,7 @@ struct Datum {	/* interpreter stack type */
 	Datum(const Common::String &val);
 	Datum(AbstractObject *val);
 	Datum(const CastMemberID &val);
+	Datum(const Common::Point &point);
 	Datum(const Common::Rect &rect);
 	void reset();
 
@@ -234,9 +236,12 @@ typedef Common::HashMap<Common::String, Symbol, Common::IgnoreCase_Hash, Common:
 typedef Common::HashMap<Common::String, Datum, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> DatumHash;
 typedef Common::HashMap<Common::String, Builtin *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> BuiltinHash;
 typedef Common::HashMap<Common::String, VarType, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> VarTypeHash;
-typedef void (*XLibFunc)(int);
-typedef Common::HashMap<Common::String, XLibFunc, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> XLibFuncHash;
+typedef void (*XLibOpenerFunc)(ObjectType, const Common::Path &);
+typedef void (*XLibCloserFunc)(ObjectType);
+typedef Common::HashMap<Common::String, XLibOpenerFunc, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> XLibOpenerFuncHash;
+typedef Common::HashMap<Common::String, XLibCloserFunc, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> XLibCloserFuncHash;
 typedef Common::HashMap<Common::String, ObjectType, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> OpenXLibsHash;
+typedef Common::HashMap<Common::String, AbstractObject *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> OpenXLibsStateHash;
 
 typedef Common::HashMap<Common::String, TheEntity *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> TheEntityHash;
 typedef Common::HashMap<Common::String, TheEntityField *, Common::IgnoreCase_Hash, Common::IgnoreCase_EqualTo> TheEntityFieldHash;
@@ -257,18 +262,33 @@ struct CFrame {	/* proc/func call stack frame */
 struct LingoEvent {
 	LEvent event;
 	int eventId;
+	EventHandlerSourceType eventHandlerSourceType;
 	ScriptType scriptType;
-	CastMemberID scriptId;
 	bool passByDefault;
-	int channelId;
+	uint16 channelId;
+	CastMemberID scriptId;
+	Common::Point mousePos;
 
-	LingoEvent (LEvent e, int ei, ScriptType st, CastMemberID si, bool pass, int ci = -1) {
+	LingoEvent (LEvent e, int ei, ScriptType st, bool pass, CastMemberID si = CastMemberID(), Common::Point mp = Common::Point(-1, -1)) {
 		event = e;
 		eventId = ei;
+		eventHandlerSourceType = kNoneHandler;
 		scriptType = st;
-		scriptId = si;
 		passByDefault = pass;
-		channelId = ci;
+		channelId = 0;
+		scriptId = si;
+		mousePos = mp;
+	}
+
+	LingoEvent (LEvent e, int ei, EventHandlerSourceType ehst, bool pass, Common::Point mp = Common::Point(-1, -1)) {
+		event = e;
+		eventId = ei;
+		eventHandlerSourceType = ehst;
+		scriptType = kNoneScript;
+		passByDefault = pass;
+		channelId = 0;
+		scriptId = CastMemberID();
+		mousePos = mp;
 	}
 };
 
@@ -291,10 +311,14 @@ struct LingoArchive {
 	Common::String formatFunctionList(const char *prefix);
 
 	void addCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName = nullptr, uint32 preprocFlags = kLPPNone);
+	void patchCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName = nullptr, uint32 preprocFlags = kLPPNone);
 	void removeCode(ScriptType type, uint16 id);
 	void replaceCode(const Common::U32String &code, ScriptType type, uint16 id, const char *scriptName = nullptr);
 	void addCodeV4(Common::SeekableReadStreamEndian &stream, uint16 lctxIndex, const Common::String &archName, uint16 version);
 	void addNamesV4(Common::SeekableReadStreamEndian &stream);
+
+	// lingo-patcher.cpp
+	void patchScriptHandler(ScriptType type, CastMemberID id);
 };
 
 struct LingoState {
@@ -356,7 +380,7 @@ public:
 	void cleanupXLibs();
 
 	Common::String normalizeXLibName(Common::String name);
-	void openXLib(Common::String name, ObjectType type);
+	void openXLib(Common::String name, ObjectType type, const Common::Path &path);
 	void closeXLib(Common::String name);
 	void closeOpenXLibs();
 	void reloadOpenXLibs();
@@ -366,16 +390,16 @@ public:
 	// lingo-events.cpp
 private:
 	void initEventHandlerTypes();
-	void processEvent(LEvent event, ScriptType st, CastMemberID scriptId, int channelId = -1);
+	bool processEvent(LEvent event, ScriptType st, CastMemberID scriptId, int channelId = -1);
 
 public:
 	ScriptType event2script(LEvent ev);
 	Symbol getHandler(const Common::String &name);
 
-	void processEvents(Common::Queue<LingoEvent> &queue);
+	void processEvents(Common::Queue<LingoEvent> &queue, bool isInputEvent);
 
 public:
-	void execute();
+	bool execute();
 	void switchStateFromWindow();
 	void freezeState();
 	void pushContext(const Symbol funcSym, bool allowRetVal, Datum defaultRetVal, int paramCount);
@@ -405,7 +429,8 @@ public:
 	Datum getVoid();
 	void pushVoid();
 
-	void printSTUBWithArglist(const char *funcname, int nargs, const char *prefix = "STUB:");
+	void printArgs(const char *funcname, int nargs, const char *prefix = nullptr);
+	inline void printSTUBWithArglist(const char *funcname, int nargs) { printArgs(funcname, nargs, "STUB: "); }
 	void convertVOIDtoString(int arg, int nargs);
 	void dropStack(int nargs);
 	void drop(uint num);
@@ -484,10 +509,11 @@ public:
 	SymbolHash _builtinConsts;
 	SymbolHash _builtinListHandlers;
 	SymbolHash _methods;
-	XLibFuncHash _xlibOpeners;
-	XLibFuncHash _xlibClosers;
+	XLibOpenerFuncHash _xlibOpeners;
+	XLibCloserFuncHash _xlibClosers;
 
 	OpenXLibsHash _openXLibs;
+	OpenXLibsStateHash _openXLibsState;
 
 	Common::String _floatPrecisionFormat;
 
@@ -523,6 +549,7 @@ public:
 	Datum _perFrameHook;
 
 	Datum _windowList;
+	Symbol _currentInputEvent;
 
 public:
 	void executeImmediateScripts(Frame *frame);
@@ -535,6 +562,18 @@ private:
 
 public:
 	Common::String normalizeString(const Common::String &str);
+
+public:
+	void addBreakpoint(Breakpoint &bp);
+	bool delBreakpoint(int id);
+	Breakpoint *getBreakpoint(int id);
+
+	const Common::Array<Breakpoint> &getBreakpoints() const { return _breakpoints; }
+	Common::Array<Breakpoint> &getBreakpoints() { return _breakpoints; }
+
+private:
+	int _bpNextId = 1;
+	Common::Array<Breakpoint> _breakpoints;
 };
 
 extern Lingo *g_lingo;

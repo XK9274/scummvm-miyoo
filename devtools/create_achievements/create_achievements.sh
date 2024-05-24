@@ -17,14 +17,14 @@ usage() {
 
 add_steam() {
     if ! test -f "gen/steam-$1.ini"; then
-        python steam_achievements.py ${VERBOSE:+"-v"} --steamid "$1"
+        ./steam_achievements.py ${VERBOSE:+"-v"} --steamid "$1"
         echo -----------------------------------------
     fi
 }
 
 add_steamlike_gog() {
     if ! test -f "gen/galaxy-$2.ini"; then
-        python steam_achievements.py ${VERBOSE:+"-v"} --steamid "$1" --saveasgalaxyid "$2"
+        ./steam_achievements.py ${VERBOSE:+"-v"} --steamid "$1" --saveasgalaxyid "$2"
         echo -----------------------------------------
     fi
 }
@@ -158,6 +158,7 @@ add_steam 1900280
 add_steamlike_gog 1902850 1123332294
 add_steam 2118540
 add_steam 2217060
+add_steam 2664930
 
 #TWINE games:
 add_steam 397330
@@ -183,6 +184,9 @@ add_steam 1642970
 
 #ASYLUM games:
 add_steam 284050
+
+#TWP games:
+add_steam 569860
 
 #TODO: check for 7zip, since it produces smaller files
 

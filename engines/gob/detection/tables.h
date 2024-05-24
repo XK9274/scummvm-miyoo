@@ -17,6 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This file is dual-licensed.
+ * In addition to the GPLv3 license mentioned above, this code is also
+ * licensed under LGPL 2.1. See LICENSES/COPYING.LGPL file for the
+ * full text of the license.
+ *
  */
 
 #ifndef GOB_DETECTION_TABLES_H
@@ -56,16 +62,19 @@ static const PlainGameDescriptor gobGames[] = {
 	{"playtnck1", "Playtoons Construction Kit 1 - Monsters"},
 	{"playtnck2", "Playtoons Construction Kit 2 - Knights"},
 	{"playtnck3", "Playtoons Construction Kit 3 - Far West"},
+	{"playtoonsdemo", "Playtoons Demo"},
 	{"bambou", "Playtoons Limited Edition - Bambou le sauveur de la jungle"},
 	{"fascination", "Fascination"},
 	{"geisha", "Geisha"},
+	{"pierresmagiques", "Le pays des Pierres Magiques"},
 	{"adi2", "ADI 2"},
 	{"adi4", "ADI 4"},
 	{"adi5", "ADI 5"},
 	{"adibou1", "Adibou 1"},
 	{"adibou2", "Adibou 2"},
 	{"adibou3", "Adibou 3"},
-	{"adiboudessin", "Adibou presente Dessin"},
+	{"adiboucuisine", "Adibou présente Cuisine"},
+	{"adiboudessin", "Adibou présente Dessin"},
 	{"adiboudchoumer", "Adiboud'chou a la mer"},
 	{"adiboudchoubanquise", "Adiboud'chou sur la banquise"},
 	{"adiboudchoucampagne", "Adiboud'chou a la campagne"},
@@ -92,17 +101,18 @@ static const GOBGameDescription gameDescriptions[] = {
 	#include "gob/detection/tables_dynasty.h"   // The Last Dynasty
 	#include "gob/detection/tables_urban.h"     // Urban Runner
 	#include "gob/detection/tables_playtoons.h" // The Playtoons series
+	#include "gob/detection/tables_pierresmagiques.h" // Le pays des Pierres Magiques / The Land of the Magic Stones
 	#include "gob/detection/tables_adi2.h"      // The ADI / Addy 2 series
 	#include "gob/detection/tables_adi4.h"      // The ADI / Addy 4 series
 	#include "gob/detection/tables_adi5.h"      // The ADI / Addy 5 series
 	#include "gob/detection/tables_adibou1.h"   // Adibou 1 / A.J.'s World of Discovery / ADI Jr.
 	#include "gob/detection/tables_adibou2.h"   // The Adibou 2 / Addy Junior series
 	#include "gob/detection/tables_adibou3.h"	// Adibou 3 / Adiboo 3 series
-	#include "gob/detection/tables_adiboupresente.h"	// Adibou presente series
+	#include "gob/detection/tables_adiboupresente.h"	// Adibou présente series
 	#include "gob/detection/tables_adiboudchou.h"		// Adiboud'chou / Addy Buschu series
 	#include "gob/detection/tables_crousti.h"   // Croustibat
 
-	{ AD_TABLE_END_MARKER, kGameTypeNone, kFeaturesNone, 0, 0, 0}
+	{ AD_TABLE_END_MARKER, kFeaturesNone, 0, 0, 0}
 };
 
 // File-based fallback tables

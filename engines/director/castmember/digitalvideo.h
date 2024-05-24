@@ -33,13 +33,16 @@ namespace Director {
 class DigitalVideoCastMember : public CastMember {
 public:
 	DigitalVideoCastMember(Cast *cast, uint16 castId, Common::SeekableReadStreamEndian &stream, uint16 version);
+	DigitalVideoCastMember(Cast *cast, uint16 castId, DigitalVideoCastMember &source);
 	~DigitalVideoCastMember();
 
 	bool isModified() override;
 	Graphics::MacWidget *createWidget(Common::Rect &bbox, Channel *channel, SpriteType spriteType) override;
 
+	bool loadVideoFromCast();
 	bool loadVideo(Common::String path);
-	void startVideo(Channel *channel);
+	void setChannel(Channel *channel) { _channel = channel; }
+	void startVideo();
 	void stopVideo();
 	void rewindVideo();
 
@@ -73,6 +76,7 @@ public:
 	bool _showControls;
 	bool _directToStage;
 	bool _avimovie, _qtmovie;
+	bool _dirty;
 	FrameRateType _frameRateType;
 
 	uint16 _frameRate;

@@ -21,9 +21,11 @@
 
 #ifndef CHAMBER_H
 #define CHAMBER_H
+#define RUNCOMMAND_RESTART 1337
 
 #include "common/random.h"
 #include "common/serializer.h"
+#include "common/rendermode.h"
 #include "engines/engine.h"
 #include "gui/debugger.h"
 
@@ -48,9 +50,11 @@ public:
 	Common::Language getLanguage() const;
 
 	Common::Error run() override;
+	Common::Error init();
+	Common::Error execute();
 	bool hasFeature(EngineFeature f) const override;
-	bool canLoadGameStateCurrently() override { return true; }
-	bool canSaveGameStateCurrently() override { return true; }
+	bool canLoadGameStateCurrently(Common::U32String *msg = nullptr) override { return true; }
+	bool canSaveGameStateCurrently(Common::U32String *msg = nullptr) override { return true; }
 	Common::Error loadGameStream(Common::SeekableReadStream *stream) override;
 	Common::Error saveGameStream(Common::WriteStream *stream, bool isAutosave = false) override;
 	void syncGameStream(Common::Serializer &s);
@@ -62,8 +66,24 @@ public:
 
 public:
 	bool _shouldQuit;
+	bool _shouldRestart;
+	bool _prioritycommand_1;
+	bool _prioritycommand_2;
+
+	Common::RenderMode _videoMode;
 
 	byte *_pxiData;
+
+	uint16 _screenW; ///< Screen Width
+	uint16 _screenH; ///< Screen Height
+	uint8 _screenBits; ///< Bits per pixel
+	uint16 _line_offset; ///< Memory offset of blanks
+	uint16 _line_offset2; ///< Memory offset of blanks
+	uint8 _screenPPB; ///< Pixels per byte
+	uint16 _screenBPL; ///< Bytes per line
+	uint8 _fontHeight; ///< Font height
+	uint8 _fontWidth; ///< Font height
+
 
 	Audio::PCSpeaker *_speakerStream;
 	Audio::SoundHandle *_speakerHandle;

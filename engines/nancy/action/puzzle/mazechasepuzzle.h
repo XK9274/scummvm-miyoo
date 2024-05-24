@@ -55,7 +55,7 @@ protected:
 
 		Common::Point _gridPos;
 		Common::Point _lastPos;
-	
+
 	protected:
 		bool isViewportRelative() const override { return true; }
 	};
@@ -69,8 +69,8 @@ protected:
 	bool canMove(uint pieceID, WallType direction);
 	void reset();
 
-	Common::String _imageName;
-	
+	Common::Path _imageName;
+
 	Common::Point _exitPos = Common::Point(-1, -1);
 
 	Common::Array<Common::Array<uint16>> _grid;

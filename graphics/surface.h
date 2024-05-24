@@ -356,7 +356,7 @@ public:
 	 * @param dstFormat  The desired format.
 	 */
 	inline void convertToInPlace(const PixelFormat &dstFormat) {
-		convertToInPlace(dstFormat, nullptr, 0, 0);
+		convertToInPlace(dstFormat, nullptr, 0);
 	}
 
 	/**
@@ -371,10 +371,9 @@ public:
 	 *
 	 * @param dstFormat  The desired format.
 	 * @param palette    The palette (in RGB888), if the source format has one.
-	 * @param paletteStart	The starting index of the palette.
 	 * @param paletteCount	The number of colors in the palette.
 	 */
-	void convertToInPlace(const PixelFormat &dstFormat, const byte *palette, byte paletteStart, uint16 paletteCount);
+	void convertToInPlace(const PixelFormat &dstFormat, const byte *palette, uint16 paletteCount);
 
 	/**
 	 * Convert the data to another pixel format.
@@ -389,7 +388,7 @@ public:
 	 * @param dstaletteCount The color count in the for the dstPalette.
 	 * @param method      The dithering method if destination format has a bpp of 1. Default is Floyd-Steinberg.
 	 */
-	Graphics::Surface *convertTo(const PixelFormat &dstFormat, const byte *srcPalette = 0, int srcPaletteCount = 0, const byte *dstPalette = 0, int dstPaletteCount = 0, DitherMethod method = kDitherFloyd) const;
+	Graphics::Surface *convertTo(const PixelFormat &dstFormat, const byte *srcPalette = 0, int srcPaletteCount = 256, const byte *dstPalette = 0, int dstPaletteCount = 0, DitherMethod method = kDitherFloyd) const;
 
 protected:
 	void ditherFloyd(const byte *srcPalette, int srcPaletteCount, Surface *dstSurf, const byte *dstPalette, int dstPaletteCount, DitherMethod method, const PixelFormat &dstFormat) const;

@@ -854,7 +854,7 @@ void PredictiveDialog::addWord(Dict &dict, const Common::String &word, const Com
 					Common::strlcpy(ptr, word.c_str(), word.size() + 1);
 				}
 			} else {
-				// if we didnt find line in predictive dialog, we should copy to user dictionary
+				// if we didn't find line in predictive dialog, we should copy to user dictionary
 				// code + word
 				Common::String tmp;
 				tmp = tmpCode + word;
@@ -984,7 +984,7 @@ void PredictiveDialog::loadAllDictionary(Dict &dict) {
 
 	if (dict.nameDict == "predictive_dictionary") {
 		Common::File *inFile = new Common::File();
-		if (!inFile->open(ConfMan.get(dict.nameDict))) {
+		if (!inFile->open(ConfMan.getPath(dict.nameDict))) {
 			warning("Predictive Dialog: cannot read file: %s", dict.defaultFilename.c_str());
 			delete inFile;
 			return;

@@ -52,7 +52,7 @@ IIIIIIIIIIII     mSparkle            --Draws a sparkle from a bitmap
 
 namespace Director {
 
-const char *BlitPictXObj::xlibName = "blitpict";
+const char *BlitPictXObj::xlibName = "BlitPict";
 const char *BlitPictXObj::fileNames[] = {
 	"blitpict",
 	nullptr
@@ -72,34 +72,28 @@ static MethodProto xlibMethods[] = {
 	{ nullptr, nullptr, 0, 0, 0 }
 };
 
-BlitPictXObject::BlitPictXObject(ObjectType ObjectType) :Object<BlitPictXObject>("BlitPictXObj") {
+BlitPictXObject::BlitPictXObject(ObjectType ObjectType) :Object<BlitPictXObject>("BlitPict") {
 	_objType = ObjectType;
 }
 
-void BlitPictXObj::open(int type) {
+void BlitPictXObj::open(ObjectType type, const Common::Path &path) {
 	if (type == kXObj) {
 		BlitPictXObject::initMethods(xlibMethods);
 		BlitPictXObject *xobj = new BlitPictXObject(kXObj);
 		g_lingo->exposeXObject(xlibName, xobj);
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
-void BlitPictXObj::close(int type) {
+void BlitPictXObj::close(ObjectType type) {
 	if (type == kXObj) {
 		BlitPictXObject::cleanupMethods();
 		g_lingo->_globalvars[xlibName] = Datum();
-	} else if (type == kXtraObj) {
-		// TODO - Implement Xtra
 	}
 }
 
 void BlitPictXObj::m_new(int nargs) {
-	if (nargs != 0) {
-		warning("BlitPictXObj::m_new: expected 0 arguments");
-		g_lingo->dropStack(nargs);
-	}
+	g_lingo->printSTUBWithArglist("BlitPictXObj::m_new", nargs);
+	g_lingo->dropStack(nargs);
 	g_lingo->push(g_lingo->_state->me);
 }
 

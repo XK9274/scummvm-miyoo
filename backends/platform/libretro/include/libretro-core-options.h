@@ -73,6 +73,11 @@ extern "C" {
 
 struct retro_core_option_v2_category option_cats_us[] = {
 	{
+		"video",
+		"Video settings",
+		"Configure video settings"
+	},
+	{
 		"cursor",
 		"Cursor Movement",
 		"Configure cursor movement settings"
@@ -400,7 +405,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		{
 			{ NULL, NULL }
 		},
-		"RETROK_ESCAPE"
+		"RETROK_SPACE"
 	},
 	{
 		"scummvm_mapper_b",
@@ -436,7 +441,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		{
 			{ NULL, NULL }
 		},
-		"RETROK_SPACE"
+		"RETROK_ESCAPE"
 	},
 	{
 		"scummvm_mapper_select",
@@ -633,18 +638,19 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		"RETROK_RIGHT"
 	},
 	{
-		"scummvm_auto_performance_tuner",
-		"Auto performance tuner",
+		"scummvm_video_hw_acceleration",
+		"Video > Hardware acceleration",
+		"Hardware acceleration",
+		"Request video hardware acceleration (OpenGL or OpenGLES2) to the frontend if supported. It is needed to reload the core to apply this setting.",
 		NULL,
-		"In-game automatic change of timing/frameskip settings if low performances are detected. Timing/frameskip settings will be changed in sequence, if audio buffer underruns are detected and for the current game session only, and restored in sequence if audio buffers recovers. Single saved settings will not be affected but will be overridden in-game.",
-		NULL,
-		NULL,
+		"video",
 		{
 			{"disabled", NULL},
+#ifdef USE_OPENGL
 			{"enabled", NULL},
-			{NULL, NULL},
-		},
-#if defined(DEFAULT_PERF_TUNER)
+#endif
+			{NULL, NULL},		},
+#ifdef USE_OPENGL
 		"enabled"
 #else
 		"disabled"

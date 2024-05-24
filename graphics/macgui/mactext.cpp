@@ -21,13 +21,8 @@
 
 #include "common/file.h"
 #include "common/timer.h"
-#include "common/compression/unzip.h"
 
 #include "graphics/macgui/mactext.h"
-
-#ifdef USE_PNG
-#include "image/png.h"
-#endif
 
 namespace Graphics {
 
@@ -125,7 +120,11 @@ MacText::MacText(MacWidget *parent, int x, int y, int w, int h, MacWindowManager
 		_defaultFormatting = MacFontRun(_wm);
 		_defaultFormatting.font = wm->_fontMan->getFont(*macFont);
 		byte r, g, b;
-		_wm->_pixelformat.colorToRGB(fgcolor, r, g, b);
+		if (_wm->_pixelformat.bytesPerPixel == 4) {
+			_wm->decomposeColor<uint32>(fgcolor, r, g, b);
+		} else {
+			_wm->decomposeColor<byte>(fgcolor, r, g, b);
+		}
 		_defaultFormatting.setValues(_wm, macFont->getId(), macFont->getSlant(), macFont->getSize(), r, g, b);
 	} else {
 		_defaultFormatting.font = NULL;
@@ -263,13 +262,6 @@ MacText::~MacText() {
 	delete _cursorRect;
 	delete _cursorSurface;
 	delete _cursorSurface2;
-
-#ifdef USE_PNG
-	for (auto &i : _imageCache)
-		delete i._value;
-#endif
-
-	delete _imageArchive;
 }
 
 // this func returns the fg color of the first character we met in text
@@ -751,6 +743,8 @@ void MacText::appendText(const Common::U32String &str, const Font *font, uint16 
 }
 
 void MacText::appendText_(const Common::U32String &strWithFont, uint oldLen) {
+	clearChunkInput();
+
 	_canvas.splitString(strWithFont, -1, _defaultFormatting);
 	recalcDims();
 
@@ -785,6 +779,17 @@ void MacText::appendTextDefault(const Common::U32String &str, bool skipAdd) {
 
 void MacText::appendTextDefault(const Common::String &str, bool skipAdd) {
 	appendTextDefault(Common::U32String(str), skipAdd);
+}
+
+void MacText::clearChunkInput() {
+	int canvasTextSize = _canvas._text.size() - 1;
+
+	if (canvasTextSize >= 0 && _editable) {
+		int lastChunkIdx = _canvas._text[canvasTextSize].chunks.size() - 1;
+
+		if (lastChunkIdx >= 0)
+			_canvas._text[canvasTextSize].chunks[lastChunkIdx].text = "";
+	}
 }
 
 void MacText::clearText() {
@@ -826,8 +831,7 @@ void MacText::draw(ManagedSurface *g, int x, int y, int w, int h, int xoff, int 
 	if (_canvas._textShadow)
 		g->blitFrom(*_canvas._shadowSurface, Common::Rect(MIN<int>(_canvas._surface->w, x), MIN<int>(_canvas._surface->h, y), MIN<int>(_canvas._surface->w, x + w), MIN<int>(_canvas._surface->h, y + h)), Common::Point(xoff + _canvas._textShadow, yoff + _canvas._textShadow));
 
-	uint32 bgcolor = _canvas._tbgcolor < 0xff ? _canvas._tbgcolor : 0;
-	g->transBlitFrom(*_canvas._surface, Common::Rect(MIN<int>(_canvas._surface->w, x), MIN<int>(_canvas._surface->h, y), MIN<int>(_canvas._surface->w, x + w), MIN<int>(_canvas._surface->h, y + h)), Common::Point(xoff, yoff), bgcolor);
+	g->transBlitFrom(*_canvas._surface, Common::Rect(MIN<int>(_canvas._surface->w, x), MIN<int>(_canvas._surface->h, y), MIN<int>(_canvas._surface->w, x + w), MIN<int>(_canvas._surface->h, y + h)), Common::Point(xoff, yoff), _canvas._tbgcolor);
 
 	_contentIsDirty = false;
 	_cursorDirty = false;
@@ -1639,7 +1643,7 @@ void MacText::getRowCol(int x, int y, int *sx, int *sy, int *row, int *col, int 
 	int chunk = -1;
 
 	if (_canvas._text[nrow].chunks.size() > 0) {
-		int alignOffset = _canvas.getAlignOffset(nrow) + _canvas._text[nrow].indent + _canvas._text[nrow].firstLineIndent;;
+		int alignOffset = _canvas.getAlignOffset(nrow) + _canvas._text[nrow].indent + _canvas._text[nrow].firstLineIndent;
 
 		int width = 0, pwidth = 0;
 		int mcol = 0, pmcol = 0;
@@ -1695,7 +1699,7 @@ Common::U32String MacText::getTextChunk(int startRow, int startCol, int endRow, 
 	return _canvas.getTextChunk(startRow, startCol, endRow, endCol, formatted, newlines);
 }
 
-// mostly, we refering reshuffleParagraph to implement this function
+// mostly, we referring reshuffleParagraph to implement this function
 void MacText::insertTextFromClipboard() {
 	int ppos = 0;
 	Common::U32String str = _wm->getTextFromClipboard(Common::U32String(_defaultFormatting.toString()), &ppos);
@@ -1847,6 +1851,13 @@ void MacText::deletePreviousCharInternal(int *row, int *col) {
 		*col = _canvas.getLineCharWidth(*row - 1);
 		(*row)--;
 
+#if DEBUG
+		D(9, "MacText::deletePreviousCharInternal: Chunks: ");
+		for (auto &ch : _canvas._text[*row].chunks)
+			ch.debugPrint();
+
+		D(9, "");
+#endif
 		// formatting matches, glue texts as normal
 		if (_canvas._text[*row].lastChunk().equals(_canvas._text[*row + 1].firstChunk())) {
 			_canvas._text[*row].lastChunk().text += _canvas._text[*row + 1].firstChunk().text;
@@ -1856,7 +1867,7 @@ void MacText::deletePreviousCharInternal(int *row, int *col) {
 			_canvas._text[*row].chunks.push_back(MacFontRun(_canvas._text[*row + 1].firstChunk()));
 			_canvas._text[*row].firstChunk().text.clear();
 		}
-		_canvas._text[*row].paragraphEnd = false;
+		_canvas._text[*row].paragraphEnd = _canvas._text[*row + 1].paragraphEnd;
 
 		for (uint i = 1; i < _canvas._text[*row + 1].chunks.size(); i++)
 			_canvas._text[*row].chunks.push_back(MacFontRun(_canvas._text[*row + 1].chunks[i]));
@@ -1908,6 +1919,15 @@ void MacText::addNewLine(int *row, int *col) {
 	MacTextLine *line = &_canvas._text[*row];
 	int pos = *col;
 	uint ch = line->getChunkNum(&pos);
+
+#if DEBUG
+	D(9, "MacText::addNewLine: Chunks: ");
+	for (auto &c : line->chunks)
+		c.debugPrint();
+
+	D(9, "");
+#endif
+
 	MacFontRun newchunk = line->chunks[ch];
 	MacTextLine newline;
 
@@ -1992,48 +2012,6 @@ void MacText::undrawCursor() {
 
 	Common::Point offset(calculateOffset());
 	_composeSurface->blitFrom(*_cursorSurface2, *_cursorRect, Common::Point(_cursorX + offset.x, _cursorY + offset.y));
-}
-
-void MacText::setImageArchive(Common::String fname) {
-	_imageArchive = Common::makeZipArchive(fname);
-
-	if (!_imageArchive)
-		warning("MacText::setImageArchive(): Could not find %s. Images will not be rendered", fname.c_str());
-}
-
-const Surface *MacText::getImageSurface(Common::String &fname) {
-#ifndef USE_PNG
-	warning("MacText::getImageSurface(): PNG support not compiled. Cannot load file %s", fname.c_str());
-
-	return nullptr;
-#else
-	if (_imageCache.contains(fname))
-		return _imageCache[fname]->getSurface();
-
-	if (!_imageArchive) {
-		warning("MacText::getImageSurface(): Image Archive was not loaded. Use setImageArchive()");
-		return nullptr;
-	}
-
-	Common::SeekableReadStream *stream = _imageArchive->createReadStreamForMember(fname);
-
-	if (!stream) {
-		warning("MacText::getImageSurface(): Cannot open file %s", fname.c_str());
-		return nullptr;
-	}
-
-	_imageCache[fname] = new Image::PNGDecoder();
-
-	if (!_imageCache[fname]->loadStream(*stream)) {
-		delete _imageCache[fname];
-
-		warning("MacText::getImageSurface(): Cannot load file %s", fname.c_str());
-
-		return nullptr;
-	}
-
-	return _imageCache[fname]->getSurface();
-#endif // USE_PNG
 }
 
 } // End of namespace Graphics

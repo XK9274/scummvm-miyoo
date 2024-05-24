@@ -31,7 +31,6 @@
 
 // Theorectically, all graphics should be handled through driver, which is part of kernal, which is in immortal.h
 #include "graphics/screen.h"
-#include "graphics/palette.h"
 #include "graphics/surface.h"
 
 // Detection is only needed by the main engine
@@ -745,10 +744,10 @@ public:
 		    (f == kSupportsReturnToLauncher);
 	};
 
-	bool canLoadGameStateCurrently() override {
+	bool canLoadGameStateCurrently(Common::U32String *msg = nullptr) override {
 		return true;
 	}
-	bool canSaveGameStateCurrently() override {
+	bool canSaveGameStateCurrently(Common::U32String *msg = nullptr) override {
 		return true;
 	}
 

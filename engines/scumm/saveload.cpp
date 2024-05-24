@@ -24,12 +24,13 @@
 #include "common/savefile.h"
 #include "common/serializer.h"
 #include "common/system.h"
+#include "common/translation.h"
 
 #include "scumm/actor.h"
 #include "scumm/charset.h"
-#include "scumm/gfx_mac.h"
 #include "scumm/imuse_digi/dimuse_engine.h"
 #include "scumm/imuse/imuse.h"
+#include "scumm/macgui/macgui.h"
 #include "scumm/players/player_towns.h"
 #include "scumm/he/intern_he.h"
 #include "scumm/object.h"
@@ -68,7 +69,7 @@ struct SaveInfoSection {
 
 #define SaveInfoSectionSize (4+4+4 + 4+4 + 4+2)
 
-#define CURRENT_VER 112
+#define CURRENT_VER 119
 #define INFOSECTION_VERSION 2
 
 #pragma mark -
@@ -78,7 +79,7 @@ Common::Error ScummEngine::loadGameState(int slot) {
 	return Common::kNoError;
 }
 
-bool ScummEngine::canLoadGameStateCurrently() {
+bool ScummEngine::canLoadGameStateCurrently(Common::U32String *msg) {
 	if (!_setupIsComplete)
 		return false;
 
@@ -92,8 +93,12 @@ bool ScummEngine::canLoadGameStateCurrently() {
 	//
 	// Except the earliest HE Games (3DO and initial DOS version of
 	// puttputt), which didn't offer scripted load/save screens.
-	if (_game.heversion >= 62)
+	if (_game.heversion >= 62) {
+		if (msg)
+			*msg = _("This game does not support loading from the menu. Use in-game interface");
+
 		return false;
+	}
 
 	// COMI always disables saving/loading (to tell the truth:
 	// the main menu) via its scripts, thus we need to make an
@@ -141,7 +146,7 @@ Common::Error ScummEngine::saveGameState(int slot, const Common::String &desc, b
 	return Common::kNoError;
 }
 
-bool ScummEngine::canSaveGameStateCurrently() {
+bool ScummEngine::canSaveGameStateCurrently(Common::U32String *msg) {
 	if (!_setupIsComplete)
 		return false;
 
@@ -160,8 +165,12 @@ bool ScummEngine::canSaveGameStateCurrently() {
 	//
 	// Except the earliest HE Games (3DO and initial DOS version of
 	// puttputt), which didn't offer scripted load/save screens.
-	if (_game.heversion >= 62)
+	if (_game.heversion >= 62) {
+		if (msg)
+			*msg = _("This game does not support saving from the menu. Use in-game interface");
+
 		return false;
+	}
 
 #ifdef ENABLE_SCUMM_7_8
 	// COMI always disables saving/loading (to tell the truth:
@@ -201,7 +210,7 @@ bool ScummEngine::canSaveGameStateCurrently() {
 		}
 
 		// Also deny persistence operations while the script opening the save menu is running...
-		isOriginalMenuActive = _currentRoom == saveRoom || vm.slot[_currentScript].number == saveMenuScript;
+		isOriginalMenuActive = _currentRoom == saveRoom || (_currentScript != 0xFF && vm.slot[_currentScript].number == saveMenuScript);
 	}
 
 	// SCUMM v4+ doesn't allow saving in room 0 or if
@@ -573,6 +582,9 @@ bool ScummEngine::saveState(Common::WriteStream *out, bool writeHeader) {
 
 bool ScummEngine::saveState(int slot, bool compat, Common::String &filename) {
 	bool saveFailed = false;
+
+	if (_game.heversion != 0)
+		_sound->stopAllSounds();
 
 	// We can't just use _saveTemporaryState here, because at
 	// this point it might not contain an updated value.
@@ -1521,11 +1533,15 @@ void ScummEngine::saveLoadWithSerializer(Common::Serializer &s) {
 			_cursor.height = 15;
 			_cursor.hotspotX = 7;
 			_cursor.hotspotY = 7;
-		} else if (_game.id == GID_LOOM && _game.platform == Common::kPlatformMacintosh) {
+		} else if (_game.id == GID_LOOM) {
 			_cursor.width = 16;
 			_cursor.height = 16;
-			_cursor.hotspotX = 3;
-			_cursor.hotspotY = 2;
+			if (_game.platform == Common::kPlatformMacintosh) {
+				_cursor.hotspotX = 3;
+				_cursor.hotspotY = 2;
+			} else { // DOS, Amiga, FM-Towns and PCE
+				_cursor.hotspotX = _cursor.hotspotY = 0;
+			}
 		}
 	}
 
@@ -1658,7 +1674,7 @@ void ScummEngine::saveLoadWithSerializer(Common::Serializer &s) {
 			x *= 2;
 			x += (kHercWidth - _screenWidth * 2) / 2;
 			y = y * 7 / 4;
-		} else if (_macScreen || (_useCJKMode && _textSurfaceMultiplier == 2) || _renderMode == Common::kRenderCGA_BW || _enableEGADithering) {
+		} else if (_textSurfaceMultiplier == 2 || _renderMode == Common::kRenderCGA_BW || _enableEGADithering) {
 			x *= 2;
 			y *= 2;
 		}
@@ -2044,6 +2060,9 @@ void ScummEngine::saveLoadWithSerializer(Common::Serializer &s) {
 		_musicEngine->saveLoadWithSerializer(s);
 	}
 
+	// At least from now on, VAR_SOUNDCARD will have a reliable value.
+	if (s.isLoading() && (_game.heversion < 70 && _game.version <= 6))
+		setSoundCardVarToCurrentConfig();
 
 	//
 	// Save/load the charset renderer state
@@ -2216,22 +2235,22 @@ void ScummEngine_v70he::saveLoadWithSerializer(Common::Serializer &s) {
 
 #ifdef ENABLE_HE
 static void syncWithSerializer(Common::Serializer &s, WizPolygon &wp) {
-	s.syncAsSint16LE(wp.vert[0].x, VER(40));
-	s.syncAsSint16LE(wp.vert[0].y, VER(40));
-	s.syncAsSint16LE(wp.vert[1].x, VER(40));
-	s.syncAsSint16LE(wp.vert[1].y, VER(40));
-	s.syncAsSint16LE(wp.vert[2].x, VER(40));
-	s.syncAsSint16LE(wp.vert[2].y, VER(40));
-	s.syncAsSint16LE(wp.vert[3].x, VER(40));
-	s.syncAsSint16LE(wp.vert[3].y, VER(40));
-	s.syncAsSint16LE(wp.vert[4].x, VER(40));
-	s.syncAsSint16LE(wp.vert[4].y, VER(40));
-	s.syncAsSint16LE(wp.bound.left, VER(40));
-	s.syncAsSint16LE(wp.bound.top, VER(40));
-	s.syncAsSint16LE(wp.bound.right, VER(40));
-	s.syncAsSint16LE(wp.bound.bottom, VER(40));
+	s.syncAsSint16LE(wp.points[0].x, VER(40));
+	s.syncAsSint16LE(wp.points[0].y, VER(40));
+	s.syncAsSint16LE(wp.points[1].x, VER(40));
+	s.syncAsSint16LE(wp.points[1].y, VER(40));
+	s.syncAsSint16LE(wp.points[2].x, VER(40));
+	s.syncAsSint16LE(wp.points[2].y, VER(40));
+	s.syncAsSint16LE(wp.points[3].x, VER(40));
+	s.syncAsSint16LE(wp.points[3].y, VER(40));
+	s.syncAsSint16LE(wp.points[4].x, VER(40));
+	s.syncAsSint16LE(wp.points[4].y, VER(40));
+	s.syncAsSint16LE(wp.boundingRect.left, VER(40));
+	s.syncAsSint16LE(wp.boundingRect.top, VER(40));
+	s.syncAsSint16LE(wp.boundingRect.right, VER(40));
+	s.syncAsSint16LE(wp.boundingRect.bottom, VER(40));
 	s.syncAsSint16LE(wp.id, VER(40));
-	s.syncAsSint16LE(wp.numVerts, VER(40));
+	s.syncAsSint16LE(wp.numPoints, VER(40));
 	s.syncAsByte(wp.flag, VER(40));
 }
 
@@ -2241,15 +2260,16 @@ void ScummEngine_v71he::saveLoadWithSerializer(Common::Serializer &s) {
 	s.syncArray(_wiz->_polygons, ARRAYSIZE(_wiz->_polygons), syncWithSerializer);
 }
 
-void syncWithSerializer(Common::Serializer &s, FloodFillParameters &ffp) {
-	s.syncAsSint32LE(ffp.box.left, VER(51));
-	s.syncAsSint32LE(ffp.box.top, VER(51));
-	s.syncAsSint32LE(ffp.box.right, VER(51));
-	s.syncAsSint32LE(ffp.box.bottom, VER(51));
-	s.syncAsSint32LE(ffp.x, VER(51));
-	s.syncAsSint32LE(ffp.y, VER(51));
-	s.syncAsSint32LE(ffp.flags, VER(51));
-	s.skip(4, VER(51), VER(62)); // unk1C
+void syncWithSerializer(Common::Serializer &s, FloodFillCommand &ffc) {
+	s.syncAsSint32LE(ffc.box.left, VER(51));
+	s.syncAsSint32LE(ffc.box.top, VER(51));
+	s.syncAsSint32LE(ffc.box.right, VER(51));
+	s.syncAsSint32LE(ffc.box.bottom, VER(51));
+	s.syncAsSint32LE(ffc.x, VER(51));
+	s.syncAsSint32LE(ffc.y, VER(51));
+	s.syncAsSint32LE(ffc.flags, VER(51));
+	s.skip(4, VER(51), VER(62)); // color
+	s.syncAsSint32LE(ffc.color, VER(119));
 }
 
 void ScummEngine_v90he::saveLoadWithSerializer(Common::Serializer &s) {
@@ -2257,12 +2277,12 @@ void ScummEngine_v90he::saveLoadWithSerializer(Common::Serializer &s) {
 
 	_sprite->saveLoadWithSerializer(s);
 
-	syncWithSerializer(s, _floodFillParams);
+	syncWithSerializer(s, _floodFillCommand);
 
-	s.syncAsSint32LE(_curMaxSpriteId, VER(51));
-	s.syncAsSint32LE(_curSpriteId, VER(51));
+	s.syncAsSint32LE(_maxSpriteNum, VER(51));
+	s.syncAsSint32LE(_minSpriteNum, VER(51));
 	s.syncAsSint32LE(_curSpriteGroupId, VER(51));
-	s.skip(4, VER(51), VER(63)); // _numSpritesToProcess
+	s.skip(4, VER(51), VER(63)); // _activeSpriteCount
 	s.syncAsSint32LE(_heObject, VER(51));
 	s.syncAsSint32LE(_heObjectNum, VER(51));
 	s.syncAsSint32LE(_hePaletteNum, VER(51));

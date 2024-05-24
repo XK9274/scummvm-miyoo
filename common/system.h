@@ -29,6 +29,8 @@
 #include "common/ustr.h"
 #include "common/str-array.h" // For OSystem::updateStartSettings()
 #include "common/hash-str.h" // For OSystem::updateStartSettings()
+#include "common/path.h"
+#include "common/log.h"
 #include "graphics/pixelformat.h"
 #include "graphics/mode.h"
 #include "graphics/opengl/context.h"
@@ -111,21 +113,6 @@ struct TimeDate {
 	int tm_wday;    /**< Days since Sunday (0 - 6). */
 };
 
-namespace LogMessageType {
-/**
- * Enumeration for log message types.
- * @ingroup common_system
- *
- */
-enum Type {
-	kInfo,    /**< Info logs. */
-	kError,   /**< Error logs. */
-	kWarning, /**< Warning logs. */
-	kDebug    /**< Debug logs. */
-};
-
-} // End of namespace LogMessageType
-
 /**
 * Pixel mask modes for cursor graphics.
 */
@@ -146,6 +133,14 @@ enum CursorMaskValue {
 	 *  Backend must support kFeatureCursorMaskPaletteXorColorXnor for this mode. */
 	kCursorMaskPaletteXorColorXnor = 3,
 };
+
+#if defined(USE_IMGUI)
+typedef struct ImGuiCallbacks {
+	void (*init)() = nullptr;
+	void (*render)() = nullptr;
+	void (*cleanup)() = nullptr;
+} ImGuiCallbacks;
+#endif
 
 /**
  * Interface for ScummVM backends.
@@ -821,7 +816,7 @@ public:
 	/**
 	 * Fetch the pixel format currently in use for screen rendering.
 	 *
-	 * This is not neccessarily the native format for the system - if unset
+	 * This is not necessarily the native format for the system - if unset
 	 * it defaults toCLUT8.  To set a different format, engines should set
 	 * their preferred format using ::initGraphics().
 	 *
@@ -906,6 +901,17 @@ public:
 	virtual void *getOpenGLProcAddress(const char *name) const { return nullptr; }
 #endif
 
+#if defined(USE_IMGUI)
+	/**
+	 * Set the init/render/cleanup callbacks for ImGui.
+	 *
+	 * This is only supported on select backends desktop oriented.
+	 *
+	 * @param callbacks Structure containing init/render/cleanup callbacks called on screen initialization, rendering and when deinitialized.
+	 */
+	virtual void setImGuiCallbacks(const ImGuiCallbacks &callbacks) {}
+#endif
+
 	/**
 	 * Load the specified shader.
 	 *
@@ -915,7 +921,7 @@ public:
 	 *
 	 * @return True if the switch was successful, false otherwise.
 	 */
-	virtual bool setShader(const Common::String &fileName) { return false; }
+	virtual bool setShader(const Common::Path &fileName) { return false; }
 
 	/**
 	 * Retrieve a list of all stretch modes supported by this backend.
@@ -1782,7 +1788,7 @@ public:
 	 * Open the default config file for reading by returning a suitable
 	 * ReadStream instance.
 	 *
-	 * It is the caller's responsiblity to delete the stream after use.
+	 * It is the caller's responsibility to delete the stream after use.
 	 */
 	virtual Common::SeekableReadStream *createConfigReadStream();
 
@@ -1790,7 +1796,7 @@ public:
 	 * Open the default config file for writing by returning a suitable
 	 * WriteStream instance.
 	 *
-	 * It is the callers responsiblity to delete the stream after use.
+	 * It is the callers responsibility to delete the stream after use.
 	 *
 	 * May return 0 to indicate that writing to the config file is not possible.
 	 */
@@ -1802,7 +1808,7 @@ public:
 	 *
 	 * Note that not all ports can use this.
 	 */
-	virtual Common::String getDefaultConfigFileName();
+	virtual Common::Path getDefaultConfigFileName();
 
 	/**
 	 * Get the default file name (or even path) where the scummvm.log
@@ -1810,7 +1816,7 @@ public:
 	 *
 	 * Note that not all ports can use this.
 	 */
-	virtual Common::String getDefaultLogFileName() { return Common::String(); }
+	virtual Common::Path getDefaultLogFileName() { return Common::Path(); }
 
 	/**
 	 * Register the default values for the settings the backend uses into the

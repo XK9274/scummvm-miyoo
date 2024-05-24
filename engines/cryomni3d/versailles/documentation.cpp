@@ -97,7 +97,7 @@ void Versailles_Documentation::init(const Sprites *sprites, FontManager *fontMan
 	Common::File allDocsFile;
 
 	if (!allDocsFile.open(_allDocsFilePath)) {
-		error("Can't open %s", _allDocsFilePath.toString().c_str());
+		error("Can't open %s", _allDocsFilePath.toString(Common::Path::kNativeSeparator).c_str());
 	}
 
 	uint allDocsSize = allDocsFile.size();
@@ -326,7 +326,7 @@ Common::String Versailles_Documentation::docAreaHandleSummary() {
 	// No box for 6
 	boxes.setupBox(7, 0, 480 - _sprites->getCursor(225).getHeight(), 640, 480);
 
-	_engine->setupPalette(imageDecoder->getPalette(), imageDecoder->getPaletteStartIndex(),
+	_engine->setupPalette(imageDecoder->getPalette(), 0,
 	                      imageDecoder->getPaletteColorCount());
 
 	_engine->setCursor(181);
@@ -445,7 +445,7 @@ Common::String Versailles_Documentation::docAreaHandleTimeline() {
 	_fontManager->setCharSpacing(1);
 	_fontManager->setSurface(&docSurface);
 
-	_engine->setupPalette(imageDecoder->getPalette(), imageDecoder->getPaletteStartIndex(),
+	_engine->setupPalette(imageDecoder->getPalette(), 0,
 	                      imageDecoder->getPaletteColorCount());
 
 	_fontManager->displayStr(78, 10, (*_messages)[73]);
@@ -957,7 +957,7 @@ Common::String Versailles_Documentation::docAreaHandleGeneralMap() {
 
 	_fontManager->setSurface(&mapSurface);
 
-	_engine->setupPalette(imageDecoder->getPalette(), imageDecoder->getPaletteStartIndex(),
+	_engine->setupPalette(imageDecoder->getPalette(), 0,
 	                      imageDecoder->getPaletteColorCount());
 
 	_engine->setCursor(181);
@@ -1179,7 +1179,7 @@ Common::String Versailles_Documentation::docAreaHandleCastleMap() {
 
 	_fontManager->setSurface(&mapSurface);
 
-	_engine->setupPalette(imageDecoder->getPalette(), imageDecoder->getPaletteStartIndex(),
+	_engine->setupPalette(imageDecoder->getPalette(), 0,
 	                      imageDecoder->getPaletteColorCount());
 
 	_engine->setCursor(181);
@@ -1473,7 +1473,7 @@ void Versailles_Documentation::drawRecordData(Graphics::ManagedSurface &surface,
 	Image::ImageDecoder *imageDecoder = _engine->loadHLZ(backgroundPath);
 	const Graphics::Surface *bgFrame = imageDecoder->getSurface();
 
-	_engine->setupPalette(imageDecoder->getPalette(), imageDecoder->getPaletteStartIndex(),
+	_engine->setupPalette(imageDecoder->getPalette(), 0,
 	                      imageDecoder->getPaletteColorCount());
 
 	surface.create(bgFrame->w, bgFrame->h, bgFrame->format);
@@ -1972,7 +1972,7 @@ Common::String Versailles_Documentation::getRecordTitle(const Common::String &re
 	Common::File allDocsFile;
 
 	if (!allDocsFile.open(_allDocsFilePath)) {
-		error("Can't open %s", _allDocsFilePath.toString().c_str());
+		error("Can't open %s", _allDocsFilePath.toString(Common::Path::kNativeSeparator).c_str());
 	}
 	allDocsFile.seek(recordInfo.position);
 
@@ -2001,7 +2001,7 @@ Common::String Versailles_Documentation::getRecordData(const Common::String &rec
 	Common::File allDocsFile;
 
 	if (!allDocsFile.open(_allDocsFilePath)) {
-		error("Can't open %s", _allDocsFilePath.toString().c_str());
+		error("Can't open %s", _allDocsFilePath.toString(Common::Path::kNativeSeparator).c_str());
 	}
 	allDocsFile.seek(recordInfo.position);
 
@@ -2055,7 +2055,7 @@ void Versailles_Documentation::loadLinksFile() {
 
 	Common::File linksFile;
 	if (!linksFile.open(_linksDocsFilePath)) {
-		error("Can't open links file: %s", _linksDocsFilePath.toString().c_str());
+		error("Can't open links file: %s", _linksDocsFilePath.toString(Common::Path::kNativeSeparator).c_str());
 	}
 
 	_linksSize = linksFile.size();

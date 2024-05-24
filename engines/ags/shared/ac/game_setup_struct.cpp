@@ -26,6 +26,7 @@
 #include "ags/shared/ac/dynobj/script_audio_clip.h"
 #include "ags/shared/game/interactions.h"
 #include "ags/shared/util/aligned_stream.h"
+#include "ags/shared/util/string_utils.h"
 #include "ags/globals.h"
 
 namespace AGS3 {
@@ -36,7 +37,6 @@ GameSetupStruct::GameSetupStruct()
 	: filever(0)
 	, roomCount(0)
 	, scoreClipID(0) {
-	memset(invinfo, 0, sizeof(invinfo));
 	memset(lipSyncFrameLetters, 0, sizeof(lipSyncFrameLetters));
 	memset(guid, 0, sizeof(guid));
 	memset(saveGameFileExtension, 0, sizeof(saveGameFileExtension));
@@ -50,15 +50,24 @@ GameSetupStruct::~GameSetupStruct() {
 void GameSetupStruct::Free() {
 	GameSetupStructBase::Free();
 
+	fonts.clear();
+	mcurs.clear();
+
 	intrChar.clear();
 	charScripts.clear();
+	charProps.clear();
 	numcharacters = 0;
 
 	// TODO: find out if it really needs to begin with 1 here?
-	for (size_t i = 1; i < (size_t)MAX_INV; i++)
+	for (size_t i = 1; i < (size_t)MAX_INV; i++) {
 		intrInv[i].reset();
+		invProps[i].clear();
+	}
 	invScripts.clear();
 	numinvitems = 0;
+
+	viewNames.clear();
+	dialogScriptNames.clear();
 
 	roomNames.clear();
 	roomNumbers.clear();
@@ -67,8 +76,7 @@ void GameSetupStruct::Free() {
 	audioClips.clear();
 	audioClipTypes.clear();
 
-	charProps.clear();
-	viewNames.clear();
+	SpriteInfos.clear();
 }
 
 // Assigns font info parameters using legacy flags value read from the game data
@@ -104,9 +112,9 @@ ScriptAudioClip *GetAudioClipForOldStyleNumber(GameSetupStruct &game, bool is_mu
 
 void GameSetupStruct::read_savegame_info(Shared::Stream *in, GameDataVersion data_ver) {
 	if (data_ver > kGameVersion_272) { // only 3.x
-		in->Read(&guid[0], MAX_GUID_LENGTH);
-		in->Read(&saveGameFileExtension[0], MAX_SG_EXT_LENGTH);
-		in->Read(&saveGameFolderName[0], MAX_SG_FOLDER_LEN);
+		StrUtil::ReadCStrCount(guid, in, MAX_GUID_LENGTH);
+		StrUtil::ReadCStrCount(saveGameFileExtension, in, MAX_SG_EXT_LENGTH);
+		StrUtil::ReadCStrCount(saveGameFolderName, in, MAX_SG_FOLDER_LEN);
 	}
 }
 

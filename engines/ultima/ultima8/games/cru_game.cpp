@@ -20,12 +20,12 @@
  */
 
 #include "common/config-manager.h"
+#include "common/file.h"
 #include "common/translation.h"
 
 #include "ultima/ultima8/misc/common_types.h"
 #include "ultima/ultima8/games/cru_game.h"
 #include "ultima/ultima8/games/start_crusader_process.h"
-#include "ultima/ultima8/filesys/file_system.h"
 #include "ultima/ultima8/graphics/palette_manager.h"
 #include "ultima/ultima8/gumps/movie_gump.h"
 #include "ultima/ultima8/gumps/gump_notify_process.h"
@@ -56,15 +56,14 @@ CruGame::~CruGame() {
 }
 
 static bool loadPalette(const char *path, PaletteManager::PalIndex index) {
-	Common::SeekableReadStream *pf = FileSystem::get_instance()->ReadFile(path);
-	if (!pf) {
+	Common::File pf;
+	if (!pf.open(path)) {
 		warning("Unable to load %s", path);
 		return false;
 	}
 
 	Common::MemoryReadStream xfds(CruXFormPal, 1024);
-	PaletteManager::get_instance()->load(index, *pf, xfds);
-	delete pf;
+	PaletteManager::get_instance()->load(index, pf, xfds);
 
 	return true;
 }
@@ -183,10 +182,11 @@ void CruGame::playDemoScreen() {
 	Process *menuproc = new MainMenuProcess();
 	Kernel::get_instance()->addProcess(menuproc);
 
-	static const Std::string bmp_filename = "static/buyme.dat";
-	Common::SeekableReadStream *bmprs = FileSystem::get_instance()->ReadFile(bmp_filename);
-	if (!bmprs) {
-		warning("RemorseGame::playDemoScreen: error opening demo background: %s", bmp_filename.c_str());
+	static const Common::Path bmp_filename = "static/buyme.dat";
+	auto *bmprs = new Common::File();
+	if (!bmprs->open(bmp_filename)) {
+		warning("RemorseGame::playDemoScreen: error opening demo background: %s", bmp_filename.toString().c_str());
+		delete bmprs;
 		return;
 	}
 	Gump *gump = new CruDemoGump(bmprs);
@@ -200,19 +200,25 @@ void CruGame::playDemoScreen() {
 }
 
 ProcId CruGame::playCreditsNoMenu() {
-	static const Std::string txt_filename = "static/credits.dat";
-	static const Std::string bmp_filename = "static/cred.dat";
-	Common::SeekableReadStream *txtrs = FileSystem::get_instance()->ReadFile(txt_filename);
-	Common::SeekableReadStream *bmprs = FileSystem::get_instance()->ReadFile(bmp_filename);
+	static const Common::Path txt_filename = "static/credits.dat";
+	static const Common::Path bmp_filename = "static/cred.dat";
+	auto *txtrs = new Common::File();
+	auto *bmprs = new Common::File();
 
-	if (!txtrs) {
-		warning("RemorseGame::playCredits: error opening credits text: %s", txt_filename.c_str());
+	if (!txtrs->open(txt_filename)) {
+		warning("RemorseGame::playCredits: error opening credits text: %s", txt_filename.toString().c_str());
+		delete txtrs;
+		delete bmprs;
 		return 0;
 	}
-	if (!bmprs) {
-		warning("RemorseGame::playCredits: error opening credits background: %s", bmp_filename.c_str());
+
+	if (!bmprs->open(bmp_filename)) {
+		warning("RemorseGame::playCredits: error opening credits background: %s", bmp_filename.toString().c_str());
+		delete txtrs;
+		delete bmprs;
 		return 0;
 	}
+
 	Gump *creditsgump = new CruCreditsGump(txtrs, bmprs);
 	creditsgump->InitGump(nullptr);
 	creditsgump->CreateNotifier();

@@ -39,6 +39,7 @@ enum BreakpointType {
 	kBreakpointVariable = 4,
 	kBreakpointEntity = 5,
 	kBreakpointEvent = 6,
+	kBreakpointProperty = 7,
 };
 
 struct Breakpoint {
@@ -58,7 +59,7 @@ struct Breakpoint {
 	bool varRead = false;
 	bool varWrite = false;
 
-	Common::String format();
+	Common::String format() const;
 };
 
 
@@ -74,6 +75,8 @@ public:
 	void pushContextHook();
 	void popContextHook();
 	void builtinHook(const Symbol &funcSym);
+	void propReadHook(const Common::String &varName);
+	void propWriteHook(const Common::String &varName);
 	void varReadHook(const Common::String &varName);
 	void varWriteHook(const Common::String &varName);
 	void entityReadHook(int entity, int field);
@@ -97,6 +100,7 @@ private:
 	bool cmdStack(int argc, const char **argv);
 	bool cmdScriptFrame(int argc, const char **argv);
 	bool cmdFuncs(int argc, const char **argv);
+	bool cmdActions(int argc, const char **argv);
 	bool cmdVar(int argc, const char **argv);
 	bool cmdMarkers(int argc, const char **argv);
 	bool cmdStep(int argc, const char **argv);
@@ -107,6 +111,7 @@ private:
 	bool cmdBpMovie(int argc, const char **argv);
 	bool cmdBpFrame(int argc, const char **argv);
 	bool cmdBpEntity(int argc, const char **argv);
+	bool cmdBpProp(int argc, const char **argv);
 	bool cmdBpVar(int argc, const char **argv);
 	bool cmdBpEvent(int argc, const char **argv);
 	bool cmdBpDel(int argc, const char **argv);
@@ -125,7 +130,7 @@ private:
 
 
 	Common::DumpFile _out;
-	Common::String _outName;
+	Common::Path _outName;
 
 	bool _nextFrame;
 	int _nextFrameCounter;
@@ -139,21 +144,21 @@ private:
 	bool _lingoEval;
 	bool _lingoReplMode;
 
-	Common::Array<Breakpoint> _breakpoints;
-	int _bpNextId;
-	bool _bpCheckFunc;
-	bool _bpCheckMoviePath;
-	bool _bpNextMovieMatch;
+	bool _bpCheckFunc = false;
+	bool _bpCheckMoviePath = false;
+	bool _bpNextMovieMatch = false;
 	Common::String _bpMatchFuncName;
-	uint _bpMatchScriptId;
+	uint _bpMatchScriptId = 0;
 	Common::String _bpMatchMoviePath;
 	Common::HashMap<uint, void *> _bpMatchFuncOffsets;
 	Common::HashMap<uint, void *> _bpMatchFrameOffsets;
-	bool _bpCheckVarRead;
-	bool _bpCheckVarWrite;
-	bool _bpCheckEntityRead;
-	bool _bpCheckEntityWrite;
-	bool _bpCheckEvent;
+	bool _bpCheckPropRead = false;
+	bool _bpCheckPropWrite = false;
+	bool _bpCheckVarRead = false;
+	bool _bpCheckVarWrite = false;
+	bool _bpCheckEntityRead = false;
+	bool _bpCheckEntityWrite = false;
+	bool _bpCheckEvent = false;
 };
 
 

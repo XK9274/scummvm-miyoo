@@ -164,6 +164,20 @@ static const ADGameDescription gameDescriptions[] = {
 		GUIO0()
 	},
 
+	{ // Bundled with ScummVM 0.8
+	  // Reported by YetAnotherGuy via IRC
+		"sword1",
+		"SoldOut rerelease",
+		AD_ENTRY4s("clusters/scripts.clu",  "72b10193714e8c6e4daca51791c0db0c", 1088292,
+				   "clusters/swordres.rif", "5463362dc77b6efc36e46ac84998bd2f", 59788,
+				   "clusters/text.clu",     "76f93f5feecc8915435105478f3c6615", 3193159,
+				   "video/intro.mp2",       "c3e0ab75e8686c746899a9b6cecceac9", 8739102),
+		Common::EN_ANY,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO0()
+	},
+
 	{
 		"sword1",
 		"",
@@ -262,6 +276,19 @@ static const ADGameDescription gameDescriptions[] = {
 				   "clusters/swordres.rif", "5463362dc77b6efc36e46ac84998bd2f", 59788,
 				   "clusters/text.clu",     "76f93f5feecc8915435105478f3c6615", 2705446,
 				   "video/intro.dxa",       "e27cd33593c08b66e8d20fbc40938789", 7397543),
+		Common::DE_DEU,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO0()
+	},
+
+	{ // German version of "Revolution Classic Adventures"
+		"sword1",
+		"",
+		AD_ENTRY4s("clusters/scripts.clu",  "72b10193714e8c6e4daca51791c0db0c", 1087240,
+				   "clusters/swordres.rif", "b0ae5a47aba74dc0acb3442d4c84b225", 58916,
+				   "clusters/text.clu",     "76f93f5feecc8915435105478f3c6615", 2705446,
+				   "smackshi/intro.smk",    "40a2106393c2a749304de0545ddcb7f6", 11542280),
 		Common::DE_DEU,
 		Common::kPlatformWindows,
 		ADGF_NO_FLAGS,
@@ -405,6 +432,45 @@ static const ADGameDescription gameDescriptions[] = {
 				   "clusters/swordres.rif", "04a41fc5783d18a8958d41aa9a3823af", 59788,
 				   "clusters/text.clu",     "b9e7b3e342569be68738e4681f2adeff", 3164267,
 				   "intro.dxa",             nullptr, -1),
+		Common::PL_POL,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO0()
+	},
+
+	{
+		"sword1",
+		"English speech",
+		AD_ENTRY4s("clusters/scripts.clu",  "72b10193714e8c6e4daca51791c0db0c", 1087240,
+				   "clusters/swordres.rif", "7188a3ec8d486fd9179f06968369c011", 58916,
+				   "clusters/text.clu",     "b9e7b3e342569be68738e4681f2adeff", 2675700,
+				   "smackshi/intro.smk",    "d82a7869ace8fcecaa519c04c4bfc483", 13233268),
+		Common::PL_POL,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO0()
+	},
+
+	{
+		"sword1",
+		"English speech",
+		AD_ENTRY4s("clusters/scripts.clu",  "72b10193714e8c6e4daca51791c0db0c", 1087240,
+				   "clusters/swordres.rif", "31ea11161d5d2200b6b44a833b7d5aa8", 58916,
+				   "clusters/text.clu",     "7d9e47533fde5333dc310bfd73eaeb5c", 2666334,
+				   "smackshi/intro.smk",    "d82a7869ace8fcecaa519c04c4bfc483", 13233268),
+		Common::PL_POL,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO0()
+	},
+
+	{
+		"sword1",
+		"English speech",
+		AD_ENTRY4s("clusters/scripts.clu",  "72b10193714e8c6e4daca51791c0db0c", 1088372,
+				   "clusters/swordres.rif", "04a41fc5783d18a8958d41aa9a3823af", 59788,
+				   "clusters/text.clu",     "b9e7b3e342569be68738e4681f2adeff", 3164267,
+				   "smackshi/intro.smk",    "d82a7869ace8fcecaa519c04c4bfc483", 13233268),
 		Common::PL_POL,
 		Common::kPlatformWindows,
 		ADGF_NO_FLAGS,
